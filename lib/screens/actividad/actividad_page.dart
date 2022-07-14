@@ -1,0 +1,547 @@
+import 'dart:convert';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:nuevoproyectouno/models/actividad.dart';
+import 'package:nuevoproyectouno/models/chat.dart';
+import 'package:nuevoproyectouno/models/usuario.dart';
+import 'package:nuevoproyectouno/models/usuario_sesion.dart';
+import 'package:nuevoproyectouno/screens/chat_solicitudes/chat_solicitudes_page.dart';
+import 'package:nuevoproyectouno/screens/principal/principal_page.dart';
+import 'package:nuevoproyectouno/screens/user/user_page.dart';
+import 'package:nuevoproyectouno/services/http_service.dart';
+import 'package:nuevoproyectouno/utilities/constants.dart' as constants;
+import 'package:nuevoproyectouno/utilities/intereses.dart';
+import 'package:nuevoproyectouno/widgets/actividad_boton_entrar.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class ActividadPage extends StatefulWidget {
+  ActividadPage({Key? key, required this.actividad, this.reload = true,
+    this.creadoresPendientes = const [],}) : super(key: key);
+
+  Actividad actividad;
+  final bool reload;
+  final List<Usuario> creadoresPendientes;
+
+  @override
+  State<ActividadPage> createState() => _ActividadPageState();
+}
+
+enum _PopupMenuOption { eliminarActividad }
+
+class _ActividadPageState extends State<ActividadPage> {
+
+  UsuarioSesion? _usuarioSesion = null;
+
+  bool _loadingActividad = false;
+  bool _enviandoEliminarActividad = false;
+  bool _enviandoConfirmarCocreador = false;
+
+  bool _noMostrarActividad = false;
+
+  bool _isCreadorPendiente = false;
+  List<Usuario> _creadoresPendientes = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    _creadoresPendientes = widget.creadoresPendientes;
+
+    if(widget.reload){
+      _cargarActividad();
+    }
+
+    SharedPreferences.getInstance().then((prefs){
+      _usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+      setState(() {});
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Actividad"),
+        actions: (!_loadingActividad && !_noMostrarActividad) ? [
+          IconButton(
+            icon: Icon(CupertinoIcons.arrowshape_turn_up_right),
+            onPressed: (){
+              _compartirActividad();
+            },
+          ),
+          if(widget.actividad.getIsCreador(_usuarioSesion != null ? _usuarioSesion!.id : "" ) && widget.actividad.privacidadTipo == ActividadPrivacidadTipo.PRIVADO)
+            IconButton(
+              onPressed: (){
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => ChatSolicitudesPage(actividad: widget.actividad),
+                ));
+              },
+              icon: const Icon(Icons.group_add_outlined),
+            ),
+          if(widget.actividad.isAutor)
+            PopupMenuButton<_PopupMenuOption>(
+              onSelected: (_PopupMenuOption result) {
+                if(result == _PopupMenuOption.eliminarActividad) {
+                  _showDialogEliminarActividad();
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<_PopupMenuOption>>[
+                const PopupMenuItem<_PopupMenuOption>(
+                  value: _PopupMenuOption.eliminarActividad,
+                  child: Text('Eliminar actividad'),
+                ),
+              ],
+            ),
+        ] : [],
+      ),
+      body: _loadingActividad ? const Center(
+
+        child: CircularProgressIndicator(),
+
+      ) : _noMostrarActividad ? Container() : SingleChildScrollView(
+        child: Column(children: [
+          const SizedBox(height: 16,),
+
+          Row(children: [
+            const SizedBox(width: 16,),
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+              decoration: BoxDecoration(
+                border: Border.all(color: constants.blackGeneral, width: 0.5,),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(children: [
+                Text(Intereses.getNombre(widget.actividad.interes),
+                  style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
+                ),
+                Intereses.getIcon(widget.actividad.interes),
+              ], mainAxisSize: MainAxisSize.min,),
+            ),
+            const Spacer(),
+            RichText(
+              text: TextSpan(
+                style: TextStyle(color: constants.grey, fontSize: 14,),
+                text: widget.actividad.getPrivacidadTipoString(),
+                children: [
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Container(
+                      width: 24,
+                      height: 24,
+                      child: IconButton(
+                        onPressed: (){
+                          _showDialogAyudaTiposActividad();
+                        },
+                        icon: Icon(Icons.help_outline, color: constants.grey, size: 18,),
+                        padding: EdgeInsets.all(0),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Text(" • " + widget.actividad.fecha,
+              style: TextStyle(color: constants.greyLight, fontSize: 14,),
+            ),
+            const SizedBox(width: 16,),
+          ],),
+
+          const SizedBox(height: 16,),
+
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16,),
+            child: Text(widget.actividad.titulo,
+              style: const TextStyle(color: constants.blackGeneral, fontSize: 18,
+                height: 1.3, fontWeight: FontWeight.w500,),
+            ),
+          ),
+          Container(
+            constraints: BoxConstraints(minHeight: 64),
+            alignment: Alignment.centerLeft,
+            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16,),
+            child: Text(widget.actividad.descripcion ?? "",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 16, height: 1.4,),
+            ),
+          ),
+          const SizedBox(height: 8,),
+          Container(
+            alignment: Alignment.centerRight,
+            padding: EdgeInsets.symmetric(horizontal: 16,),
+            child: ActividadBotonEntrar(actividad: widget.actividad),
+          ),
+
+          const SizedBox(height: 16,),
+
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Text("Co-creadores:", style: TextStyle(color: constants.blackGeneral),),
+          ),
+          ListView.builder(
+            itemCount: widget.actividad.creadores.length,
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index) => ListTile(
+              dense: true,
+              title: Text(widget.actividad.creadores[index].nombre,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              subtitle: Text(widget.actividad.creadores[index].username,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              leading: CircleAvatar(
+                backgroundColor: constants.greyBackgroundImage,
+                backgroundImage: NetworkImage(widget.actividad.creadores[index].foto),
+              ),
+              onTap: (){
+                Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => UserPage(usuario: widget.actividad.creadores[index],)),
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(height: 16,),
+
+          if(widget.actividad.isAutor && _creadoresPendientes.length > 0)
+            Column(children: [
+              const Padding(
+                padding: EdgeInsets.only(left: 16, top: 12, right: 16, bottom: 0,),
+                child: Text("Co-creadores pendientes:", style: TextStyle(color: constants.blackGeneral),),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(left: 16, top: 8, right: 16, bottom: 12,),
+                child: Text("Estos usuarios tienen que Confirmar para ser parte de co-creadores. "
+                    "Solo tú puedes ver esta lista.",
+                  style: TextStyle(color: constants.grey, fontSize: 12,),
+                  //textAlign: TextAlign.center,
+                ),
+              ),
+              ListView.builder(
+                itemCount: _creadoresPendientes.length,
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) => ListTile(
+                  dense: true,
+                  title: Text(_creadoresPendientes[index].nombre,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  subtitle: Text(_creadoresPendientes[index].username,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  leading: CircleAvatar(
+                    backgroundColor: constants.greyBackgroundImage,
+                    backgroundImage: NetworkImage(_creadoresPendientes[index].foto),
+                  ),
+                  onTap: (){
+                    Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => UserPage(usuario: _creadoresPendientes[index],)),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 16,),
+            ], crossAxisAlignment: CrossAxisAlignment.start,),
+
+          if(_isCreadorPendiente)
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: constants.grey),
+                color: Colors.white,
+              ),
+              margin: EdgeInsets.symmetric(vertical: 16, horizontal: 16,),
+              padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+              child: Column(children: [
+                const Text("Fuiste agregado como co-creador de la actividad. "
+                    "Tienes que Confirmar para ser parte y tener los permisos de admin.",
+                  style: TextStyle(color: constants.grey, fontSize: 12,),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16,),
+                OutlinedButton(
+                  onPressed: _enviandoConfirmarCocreador ? null : () => _confirmarCocreador(),
+                  child: const Text("Confirmar", style: TextStyle(fontWeight: FontWeight.normal,),),
+                  style: OutlinedButton.styleFrom(
+                    primary: Colors.white,
+                    backgroundColor: constants.blueGeneral,
+                    //onSurface: constants.grey,
+                    side: const BorderSide(color: Colors.transparent, width: 0.5,),
+                    shape: const StadiumBorder(),
+                  ),
+                ),
+              ],),
+            ),
+
+        ], crossAxisAlignment: CrossAxisAlignment.start),
+      ),
+      backgroundColor: Colors.white,
+    );
+  }
+
+  void _compartirActividad(){
+    Share.share("Unete a mi actividad en https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+  }
+
+  void _showDialogEliminarActividad(){
+    showDialog(context: context, builder: (context) {
+      return StatefulBuilder(builder: (context, setStateDialog) {
+        return AlertDialog(
+          title: const Text('¿Eliminar actividad?'),
+          content: const Text('Ya no estará visible públicamente, pero el chat grupal seguirá funcionando con los integrantes actuales.'),
+          actions: [
+            TextButton(
+              child: const Text('Cancelar'),
+              onPressed: _enviandoEliminarActividad ? null : () => Navigator.pop(context),
+            ),
+            TextButton(
+              child: const Text('Eliminar'),
+              style: TextButton.styleFrom(
+                primary: constants.redAviso,
+              ),
+              onPressed: _enviandoEliminarActividad ? null : () => _eliminarActividad(setStateDialog),
+            ),
+          ],
+        );
+      });
+    });
+  }
+
+  void _showDialogAyudaTiposActividad(){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(children: [
+            const Text("Existen 2 tipos de privacidad en las actividades:",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24,),
+
+            Row(children: const [
+              SizedBox(
+                width: 80,
+                child: Text("Público:",
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+              ),
+              SizedBox(width: 12,),
+              Expanded(child: Text("Los usuarios que se unan a la actividad entraran automáticamente al chat grupal.",
+                style: TextStyle(fontSize: 14, color: constants.grey),
+              ),),
+            ], crossAxisAlignment: CrossAxisAlignment.start,),
+            const SizedBox(height: 24,),
+            Row(children: const [
+              SizedBox(
+                width: 80,
+                child: Text("Privado:",
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+              ),
+              SizedBox(width: 8,),
+              Expanded(child: Text("Al unirse, se envía una solicitud y alguno de los co-creadores te tiene que aceptar para ser parte del chat grupal.",
+                style: TextStyle(fontSize: 14, color: constants.grey),
+              ),),
+            ], crossAxisAlignment: CrossAxisAlignment.start,),
+            /*const SizedBox(height: 24,),
+            Row(children: const [
+              SizedBox(
+                width: 80,
+                child: Text("Requisitos:",
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+              ),
+              SizedBox(width: 8,),
+              Expanded(child: Text("Al unirse, hay que contestar un cuestionario. Si las respuestas son correctas, entras automáticamente al chat grupal.",
+                style: TextStyle(fontSize: 14, color: constants.grey),
+              ),),
+            ], crossAxisAlignment: CrossAxisAlignment.start,),*/
+
+          ], mainAxisSize: MainAxisSize.min,),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Entendido"),
+          ),
+        ],
+      );
+    });
+  }
+
+  Future<void> _cargarActividad() async {
+    setState(() {
+      _loadingActividad = true;
+    });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    var response = await HttpService.httpGet(
+      url: constants.urlVerActividad,
+      queryParams: {
+        "actividad_id": widget.actividad.id
+      },
+      usuarioSesion: usuarioSesion,
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = await jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+        var datosActividad = datosJson['data']['actividad'];
+
+        _noMostrarActividad = false;
+
+        _creadoresPendientes = [];
+
+        List<Usuario> creadores = [];
+        datosActividad['creadores'].forEach((usuario) {
+
+          if(usuario['creador_estado'] != null && usuario['creador_estado'] == 'CREADOR_PENDIENTE'){
+            _creadoresPendientes.add(Usuario(
+              id: usuario['id'],
+              nombre: usuario['nombre_completo'],
+              username: usuario['username'],
+              foto: constants.urlBase + usuario['foto_url'],
+            ));
+          } else {
+            creadores.add(Usuario(
+              id: usuario['id'],
+              nombre: usuario['nombre_completo'],
+              username: usuario['username'],
+              foto: constants.urlBase + usuario['foto_url'],
+            ));
+          }
+
+        });
+
+        Actividad actividad = Actividad(
+          id: datosActividad['id'],
+          titulo: datosActividad['titulo'],
+          descripcion: datosActividad['descripcion'],
+          fecha: datosActividad['fecha_texto'],
+          privacidadTipo: Actividad.getActividadPrivacidadTipoFromString(datosActividad['privacidad_tipo']),
+          interes: datosActividad['interes_id'].toString(),
+          creadores: creadores,
+          ingresoEstado: Actividad.getActividadIngresoEstadoFromString(datosActividad['ingreso_estado']),
+          isAutor: datosActividad['autor_usuario_id'] == usuarioSesion.id,
+        );
+
+        if(datosActividad['chat'] != null){
+          Chat chat = Chat(
+            id: datosActividad['chat']['id'].toString(),
+            tipo: ChatTipo.GRUPAL,
+            numMensajesPendientes: null,
+            actividadChat: actividad,
+          );
+          actividad.chat = chat;
+        }
+
+        widget.actividad = actividad;
+
+        _isCreadorPendiente = datosJson['data']['is_creador_pendiente'];
+
+      } else {
+
+        _noMostrarActividad = true;
+
+        if(datosJson['error_tipo'] == 'eliminado'){
+          _showSnackBar("La actividad fue eliminada.");
+        } else if(datosJson['error_tipo'] == 'no_disponible'){
+          _showSnackBar("Actividad no disponible.");
+        } else{
+          _showSnackBar("Se produjo un error inesperado");
+        }
+
+      }
+    }
+
+    setState(() {
+      _loadingActividad = false;
+    });
+  }
+
+  Future<void> _eliminarActividad(setStateDialog) async {
+    setStateDialog(() {
+      _enviandoEliminarActividad = true;
+    });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    var response = await HttpService.httpPost(
+      url: constants.urlEliminarActividad,
+      body: {
+        "actividad_id": widget.actividad.id
+      },
+      usuarioSesion: usuarioSesion,
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+            builder: (context) => const PrincipalPage()
+        ), (route) => false);
+
+      } else {
+        Navigator.pop(context);
+
+        _showSnackBar("Se produjo un error inesperado");
+      }
+    }
+
+    setStateDialog(() {
+      _enviandoEliminarActividad = false;
+    });
+  }
+
+  Future<void> _confirmarCocreador() async {
+    setState(() {
+      _enviandoConfirmarCocreador = true;
+    });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    var response = await HttpService.httpPost(
+      url: constants.urlActividadConfirmarCocreador,
+      body: {
+        "actividad_id": widget.actividad.id
+      },
+      usuarioSesion: usuarioSesion,
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+
+        _cargarActividad();
+
+      } else {
+        _showSnackBar("Se produjo un error inesperado");
+      }
+    }
+
+    setState(() {
+      _enviandoConfirmarCocreador = false;
+    });
+  }
+
+  void _showSnackBar(String texto){
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        behavior: SnackBarBehavior.floating,
+        content: Text(texto, textAlign: TextAlign.center,)
+    ));
+  }
+}
