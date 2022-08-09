@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nuevoproyectouno/models/usuario.dart';
-import 'package:nuevoproyectouno/models/usuario_sesion.dart';
-import 'package:nuevoproyectouno/screens/user/user_page.dart';
+import 'package:tenfo/models/usuario.dart';
+import 'package:tenfo/models/usuario_sesion.dart';
+import 'package:tenfo/screens/user/user_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PerfilPage extends StatefulWidget {

@@ -2,15 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:nuevoproyectouno/models/actividad.dart';
-import 'package:nuevoproyectouno/models/actividad_requisito.dart';
-import 'package:nuevoproyectouno/models/usuario.dart';
-import 'package:nuevoproyectouno/models/usuario_sesion.dart';
-import 'package:nuevoproyectouno/screens/actividad/actividad_page.dart';
-import 'package:nuevoproyectouno/screens/principal/principal_page.dart';
-import 'package:nuevoproyectouno/services/http_service.dart';
-import 'package:nuevoproyectouno/utilities/constants.dart' as constants;
-import 'package:nuevoproyectouno/utilities/intereses.dart';
+import 'package:tenfo/models/actividad.dart';
+import 'package:tenfo/models/actividad_requisito.dart';
+import 'package:tenfo/models/usuario.dart';
+import 'package:tenfo/models/usuario_sesion.dart';
+import 'package:tenfo/screens/actividad/actividad_page.dart';
+import 'package:tenfo/screens/principal/principal_page.dart';
+import 'package:tenfo/services/http_service.dart';
+import 'package:tenfo/utilities/constants.dart' as constants;
+import 'package:tenfo/utilities/intereses.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CrearActividadPage extends StatefulWidget {

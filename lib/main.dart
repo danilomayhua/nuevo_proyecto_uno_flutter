@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:nuevoproyectouno/screens/login/login_page.dart';
-import 'package:nuevoproyectouno/screens/principal/principal_page.dart';
-import 'package:nuevoproyectouno/utilities/constants.dart' as constants;
-import 'package:nuevoproyectouno/utilities/shared_preferences_keys.dart';
+import 'package:tenfo/screens/login/login_page.dart';
+import 'package:tenfo/screens/principal/principal_page.dart';
+import 'package:tenfo/utilities/constants.dart' as constants;
+import 'package:tenfo/utilities/shared_preferences_keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {

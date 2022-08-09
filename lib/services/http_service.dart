@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:nuevoproyectouno/models/usuario_sesion.dart';
-import 'package:nuevoproyectouno/utilities/constants.dart' as constants;
+import 'package:tenfo/models/usuario_sesion.dart';
+import 'package:tenfo/utilities/constants.dart' as constants;
 
 class HttpService {
 

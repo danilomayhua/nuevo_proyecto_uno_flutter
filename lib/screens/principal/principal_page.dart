@@ -2,14 +2,14 @@ import 'dart:convert';
 
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
-import 'package:nuevoproyectouno/models/usuario_sesion.dart';
-import 'package:nuevoproyectouno/screens/crear_actividad/crear_actividad_page.dart';
-import 'package:nuevoproyectouno/screens/principal/views/home_page.dart';
-import 'package:nuevoproyectouno/screens/principal/views/mensajes_page.dart';
-import 'package:nuevoproyectouno/screens/principal/views/mis_actividades_page.dart';
-import 'package:nuevoproyectouno/screens/principal/views/perfil_page.dart';
-import 'package:nuevoproyectouno/services/http_service.dart';
-import 'package:nuevoproyectouno/utilities/constants.dart' as constants;
+import 'package:tenfo/models/usuario_sesion.dart';
+import 'package:tenfo/screens/crear_actividad/crear_actividad_page.dart';
+import 'package:tenfo/screens/principal/views/home_page.dart';
+import 'package:tenfo/screens/principal/views/mensajes_page.dart';
+import 'package:tenfo/screens/principal/views/mis_actividades_page.dart';
+import 'package:tenfo/screens/principal/views/perfil_page.dart';
+import 'package:tenfo/services/http_service.dart';
+import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PrincipalPage extends StatefulWidget {

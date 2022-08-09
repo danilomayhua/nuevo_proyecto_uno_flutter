@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nuevoproyectouno/models/sticker_recibido.dart';
-import 'package:nuevoproyectouno/models/usuario_sesion.dart';
-import 'package:nuevoproyectouno/services/http_service.dart';
-import 'package:nuevoproyectouno/utilities/constants.dart' as constants;
+import 'package:tenfo/models/sticker_recibido.dart';
+import 'package:tenfo/models/usuario_sesion.dart';
+import 'package:tenfo/services/http_service.dart';
+import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RetiroMonedaPage extends StatefulWidget {

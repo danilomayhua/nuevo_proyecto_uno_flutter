@@ -1,5 +1,5 @@
-import 'package:nuevoproyectouno/models/sticker.dart';
-import 'package:nuevoproyectouno/models/usuario.dart';
+import 'package:tenfo/models/sticker.dart';
+import 'package:tenfo/models/usuario.dart';
 
 enum MensajeTipo {NORMAL, GRUPO_INGRESO, GRUPO_SALIDA, GRUPO_ELIMINAR_USUARIO, GRUPO_ENCUENTRO_FECHA, GRUPO_ENCUENTRO_LINK, PROPINA_STICKER}
 

@@ -2,17 +2,17 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nuevoproyectouno/models/actividad.dart';
-import 'package:nuevoproyectouno/models/chat.dart';
-import 'package:nuevoproyectouno/models/usuario.dart';
-import 'package:nuevoproyectouno/models/usuario_sesion.dart';
-import 'package:nuevoproyectouno/screens/chat_solicitudes/chat_solicitudes_page.dart';
-import 'package:nuevoproyectouno/screens/principal/principal_page.dart';
-import 'package:nuevoproyectouno/screens/user/user_page.dart';
-import 'package:nuevoproyectouno/services/http_service.dart';
-import 'package:nuevoproyectouno/utilities/constants.dart' as constants;
-import 'package:nuevoproyectouno/utilities/intereses.dart';
-import 'package:nuevoproyectouno/widgets/actividad_boton_entrar.dart';
+import 'package:tenfo/models/actividad.dart';
+import 'package:tenfo/models/chat.dart';
+import 'package:tenfo/models/usuario.dart';
+import 'package:tenfo/models/usuario_sesion.dart';
+import 'package:tenfo/screens/chat_solicitudes/chat_solicitudes_page.dart';
+import 'package:tenfo/screens/principal/principal_page.dart';
+import 'package:tenfo/screens/user/user_page.dart';
+import 'package:tenfo/services/http_service.dart';
+import 'package:tenfo/utilities/constants.dart' as constants;
+import 'package:tenfo/utilities/intereses.dart';
+import 'package:tenfo/widgets/actividad_boton_entrar.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

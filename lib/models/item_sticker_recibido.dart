@@ -1,4 +1,4 @@
-import 'package:nuevoproyectouno/models/sticker_recibido.dart';
+import 'package:tenfo/models/sticker_recibido.dart';
 
 class ItemStickerRecibido {
   final StickerRecibido stickerRecibido;

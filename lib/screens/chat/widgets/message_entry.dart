@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nuevoproyectouno/utilities/constants.dart' as constants;
+import 'package:tenfo/utilities/constants.dart' as constants;
 
 typedef SendMessageCallback = void Function(String text);
 

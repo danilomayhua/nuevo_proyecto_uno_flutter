@@ -1,6 +1,6 @@
-import 'package:nuevoproyectouno/models/actividad.dart';
-import 'package:nuevoproyectouno/models/chat.dart';
-import 'package:nuevoproyectouno/models/usuario.dart';
+import 'package:tenfo/models/actividad.dart';
+import 'package:tenfo/models/chat.dart';
+import 'package:tenfo/models/usuario.dart';
 
 enum NotificacionTipo {
   INDEFINIDO,

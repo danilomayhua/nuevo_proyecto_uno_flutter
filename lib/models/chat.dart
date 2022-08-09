@@ -1,6 +1,6 @@
-import 'package:nuevoproyectouno/models/actividad.dart';
-import 'package:nuevoproyectouno/models/mensaje.dart';
-import 'package:nuevoproyectouno/models/usuario.dart';
+import 'package:tenfo/models/actividad.dart';
+import 'package:tenfo/models/mensaje.dart';
+import 'package:tenfo/models/usuario.dart';
 
 enum ChatTipo {INDIVIDUAL, GRUPAL}
 

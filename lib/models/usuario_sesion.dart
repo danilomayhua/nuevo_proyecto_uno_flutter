@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:nuevoproyectouno/utilities/constants.dart' as constants;
-import 'package:nuevoproyectouno/utilities/shared_preferences_keys.dart';
+import 'package:tenfo/utilities/constants.dart' as constants;
+import 'package:tenfo/utilities/shared_preferences_keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UsuarioSesion {

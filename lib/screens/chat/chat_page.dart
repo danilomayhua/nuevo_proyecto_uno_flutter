@@ -2,19 +2,19 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:nuevoproyectouno/models/chat.dart';
-import 'package:nuevoproyectouno/models/mensaje.dart';
-import 'package:nuevoproyectouno/models/sticker.dart';
-import 'package:nuevoproyectouno/models/usuario.dart';
-import 'package:nuevoproyectouno/models/usuario_sesion.dart';
-import 'package:nuevoproyectouno/screens/chat/widgets/chat_app_bar.dart';
-import 'package:nuevoproyectouno/screens/chat/widgets/message_bubble.dart';
-import 'package:nuevoproyectouno/screens/chat/widgets/message_entry.dart';
-import 'package:nuevoproyectouno/screens/chat_info/chat_info_page.dart';
-import 'package:nuevoproyectouno/screens/principal/principal_page.dart';
-import 'package:nuevoproyectouno/screens/user/user_page.dart';
-import 'package:nuevoproyectouno/services/http_service.dart';
-import 'package:nuevoproyectouno/utilities/constants.dart' as constants;
+import 'package:tenfo/models/chat.dart';
+import 'package:tenfo/models/mensaje.dart';
+import 'package:tenfo/models/sticker.dart';
+import 'package:tenfo/models/usuario.dart';
+import 'package:tenfo/models/usuario_sesion.dart';
+import 'package:tenfo/screens/chat/widgets/chat_app_bar.dart';
+import 'package:tenfo/screens/chat/widgets/message_bubble.dart';
+import 'package:tenfo/screens/chat/widgets/message_entry.dart';
+import 'package:tenfo/screens/chat_info/chat_info_page.dart';
+import 'package:tenfo/screens/principal/principal_page.dart';
+import 'package:tenfo/screens/user/user_page.dart';
+import 'package:tenfo/services/http_service.dart';
+import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ChatPage extends StatefulWidget {

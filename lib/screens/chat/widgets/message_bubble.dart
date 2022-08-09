@@ -1,8 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:nuevoproyectouno/models/mensaje.dart';
-import 'package:nuevoproyectouno/models/usuario.dart';
-import 'package:nuevoproyectouno/utilities/constants.dart' as constants;
+import 'package:tenfo/models/mensaje.dart';
+import 'package:tenfo/models/usuario.dart';
+import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:url_launcher/url_launcher.dart';
 
 enum _Corner {

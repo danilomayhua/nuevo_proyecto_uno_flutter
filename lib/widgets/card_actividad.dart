@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:nuevoproyectouno/models/actividad.dart';
-import 'package:nuevoproyectouno/screens/actividad/actividad_page.dart';
-import 'package:nuevoproyectouno/utilities/constants.dart' as constants;
-import 'package:nuevoproyectouno/widgets/actividad_boton_entrar.dart';
+import 'package:tenfo/models/actividad.dart';
+import 'package:tenfo/screens/actividad/actividad_page.dart';
+import 'package:tenfo/utilities/constants.dart' as constants;
+import 'package:tenfo/widgets/actividad_boton_entrar.dart';
 
 class CardActividad extends StatefulWidget {
   const CardActividad({Key? key, required this.actividad}) : super(key: key);

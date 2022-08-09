@@ -1,4 +1,4 @@
-import 'package:nuevoproyectouno/models/usuario.dart';
+import 'package:tenfo/models/usuario.dart';
 
 class UsuarioChatSolicitud {
   final Usuario usuario;
