@@ -97,5 +97,9 @@ const String urlBuscador = "/api/buscador/ver-resultados";
 const String urlMisActividades = "/api/actividades-creadas/ver";
 const String urlMisActividadesNoVisibles = "/api/actividades-creadas/no-visibles";
 
+const String urlVerNotificaciones = "/api/notificaciones/ver";
+
+const String urlNumeroPendientesNotificacionesAvisos = "/api/notificaciones/ver-numero-pendientes-y-avisos";
+
 
 

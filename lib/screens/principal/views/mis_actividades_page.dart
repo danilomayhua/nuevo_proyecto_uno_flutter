@@ -1,22 +1,30 @@
 import 'dart:convert';
 
+import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:nuevoproyectouno/models/actividad.dart';
 import 'package:nuevoproyectouno/models/chat.dart';
 import 'package:nuevoproyectouno/models/usuario.dart';
 import 'package:nuevoproyectouno/models/usuario_sesion.dart';
 import 'package:nuevoproyectouno/screens/mis_actividades_antiguas/mis_actividades_antiguas_page.dart';
+import 'package:nuevoproyectouno/screens/notificaciones/notificaciones_page.dart';
 import 'package:nuevoproyectouno/services/http_service.dart';
 import 'package:nuevoproyectouno/utilities/constants.dart' as constants;
 import 'package:nuevoproyectouno/widgets/card_actividad.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MisActividadesPage extends StatefulWidget {
+  const MisActividadesPage({Key? key, required this.showBadgeNotificaciones,
+    required this.setShowBadge}) : super(key: key);
+
+  final bool showBadgeNotificaciones;
+  final void Function(bool) setShowBadge;
+
   @override
-  State<MisActividadesPage> createState() => _MisActividadesPageState();
+  State<MisActividadesPage> createState() => MisActividadesPageState();
 }
 
-class _MisActividadesPageState extends State<MisActividadesPage> {
+class MisActividadesPageState extends State<MisActividadesPage> {
 
   List<Actividad> _actividades = [];
 
@@ -25,9 +33,13 @@ class _MisActividadesPageState extends State<MisActividadesPage> {
   bool _verMasActividades = false;
   String _ultimoActividades = "false";
 
+  bool _showBadgeNotificaciones = false;
+
   @override
   void initState() {
     super.initState();
+
+    _showBadgeNotificaciones = widget.showBadgeNotificaciones;
 
     _cargarMisActividades();
 
@@ -47,11 +59,21 @@ class _MisActividadesPageState extends State<MisActividadesPage> {
         automaticallyImplyLeading: false,
         title: const Text("Mis actividades"),
         actions: [
-          IconButton(
-            icon: Icon(Icons.notifications),
-            onPressed: () {
-              //Navigator.push(context, MaterialPageRoute(builder: (context) => InboxPage()));
-            },
+          Badge(
+            child: IconButton(
+              icon: Icon(Icons.notifications),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => NotificacionesPage()));
+                setState(() {
+                  _showBadgeNotificaciones = false;
+                });
+                widget.setShowBadge(false);
+              },
+            ),
+            showBadge: _showBadgeNotificaciones,
+            badgeColor: constants.blueGeneral,
+            padding: EdgeInsets.all(6),
+            position: BadgePosition.topEnd(top: 12, end: 12,),
           ),
         ],
       ),
@@ -216,6 +238,12 @@ class _MisActividadesPageState extends State<MisActividadesPage> {
 
     setState(() {
       _loadingActividades = false;
+    });
+  }
+
+  void setShowBadgeNotificaciones(bool value){
+    setState(() {
+      _showBadgeNotificaciones = value;
     });
   }
 

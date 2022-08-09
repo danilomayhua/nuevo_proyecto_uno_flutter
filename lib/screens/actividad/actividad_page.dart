@@ -214,7 +214,7 @@ class _ActividadPageState extends State<ActividadPage> {
               ),
               const Padding(
                 padding: EdgeInsets.only(left: 16, top: 8, right: 16, bottom: 12,),
-                child: Text("Estos usuarios tienen que Confirmar para ser parte de co-creadores. "
+                child: Text("Estos usuarios tienen que confirmar para ser parte de co-creadores. "
                     "Solo tú puedes ver esta lista.",
                   style: TextStyle(color: constants.grey, fontSize: 12,),
                   //textAlign: TextAlign.center,
@@ -259,7 +259,7 @@ class _ActividadPageState extends State<ActividadPage> {
               padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
               child: Column(children: [
                 const Text("Fuiste agregado como co-creador de la actividad. "
-                    "Tienes que Confirmar para ser parte y tener los permisos de admin.",
+                    "Tienes que confirmar para ser parte y tener los permisos de admin.",
                   style: TextStyle(color: constants.grey, fontSize: 12,),
                   textAlign: TextAlign.center,
                 ),
