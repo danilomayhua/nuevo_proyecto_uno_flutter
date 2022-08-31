@@ -13,6 +13,7 @@ import 'package:tenfo/screens/chat/widgets/message_entry.dart';
 import 'package:tenfo/screens/chat_info/chat_info_page.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/screens/user/user_page.dart';
+import 'package:tenfo/services/firebase_notificaciones.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,7 +28,7 @@ class ChatPage extends StatefulWidget {
   State<ChatPage> createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
   UsuarioSesion? _usuarioSesion = null;
 
@@ -86,13 +87,46 @@ class _ChatPageState extends State<ChatPage> {
             _updateUnreadPrivateMessages();
           }
       });
+
+    // Si es igual a null, cuando se crea widget.chat se actualiza chatAbiertoAhora
+    if(widget.chat != null) FirebaseNotificaciones().chatAbiertoAhora = widget.chat;
+    WidgetsBinding.instance?.addObserver(this);
   }
 
   @override
   void dispose() {
     _webSocket?.close();
 
+    FirebaseNotificaciones().chatAbiertoAhora = null;
+    WidgetsBinding.instance?.removeObserver(this);
+
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    /*
+    En Android, FirebaseNotificaciones() en background es una
+    diferente instancia, por lo tanto chatAbiertoAhora es igual a null.
+    Tal vez en iOS si es necesario el siguiente switch.
+    */
+
+    // TODO : No cambia AppLifecycleState cuando se abre otro page (push). Esto se podria arreglar con RouteAware.
+    switch (state) {
+      case AppLifecycleState.resumed:
+        if(widget.chat != null) FirebaseNotificaciones().chatAbiertoAhora = widget.chat;
+        break;
+
+      case AppLifecycleState.inactive:
+        break;
+
+      case AppLifecycleState.paused:
+        FirebaseNotificaciones().chatAbiertoAhora = null;
+        break;
+
+      case AppLifecycleState.detached:
+        break;
+    }
   }
 
   @override
@@ -458,6 +492,8 @@ class _ChatPageState extends State<ChatPage> {
             usuarioChat: widget.chatIndividualUsuario
         );
 
+        FirebaseNotificaciones().chatAbiertoAhora = widget.chat;
+
         return true;
 
       } else {
@@ -510,8 +546,8 @@ class _ChatPageState extends State<ChatPage> {
     String usuarioId = "";
 
     if(!_isChatGroup && widget.chat == null){
-        chatId = "false";
-        usuarioId = widget.chatIndividualUsuario!.id;
+      chatId = "false";
+      usuarioId = widget.chatIndividualUsuario!.id;
     } else {
       chatId = widget.chat!.id;
     }
@@ -546,6 +582,8 @@ class _ChatPageState extends State<ChatPage> {
                 numMensajesPendientes: null,
                 usuarioChat: widget.chatIndividualUsuario
             );
+
+            FirebaseNotificaciones().chatAbiertoAhora = widget.chat;
 
           }
 

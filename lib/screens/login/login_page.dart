@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
@@ -78,11 +79,19 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _iniciarSesion() async {
+    String? firebaseToken;
+    try {
+      firebaseToken = await FirebaseMessaging.instance.getToken();
+    } catch(e) {
+      //
+    }
+
     var response = await HttpService.httpPost(
       url: constants.urlLogin,
       body: {
         "username": _usernameController.text.trim(),
         "contrasena": _contrasenaController.text.trim(),
+        "firebase_token": firebaseToken ?? "",
       },
     );
 

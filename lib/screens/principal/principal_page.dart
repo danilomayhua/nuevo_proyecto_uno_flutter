@@ -13,10 +13,19 @@ import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PrincipalPage extends StatefulWidget {
-  const PrincipalPage({Key? key}) : super(key: key);
+  const PrincipalPage({Key? key, this.principalPageView = PrincipalPageView.home}) : super(key: key);
+
+  final PrincipalPageView principalPageView;
 
   @override
   State<PrincipalPage> createState() => _PrincipalPageState();
+}
+
+enum PrincipalPageView {
+  home,
+  misActividades,
+  mensajes,
+  perfil
 }
 
 class _PrincipalPageState extends State<PrincipalPage> {
@@ -28,39 +37,29 @@ class _PrincipalPageState extends State<PrincipalPage> {
   final GlobalKey<MisActividadesPageState> _keyMisActividadesPage = GlobalKey();
   bool _showBadgeNotificaciones = false;
 
-  /*_cargarPantalla() {
-    if(widget.screenSelect == PantallasHome.Temas){
-
-      setState(() {
-        currentScreen = HomePage(key: _keyHome, showBadge: _showBadgeHome, updateBadge: _updateBadge);
-      });
-
-    } else if(widget.screenSelect == PantallasHome.Posts){
-
-      setState(() {
-        currentScreen = PostsPage();
-      });
-
-    } else if(widget.screenSelect == PantallasHome.Notificaciones){
-
-      setState(() {
-        currentScreen = NotificationsPage();
-      });
-
-    } else if(widget.screenSelect == PantallasHome.Perfil){
-
-      //SharedPreferences prefs = await SharedPreferences.getInstance();
-      //String usuarioId = prefs.getString('usuario_id');
-      setState(() {
-        currentScreen = UserPage(usuario_id: usuarioId, is_profile: true);
-      });
-
+  void _cargarPantalla() {
+    switch(widget.principalPageView){
+      case PrincipalPageView.home:
+        _currentIndex = 0;
+        break;
+      case PrincipalPageView.misActividades:
+        _currentIndex = 1;
+        break;
+      case PrincipalPageView.mensajes:
+        _currentIndex = 3;
+        break;
+      case PrincipalPageView.perfil:
+        _currentIndex = 4;
+        break;
     }
-  }*/
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
+
+    _cargarPantalla();
 
     _cargarNumeroPendientesNotificacionesAvisos();
   }

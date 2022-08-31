@@ -11,6 +11,7 @@ import 'package:tenfo/screens/actividad/actividad_page.dart';
 import 'package:tenfo/screens/chat/chat_page.dart';
 import 'package:tenfo/screens/chat_solicitudes/chat_solicitudes_page.dart';
 import 'package:tenfo/screens/user/user_page.dart';
+import 'package:tenfo/services/firebase_notificaciones.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -44,6 +45,8 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
         }
       }
     });
+
+    FirebaseNotificaciones().limpiarLocalNotificationGenerales();
   }
 
   @override

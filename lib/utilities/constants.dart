@@ -36,6 +36,8 @@ const String urlBaseWebSocket = "ws://192.168.0.8:3000/chat";
 
 const String urlLogin = "/api/login";
 
+const String urlGuardarFirebaseToken = "/api/firebase/actualizar-token";
+
 const String urlHomeActividades = "/api/home/actividades";
 const String urlHomeCambiarIntereses = "/api/home/cambiar-intereses";
 

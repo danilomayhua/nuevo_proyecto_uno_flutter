@@ -7,6 +7,7 @@ import 'package:tenfo/models/mensaje.dart';
 import 'package:tenfo/models/usuario.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/chat/chat_page.dart';
+import 'package:tenfo/services/firebase_notificaciones.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,6 +47,8 @@ class _MensajesPageState extends State<MensajesPage> {
         }
       }
     });
+
+    FirebaseNotificaciones().limpiarLocalNotificationChats();
   }
 
   @override
