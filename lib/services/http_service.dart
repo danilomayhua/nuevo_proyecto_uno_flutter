@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 
@@ -19,6 +22,23 @@ class HttpService {
     } else {
       headers = {
         'Content-Type': 'application/json',
+      };
+    }
+
+    return headers;
+  }
+
+  static Map<String, String> _getHeadersMultipart({UsuarioSesion? usuarioSesion}){
+    Map<String, String> headers;
+
+    if(usuarioSesion != null){
+      headers = {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': 'Bearer ${usuarioSesion.authToken}',
+      };
+    } else {
+      headers = {
+        'Content-Type': 'multipart/form-data',
       };
     }
 
@@ -44,6 +64,30 @@ class HttpService {
     );
 
     return response;
+  }
+
+  static Future<http.Response> httpMultipart({required String url, required String field, required File file, UsuarioSesion? usuarioSesion}) async {
+
+    http.MultipartRequest request = http.MultipartRequest('POST', Uri.parse(_urlBase + url));
+
+    request.headers.addAll(_getHeadersMultipart(usuarioSesion: usuarioSesion));
+
+    String? mimeType = lookupMimeType(file.path);
+
+    if(mimeType != null && ['image/jpeg','image/jpg','image/png'].contains(mimeType)){
+      http.MultipartFile multipartFile = await http.MultipartFile.fromPath(
+        field,
+        file.path,
+        contentType: MediaType.parse(mimeType),
+      );
+
+      request.files.add(multipartFile);
+    }
+
+    var response = await request.send();
+    http.Response responseString = await http.Response.fromStream(response);
+
+    return responseString;
   }
 
 }

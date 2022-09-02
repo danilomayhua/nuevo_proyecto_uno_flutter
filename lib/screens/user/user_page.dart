@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:tenfo/models/sticker.dart';
 import 'package:tenfo/models/usuario.dart';
 import 'package:tenfo/models/usuario_perfil.dart';
@@ -50,6 +53,8 @@ class _UserPageState extends State<UserPage> {
   final TextEditingController _instagramController = TextEditingController();
   String? _instagramErrorText;
   bool _enviandoInstagram = false;
+
+  bool _enviandoFotoPerfil = false;
 
   @override
   void initState() {
@@ -165,11 +170,21 @@ class _UserPageState extends State<UserPage> {
         children: <Widget>[
           Container(
             margin: EdgeInsets.only(left: 32, top: 32, right: 32, bottom: 16),
-            child: CircleAvatar(
-              radius: 80,
-              backgroundImage: NetworkImage(_usuarioPerfil.foto),
-              backgroundColor: Colors.transparent,
-            ),
+            child: widget.isFromProfile
+              ? GestureDetector(
+                onTap: _enviandoFotoPerfil ? null : () => _showDialogCambiarFoto(),
+                child: CircleAvatar(
+                  radius: 80,
+                  backgroundImage: NetworkImage(_usuarioPerfil.foto),
+                  backgroundColor: Colors.transparent,
+                  child: _enviandoFotoPerfil ? const CircularProgressIndicator() : null,
+                ),
+              )
+              : CircleAvatar(
+                radius: 80,
+                backgroundImage: NetworkImage(_usuarioPerfil.foto),
+                backgroundColor: Colors.transparent,
+              ),
           ),
           Padding(
               padding: EdgeInsets.all(16),
@@ -564,6 +579,24 @@ class _UserPageState extends State<UserPage> {
           ],
         );
       });
+    });
+  }
+
+  void _showDialogCambiarFoto(){
+    showModalBottomSheet(context: context, builder: (context){
+      return SafeArea(child: Container(
+        color: Colors.white,
+        child: Wrap(children: [
+          ListTile(
+            leading: const Icon(Icons.photo_library),
+            title: const Text('Cambiar foto de perfil'),
+            onTap: () {
+              _galleryPhoto();
+              Navigator.of(context).pop();
+            },
+          ),
+        ],),
+      ),);
     });
   }
 
@@ -1067,6 +1100,96 @@ class _UserPageState extends State<UserPage> {
     });
 
     Navigator.of(context).pop();
+  }
+
+
+  Future<void> _galleryPhoto() async {
+    XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      _enviandoFotoPerfil = true;
+      setState(() {});
+
+      _cropImage(image);
+    }
+  }
+
+  Future<void> _cropImage(XFile image) async {
+
+    int imageLength = await image.length();
+    int limit = 3000000; // 3MB aprox
+
+    File? fileCropped;
+
+    if(imageLength > limit){
+      fileCropped = await ImageCropper().cropImage(
+        sourcePath: image.path,
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1,),
+        cropStyle: CropStyle.circle,
+        compressQuality: 50,
+      );
+    } else {
+      fileCropped = await ImageCropper().cropImage(
+        sourcePath: image.path,
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1,),
+        cropStyle: CropStyle.circle,
+      );
+    }
+
+    if(fileCropped == null){
+      _enviandoFotoPerfil = false;
+      setState(() {});
+      return;
+    }
+
+    int fileCroppedLength = fileCropped.lengthSync();
+    if(fileCroppedLength > limit){
+
+      _showSnackBar("La imagen es muy pesada. Por favor elija otra.");
+      _enviandoFotoPerfil = false;
+      setState(() {});
+
+    } else {
+      _guardarFoto(fileCropped);
+    }
+  }
+
+  Future<void> _guardarFoto(File imageFile) async {
+    setState(() {
+      _enviandoFotoPerfil = true;
+    });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    var response = await HttpService.httpMultipart(
+      url: constants.urlCambiarFotoPerfil,
+      field: 'foto_perfil',
+      file: imageFile,
+      usuarioSesion: usuarioSesion,
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+
+        String fotoUrl = constants.urlBase + datosJson['data']['foto_url_nuevo'];
+
+        _usuarioPerfil.foto = fotoUrl;
+        setState(() {});
+
+        usuarioSesion.foto = fotoUrl;
+        prefs.setString(SharedPreferencesKeys.usuarioSesion, jsonEncode(usuarioSesion));
+
+      } else {
+        _showSnackBar("Se produjo un error inesperado");
+      }
+    }
+
+    setState(() {
+      _enviandoFotoPerfil = false;
+    });
   }
 
   void _showSnackBar(String texto){

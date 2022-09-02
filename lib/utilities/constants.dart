@@ -93,6 +93,7 @@ const String urlMisContactos = "/api/perfil/contactos";
 
 const String urlCambiarDescripcion = "/api/perfil/cambiar-descripcion";
 const String urlCambiarInstagram = "/api/perfil/cambiar-instagram";
+const String urlCambiarFotoPerfil = "/api/perfil/cambiar-foto";
 
 const String urlBuscador = "/api/buscador/ver-resultados";
 
