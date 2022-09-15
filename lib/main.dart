@@ -3,8 +3,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:tenfo/firebase_options.dart';
-import 'package:tenfo/screens/login/login_page.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
+import 'package:tenfo/screens/welcome/welcome_page.dart';
 import 'package:tenfo/services/firebase_notificaciones.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/shared_preferences_keys.dart';
@@ -69,7 +69,7 @@ class MyApp extends StatelessWidget {
       ],
       home: isLoggedIn
           ? const PrincipalPage()
-          : const LoginPage(),
+          : const WelcomePage(),
     );
   }
 }

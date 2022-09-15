@@ -1,0 +1,22 @@
+import 'package:flutter/material.dart';
+import 'package:tenfo/screens/signup/views/signup_email_page.dart';
+
+class SignupPage extends StatefulWidget {
+  const SignupPage({Key? key}) : super(key: key);
+
+  @override
+  State<SignupPage> createState() => _SignupPageState();
+}
+
+class _SignupPageState extends State<SignupPage> {
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SignupEmailPage();
+  }
+}

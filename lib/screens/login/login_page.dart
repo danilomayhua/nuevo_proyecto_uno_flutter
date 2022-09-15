@@ -18,8 +18,13 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
 
+  bool _enviando = false;
+
   final TextEditingController _usernameController = TextEditingController();
+  String? _usernameErrorText;
   final TextEditingController _contrasenaController = TextEditingController();
+  String? _contrasenaErrorText;
+  bool _isContrasenaOculta = true;
 
   @override
   void initState() {
@@ -39,46 +44,91 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(child: Column(
-        children: [
-          TextField(
-            controller: _usernameController,
-            decoration: const InputDecoration(
-              hintText: "Email o username",
-              border: OutlineInputBorder(),
+      appBar: AppBar(
+        elevation: 0,
+      ),
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(children: [
+            const SizedBox(height: 16,),
+            Container(
+              width: 160,
+              child: Image.asset("assets/logo_letras_tenfo.png"),
             ),
-            maxLength: 200,
-            minLines: 1,
-            maxLines: 1,
-            keyboardType: TextInputType.emailAddress,
-          ),
-          TextField(
-            controller: _contrasenaController,
-            decoration: const InputDecoration(
-              hintText: "Contraseña",
-              border: OutlineInputBorder(),
+
+            const SizedBox(height: 48,),
+
+            TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(
+                hintText: "Usuario o email",
+                border: const OutlineInputBorder(),
+                counterText: '',
+                errorText: _usernameErrorText,
+                errorMaxLines: 2,
+              ),
+              maxLength: 100,
             ),
-            maxLength: 200,
-            minLines: 1,
-            maxLines: 1,
-            keyboardType: TextInputType.visiblePassword,
-            obscureText: true,
-          ),
-          Container(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: (){
-                _iniciarSesion();
-              },
-              child: const Text("Iniciar sesión"),
+            const SizedBox(height: 16,),
+            TextField(
+              controller: _contrasenaController,
+              decoration: InputDecoration(
+                hintText: "Contraseña",
+                border: const OutlineInputBorder(),
+                counterText: '',
+                errorText: _contrasenaErrorText,
+                errorMaxLines: 2,
+                suffixIcon: IconButton(
+                  icon: _isContrasenaOculta
+                      ? const Icon(Icons.visibility_off)
+                      : const Icon(Icons.visibility),
+                  onPressed: () {
+                    _isContrasenaOculta = !_isContrasenaOculta;
+                    setState(() {});
+                  },
+                ),
+              ),
+              maxLength: 60,
+              keyboardType: TextInputType.visiblePassword,
+              obscureText: _isContrasenaOculta,
             ),
-          ),
-        ],
-      ),),
+            const SizedBox(height: 24,),
+
+            Container(
+              constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _enviando ? null : () => _iniciarSesion(),
+                child: const Text("Iniciar sesión"),
+                style: ElevatedButton.styleFrom(
+                  shape: const StadiumBorder(),
+                ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+              ),
+            ),
+            const SizedBox(height: 16,),
+
+          ],),
+        ),
+      ),
     );
   }
 
   Future<void> _iniciarSesion() async {
+    _usernameErrorText = null;
+    _contrasenaErrorText = null;
+
+    setState(() {
+      _enviando = true;
+    });
+
+    String username = _usernameController.text.trim();
+    String contrasena = _contrasenaController.text;
+    if(username.isEmpty || contrasena.isEmpty){
+      setState(() {_enviando = false;});
+      return;
+    }
     String? firebaseToken;
     try {
       firebaseToken = await FirebaseMessaging.instance.getToken();
@@ -89,8 +139,8 @@ class _LoginPageState extends State<LoginPage> {
     var response = await HttpService.httpPost(
       url: constants.urlLogin,
       body: {
-        "username": _usernameController.text.trim(),
-        "contrasena": _contrasenaController.text.trim(),
+        "username": username,
+        "contrasena": contrasena,
         "firebase_token": firebaseToken ?? "",
       },
     );
@@ -111,28 +161,27 @@ class _LoginPageState extends State<LoginPage> {
         ), (root) => false);
 
       } else {
-        _showSnackBar("Se produjo un error inesperado");
+
+        if(datosJson['error_tipo'] == 'contrasena'){
+          _contrasenaErrorText = 'Contraseña incorrecta.';
+        } else if(datosJson['error_tipo'] == 'usuario_inexistente'){
+          _usernameErrorText = 'El usuario o email ingresado no existe.';
+        } else if(datosJson['error_tipo'] == 'segundos'){
+          _usernameErrorText = 'Tienes que esperar unos segundos para volver a iniciar sesión.';
+        } else if(datosJson['error_tipo'] == 'ip'){
+          _usernameErrorText = 'Usted ha sido bloqueado temporalmente para ingresar con esta cuenta.';
+        } else if(datosJson['error_tipo'] == 'inactivo'){
+          _usernameErrorText = 'El usuario ingresado está dado de baja.';
+        } else {
+          _showSnackBar("Se produjo un error inesperado");
+        }
+
       }
     }
 
-    /*Map<String, dynamic> responseJson = jsonDecode(
-        '{'
-          '"error": false,'
-          '"data": {'
-            '"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvX2lkIjoiZmJlODcxNmEyYmRkNDhiOTk3NzA0NjY5MWFiOTc0ZjQiLCJ0ZXh0X3JhbmRvbSI6IjFlNjA3NmE4ZmI1MWNmNDA3Y2U2NmRiOWU1OGQwMDI5ZTc2ZjU4Y2I0MjgyZGVkODhmZTBjNGZiMzMxMGZiNzQzNmI4NzQxNWFjNGY1NDhjIiwiaWF0IjoxNjUwOTQ0MjIwfQ.uQYGMJnfeQX4d_a2cQLD7FXc1FeDGs84IFRQah2k_OU",'
-            '"usuario": {'
-              '"id": "fbe8716a2bdd48b9977046691ab974f4",'
-              '"nombre": "Armando",'
-              '"apellido": "Casas",'
-              '"username": "armandocasas",'
-              '"foto_url": "/images/usuario_test/foto5.webp",'
-              '"email": "armandocasas@gmail.com",'
-              '"intereses": [1, 4, 5],'
-              '"is_admin": true'
-            '}'
-          '}'
-        '}'
-    );*/
+    setState(() {
+      _enviando = false;
+    });
   }
 
   void _showSnackBar(String texto){
