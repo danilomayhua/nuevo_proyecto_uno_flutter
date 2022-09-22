@@ -92,7 +92,7 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text("Se enviará un código de confirmación",
-              style: TextStyle(color: constants.grey, /*fontSize: 12,*/),
+              style: TextStyle(color: constants.grey,),
               textAlign: TextAlign.left,
             ),
           ),

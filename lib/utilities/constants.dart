@@ -34,7 +34,8 @@ final usernameColors = [
 const String urlBase = "http://192.168.0.8:3000";
 const String urlBaseWebSocket = "ws://192.168.0.8:3000/chat";
 
-const String urlLogin = "/api/login";
+const String urlLogin = "/api/autenticacion/login";
+const String urlLogout = "/api/autenticacion/logout";
 
 const String urlRegistroEnviarCodigo = "/api/registro/enviar-codigo-email";
 const String urlRegistroVerificarCodigo = "/api/registro/verificar-codigo-email";
@@ -94,10 +95,19 @@ const String urlRetiroStickersCanjeados = "/api/retiro/ver-stickers-canjeados";
 const String urlCrearRetiro = "/api/retiro/crear";
 
 const String urlMisContactos = "/api/perfil/contactos";
+const String urlUsuariosBloqueados = "/api/perfil/usuarios-bloqueados";
 
 const String urlCambiarDescripcion = "/api/perfil/cambiar-descripcion";
 const String urlCambiarInstagram = "/api/perfil/cambiar-instagram";
 const String urlCambiarFotoPerfil = "/api/perfil/cambiar-foto";
+
+const String urlConfiguracionCambiarUsername = "/api/configuracion-cuenta/cambiar-username";
+const String urlConfiguracionCambiarNombre = "/api/configuracion-cuenta/cambiar-nombre";
+const String urlConfiguracionCambiarNacimiento = "/api/configuracion-cuenta/cambiar-nacimiento";
+const String urlConfiguracionCambiarContrasena = "/api/configuracion-cuenta/cambiar-contrasena";
+
+const String urlInvitacionCantidadDisponible = "/api/invitacion/cantidad-disponible";
+const String urlInvitacionHabilitarEmail = "/api/invitacion/habilitar-email";
 
 const String urlBuscador = "/api/buscador/ver-resultados";
 

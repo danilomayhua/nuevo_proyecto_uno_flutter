@@ -14,8 +14,8 @@ import 'package:tenfo/screens/chat/chat_page.dart';
 import 'package:tenfo/screens/comprar_stickers/comprar_stickers_page.dart';
 import 'package:tenfo/screens/contactos/contactos_page.dart';
 import 'package:tenfo/screens/contactos_mutuos/contactos_mutuos_page.dart';
-import 'package:tenfo/screens/login/login_page.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
+import 'package:tenfo/screens/settings/settings_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/shared_preferences_keys.dart';
@@ -69,13 +69,7 @@ class _UserPageState extends State<UserPage> {
 
     if(widget.isFromProfile){
 
-      SharedPreferences.getInstance().then((prefs){
-        _usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
-
-        _usuarioPerfil.descripcion = _usuarioSesion!.descripcion;
-        _usuarioPerfil.instagram = _usuarioSesion!.instagram;
-        setState(() {});
-      });
+      _actualizarUsuarioPerfilSesion();
 
       _cargarUsuario();
 
@@ -102,13 +96,13 @@ class _UserPageState extends State<UserPage> {
               ),
               IconButton(
                 icon: const Icon(Icons.manage_accounts_outlined),
-                onPressed: () {
-                  SharedPreferences.getInstance().then((prefs) {
-                    prefs.clear().then((value) {
-                      if(value)
-                        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => LoginPage()), (route) => false);
-                    });
-                  });
+                onPressed: () async {
+                  await Navigator.push(context, MaterialPageRoute(
+                      builder: (context) => SettingsPage(usuario: _usuarioPerfil)
+                  ));
+
+                  // Actualiza los datos, por si hubo algun cambio
+                  _actualizarUsuarioPerfilSesion();
                 },
               ),
             ],
@@ -145,6 +139,23 @@ class _UserPageState extends State<UserPage> {
         ],
       ),
     );
+  }
+
+  void _actualizarUsuarioPerfilSesion(){
+    SharedPreferences.getInstance().then((prefs){
+      _usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+      _usuarioPerfil = UsuarioPerfil(
+        id: _usuarioSesion!.id,
+        nombre: _usuarioSesion!.nombre_completo,
+        username: _usuarioSesion!.username,
+        foto: _usuarioSesion!.foto,
+      );
+
+      _usuarioPerfil.descripcion = _usuarioSesion!.descripcion;
+      _usuarioPerfil.instagram = _usuarioSesion!.instagram;
+      setState(() {});
+    });
   }
 
   bool _isUsuarioSesion(){
@@ -1035,7 +1046,7 @@ class _UserPageState extends State<UserPage> {
         _usuarioPerfil.descripcion = descripcion;
         setState(() {});
 
-        usuarioSesion.descripcion = descripcion;
+        usuarioSesion.descripcion = descripcion == "" ? null : descripcion;
         prefs.setString(SharedPreferencesKeys.usuarioSesion, jsonEncode(usuarioSesion));
 
       } else {
@@ -1087,7 +1098,7 @@ class _UserPageState extends State<UserPage> {
         _usuarioPerfil.instagram = instagram;
         setState(() {});
 
-        usuarioSesion.instagram = instagram;
+        usuarioSesion.instagram = instagram == "" ? null : instagram;
         prefs.setString(SharedPreferencesKeys.usuarioSesion, jsonEncode(usuarioSesion));
 
       } else {
