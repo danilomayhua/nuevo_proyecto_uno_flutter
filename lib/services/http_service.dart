@@ -90,4 +90,14 @@ class HttpService {
     return responseString;
   }
 
+  static Future<http.Response> httpGetExterno({required String url, required Map<String, String> queryParams}) async {
+
+    http.Response response = await http.get(
+      Uri.parse(url).replace(queryParameters: queryParams,),
+      headers: _getHeaders(),
+    );
+
+    return response;
+  }
+
 }

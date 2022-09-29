@@ -516,11 +516,13 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
       fontSize: 12,
     ),
     recognizer: TapGestureRecognizer()..onTap = () async {
-      var realLink = link.startsWith('http') ? link : 'http://$link';
+      var realLink = link.startsWith('http') ? link : 'https://$link';
 
-      if (await canLaunch(realLink)){
-        await launch(realLink);
-      } else {
+      Uri url = Uri.parse(realLink);
+
+      try {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } catch(e){
         throw 'Could not launch $realLink';
       }
     },

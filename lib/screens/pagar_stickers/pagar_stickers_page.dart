@@ -134,13 +134,11 @@ class _PagarStickersPageState extends State<PagarStickersPage> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: ElevatedButton.icon(
             onPressed: () async {
-              // TODO : configurar iOS y Android como indica la documentacion de url_launcher
-              // TODO : verificar si es necesario usar LaunchMode.externalApplication en launchUrl
               Uri url = Uri.parse("lightning:$_lightningNetworkInvoice");
 
-              if (await canLaunchUrl(url)){
-                await launchUrl(url);
-              } else {
+              try {
+                await launchUrl(url, mode: LaunchMode.externalApplication,);
+              } catch(e){
                 _showSnackBar("No se encontró una billetera compatible.");
               }
             },

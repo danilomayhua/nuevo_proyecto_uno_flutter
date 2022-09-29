@@ -31,8 +31,8 @@ class _ComprarStickersPageState extends State<ComprarStickersPage> {
   void initState() {
     super.initState();
 
-    // TODO : obtener cotizacion desde un servicio (guardar la url en constants)
-    _cotizacionActualSatoshi = (30000 * 200) / 100000000;
+    _obtenerCotizacionBitcoinARS();
+
     _cargarStickersVenta();
   }
 
@@ -197,6 +197,32 @@ class _ComprarStickersPageState extends State<ComprarStickersPage> {
         ),
       ], mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.stretch,),
     );
+  }
+
+  Future<void> _obtenerCotizacionBitcoinARS() async {
+    setState(() {
+      //_loading = true;
+    });
+
+    var response = await HttpService.httpGetExterno(
+      url: constants.urlExternoCotizacionBTC,
+      queryParams: {},
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = await jsonDecode(response.body);
+
+      if(datosJson['totalAsk'] != null){
+
+        num cotizacionBtc = datosJson['totalAsk']; // totalAsk puede ser int o double
+        _cotizacionActualSatoshi = cotizacionBtc / 100000000;
+
+      }
+    }
+
+    setState(() {
+      //_loading = false;
+    });
   }
 
   Future<void> _cargarStickersVenta() async {

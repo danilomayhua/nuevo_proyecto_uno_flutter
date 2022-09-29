@@ -9,19 +9,19 @@ import 'package:tenfo/screens/chat/chat_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tenfo/utilities/shared_preferences_keys.dart';
 
 class ActividadBotonEntrar extends StatefulWidget {
-  const ActividadBotonEntrar({Key? key, required this.actividad}) : super(key: key);
+  const ActividadBotonEntrar({Key? key, required this.actividad, this.onChangeIngreso}) : super(key: key);
 
   final Actividad actividad;
+  final void Function()? onChangeIngreso;
 
   @override
   _ActividadBotonEntrarState createState() => _ActividadBotonEntrarState();
 }
 
 class _ActividadBotonEntrarState extends State<ActividadBotonEntrar> {
-  // TODO : inicializar a nivel de sesion
-  bool _mostrarAvisoLimite = false; //Capaz no es necesario esta variable
 
   bool _errorRequisitos = false;
 
@@ -77,15 +77,9 @@ class _ActividadBotonEntrarState extends State<ActividadBotonEntrar> {
       return OutlinedButton.icon(
         onPressed: _enviando ? null : (){
           if(widget.actividad.ingresoEstado == ActividadIngresoEstado.EXPULSADO){
-
             _showDialogExpulsado();
-
           } else {
-            if(_mostrarAvisoLimite){ // Verificar esto a nivel de sesion
-              _showDialogAvisoLimite();
-            } else {
-              _unirseActividad();
-            }
+            _unirseActividad();
           }
         },
         icon: const Icon(Icons.north_east, size: 16,),
@@ -149,8 +143,7 @@ class _ActividadBotonEntrarState extends State<ActividadBotonEntrar> {
     });
   }
 
-  void _showDialogAvisoLimite(){
-    _mostrarAvisoLimite = false; //Cambiar esto a nivel de sesion
+  Future<void> _showDialogAvisoLimite() async {
     showDialog(context: context, builder: (context){
       return AlertDialog(
         content: SingleChildScrollView( // Es necesario SingleChildScrollView si content es Column
@@ -173,6 +166,9 @@ class _ActividadBotonEntrarState extends State<ActividadBotonEntrar> {
         ],
       );
     });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool(SharedPreferencesKeys.isShowedAyudaActividadIngreso, true);
   }
 
   void _showDialogLimiteAlcanzado(){
@@ -319,6 +315,12 @@ class _ActividadBotonEntrarState extends State<ActividadBotonEntrar> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
 
+    bool isShowed = prefs.getBool(SharedPreferencesKeys.isShowedAyudaActividadIngreso) ?? false;
+    if(!isShowed){
+      _showDialogAvisoLimite();
+    }
+
+
     var response = await HttpService.httpPost(
       url: constants.urlActividadUnirse,
       body: {
@@ -360,6 +362,9 @@ class _ActividadBotonEntrarState extends State<ActividadBotonEntrar> {
           }
 
         }
+
+        // Actualiza el estado de card_actividad que abrio actividad_page
+        if(widget.onChangeIngreso != null) widget.onChangeIngreso!();
 
       } else {
 
@@ -403,6 +408,10 @@ class _ActividadBotonEntrarState extends State<ActividadBotonEntrar> {
       if(datosJson['error'] == false){
         widget.actividad.ingresoEstado = ActividadIngresoEstado.NO_INTEGRANTE;
         setState(() {});
+
+        // Actualiza el estado de card_actividad que abrio actividad_page
+        if(widget.onChangeIngreso != null) widget.onChangeIngreso!();
+
       } else {
         _showSnackBar("Se produjo un error inesperado");
       }

@@ -58,7 +58,15 @@ class _MensajesPageState extends State<MensajesPage> {
         automaticallyImplyLeading: false,
         title: Text("Mensajes"),
       ),
-      body: RefreshIndicator(
+      body: (_chats.isEmpty) ? Center(
+        child: _loadingChats ? const CircularProgressIndicator() : const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: Text("Aquí aparecerán los chats de las actividades donde te unas.",
+            style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ) : RefreshIndicator(
         backgroundColor: Colors.white,
         onRefresh: (){
           _chats = [];
@@ -111,7 +119,9 @@ class _MensajesPageState extends State<MensajesPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text(chat.ultimoMensaje!.fecha, style: TextStyle(color: constants.grey, fontSize: 12,),),
+          Text(chat.ultimoMensaje == null ? "" : chat.ultimoMensaje!.fecha,
+            style: TextStyle(color: constants.grey, fontSize: 12,),
+          ),
           const SizedBox(height: 4),
           Opacity(
             opacity: chat.numMensajesPendientes == 0 ? 0 : 1,
@@ -126,19 +136,26 @@ class _MensajesPageState extends State<MensajesPage> {
           ),
         ],
       ),
-      onTap: () {
-        Navigator.push(context,
+      onTap: () async {
+        await Navigator.push(context,
           MaterialPageRoute(
             builder: (context) => ChatPage(chat: chat),
           ),
         );
+
+        // TODO : actualizar ultimoMensaje solamente si se envio/recibio un mensaje en ChatPage
+        chat.ultimoMensaje = null;
+        chat.numMensajesPendientes = 0;
+        setState(() {});
       },
     );
   }
 
   Widget _buildSubtitleChat(Chat chat){
     String msg = "";
-    if(chat.ultimoMensaje!.tipo == MensajeTipo.NORMAL){
+    if(chat.ultimoMensaje == null){
+      msg = "";
+    } else if(chat.ultimoMensaje!.tipo == MensajeTipo.NORMAL){
       msg = chat.ultimoMensaje!.contenido ?? ""; // Los MensajeTipo que no reconoce son devueltos como NORMAL (entonces puede no existir contenido)
     } else if(chat.ultimoMensaje!.tipo == MensajeTipo.GRUPO_INGRESO){
       msg = "Ingresó al chat.";

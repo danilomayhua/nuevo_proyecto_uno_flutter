@@ -62,6 +62,14 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^1.0.0
 
+  flutter_launcher_icons: ^0.10.0
+
+flutter_icons:
+  image_path: "assets/logo_tenfo.png"
+  image_path_ios: "assets/logo_tenfo_fondo_blanco.png"
+  android: true
+  ios: true
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -75,7 +83,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/logo_tenfo.png
+    - assets/logo_tenfo_circular.png
     - assets/logo_letras_tenfo.png
     - assets/sticker_propina.gif
     - assets/sticker_propina_stop.gif

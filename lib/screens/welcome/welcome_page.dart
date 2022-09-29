@@ -27,7 +27,7 @@ class _WelcomePageState extends State<WelcomePage> {
               Container(
                 height: 200,
                 width: 200,
-                child: Image.asset("assets/logo_tenfo.png"),
+                child: Image.asset("assets/logo_tenfo_circular.png"),
               ),
               const SizedBox(height: 8),
               Container(

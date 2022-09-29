@@ -379,7 +379,11 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
     }
 
     if(_selectedInteresId == null){
-      _showSnackBar("Selecciona a qué interés pertenece");
+      if(_intereses.isEmpty){
+        _showSnackBar("Primero debes seleccionar tus intereses en Inicio");
+      } else {
+        _showSnackBar("Selecciona a qué interés pertenece");
+      }
       return;
     }
 

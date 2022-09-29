@@ -248,16 +248,11 @@ class _UserPageState extends State<UserPage> {
                           String urlString = "https://www.instagram.com/${_usuarioPerfil.instagram}";
                           Uri url = Uri.parse(urlString);
 
-                          if (await canLaunchUrl(url)){
-                            await launchUrl(url, mode: LaunchMode.externalApplication);
-                          } else {
+                          try {
+                            await launchUrl(url, mode: LaunchMode.externalApplication,);
+                          } catch (e){
                             throw 'Could not launch $urlString';
                           }
-                          /*if (await canLaunch(urlString)){
-                            await launch(urlString);
-                          } else {
-                            throw 'Could not launch $urlString';
-                          }*/
                         },
                         child: Row(children: [
                           Container(

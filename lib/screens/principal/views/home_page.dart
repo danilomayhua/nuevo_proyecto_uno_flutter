@@ -87,7 +87,7 @@ class _HomePageState extends State<HomePage> {
                 hasScrollBody: false,
                 child: Container(
                   alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: const Text("No hay actividades relacionadas con tus intereses disponibles.",
                     style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
                     textAlign: TextAlign.center,
@@ -103,7 +103,7 @@ class _HomePageState extends State<HomePage> {
                   }
 
                   return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
                     child: CardActividad(actividad: _actividades[index]),
                   );
                 }, childCount: _actividades.length + 1)),
@@ -198,73 +198,6 @@ class _HomePageState extends State<HomePage> {
           _actividades.add(actividad);
         }
 
-        /*for(var i = 0; i < 15; i++){
-          String titulo = "Practiquemos ingles $i";
-          String interes = "2";
-          String fecha = "hace 3 min";
-
-          String descripcion = "";
-
-          ActividadPrivacidadTipo privacidadTipo = ActividadPrivacidadTipo.PUBLICO;
-          ActividadIngresoEstado ingresoEstado = ActividadIngresoEstado.NO_INTEGRANTE;
-
-          List<Usuario> creadores = [
-            Usuario(id: "23", nombre: "Armando Casas", username: "armandocasas", foto: "https://cdn.pixabay.com/photo/2018/07/12/12/28/dog-3533300_960_720.jpg")
-          ];
-          bool isAutor = false;
-
-          List<ActividadRequisito> requisitosPreguntas = [];
-          bool requisitosEnviado = false;
-
-          if(i == 1){
-
-            privacidadTipo = ActividadPrivacidadTipo.REQUISITOS;
-            ingresoEstado = ActividadIngresoEstado.INTEGRANTE;
-            isAutor = true;
-
-            requisitosPreguntas = [
-              ActividadRequisito(pregunta: "¿Cursas en UADE?"),
-              ActividadRequisito(pregunta: "¿Podrias juntarte zona norte?"),
-              ActividadRequisito(pregunta: "¿Sos programador avanzado?"),
-            ];
-
-          } else if(i == 4){
-            privacidadTipo = ActividadPrivacidadTipo.REQUISITOS;
-
-            requisitosPreguntas = [
-              ActividadRequisito(pregunta: "¿Cursas en UADE?"),
-              ActividadRequisito(pregunta: "¿Podrias juntarte zona norte?"),
-              ActividadRequisito(pregunta: "¿Sos programador avanzado?"),
-            ];
-
-          } else if(i == 8){
-
-            privacidadTipo = ActividadPrivacidadTipo.REQUISITOS;
-
-            requisitosPreguntas = [
-              ActividadRequisito(pregunta: "¿Cursas en UADE?"),
-              ActividadRequisito(pregunta: "¿Podrias juntarte zona norte?"),
-              ActividadRequisito(pregunta: "¿Sos programador avanzado?"),
-            ];
-            requisitosEnviado = true;
-
-          }
-
-          _actividades.add(Actividad(
-            id: (i + 1).toString(),
-            titulo: titulo,
-            descripcion: descripcion,
-            fecha: fecha,
-            privacidadTipo: privacidadTipo,
-            interes: interes,
-            creadores: creadores,
-            ingresoEstado: ingresoEstado,
-            isAutor: isAutor,
-            requisitosPreguntas: requisitosPreguntas,
-            requisitosEnviado: requisitosEnviado,
-          ));
-        }*/
-
       } else {
 
         if(datosJson['error_tipo'] == 'intereses_vacio'){
@@ -308,7 +241,7 @@ class _HomePageState extends State<HomePage> {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       decoration: BoxDecoration(
-        border: Border.all(color: constants.blackGeneral),
+        border: Border.all(color: constants.blackGeneral, width: 0.5,),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(children: [

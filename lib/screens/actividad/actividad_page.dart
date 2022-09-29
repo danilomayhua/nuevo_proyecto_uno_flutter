@@ -18,11 +18,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ActividadPage extends StatefulWidget {
   ActividadPage({Key? key, required this.actividad, this.reload = true,
-    this.creadoresPendientes = const [],}) : super(key: key);
+    this.creadoresPendientes = const [], this.onChangeIngreso}) : super(key: key);
 
   Actividad actividad;
   final bool reload;
   final List<Usuario> creadoresPendientes;
+  final void Function(Actividad)? onChangeIngreso;
 
   @override
   State<ActividadPage> createState() => _ActividadPageState();
@@ -65,12 +66,12 @@ class _ActividadPageState extends State<ActividadPage> {
       appBar: AppBar(
         title: Text("Actividad"),
         actions: (!_loadingActividad && !_noMostrarActividad) ? [
-          IconButton(
+          /*IconButton(
             icon: Icon(CupertinoIcons.arrowshape_turn_up_right),
             onPressed: (){
               _compartirActividad();
             },
-          ),
+          ),*/
           if(widget.actividad.getIsCreador(_usuarioSesion != null ? _usuarioSesion!.id : "" ) && widget.actividad.privacidadTipo == ActividadPrivacidadTipo.PRIVADO)
             IconButton(
               onPressed: (){
@@ -169,7 +170,12 @@ class _ActividadPageState extends State<ActividadPage> {
           Container(
             alignment: Alignment.centerRight,
             padding: EdgeInsets.symmetric(horizontal: 16,),
-            child: ActividadBotonEntrar(actividad: widget.actividad),
+            child: ActividadBotonEntrar(
+              actividad: widget.actividad,
+              onChangeIngreso: (){
+                if(widget.onChangeIngreso != null) widget.onChangeIngreso!(widget.actividad);
+              },
+            ),
           ),
 
           const SizedBox(height: 16,),
@@ -285,7 +291,7 @@ class _ActividadPageState extends State<ActividadPage> {
   }
 
   void _compartirActividad(){
-    Share.share("Unete a mi actividad en https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+    Share.share("Unete a mi actividad en _url");
   }
 
   void _showDialogEliminarActividad(){
@@ -446,6 +452,8 @@ class _ActividadPageState extends State<ActividadPage> {
         widget.actividad = actividad;
 
         _isCreadorPendiente = datosJson['data']['is_creador_pendiente'];
+
+        if(widget.onChangeIngreso != null) widget.onChangeIngreso!(widget.actividad);
 
       } else {
 

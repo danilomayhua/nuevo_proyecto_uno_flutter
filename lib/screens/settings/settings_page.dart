@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/models/usuario.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
+import 'package:tenfo/screens/canjear_stickers/canjear_stickers_page.dart';
 import 'package:tenfo/screens/settings/views/settings_contrasena_page.dart';
 import 'package:tenfo/screens/settings/views/settings_descripcion_page.dart';
 import 'package:tenfo/screens/settings/views/settings_email_page.dart';
@@ -60,6 +61,12 @@ class _SettingsPageState extends State<SettingsPage> {
           _buildFila(titulo: "Invitaciones", onTap: () async {
             Navigator.push(context, MaterialPageRoute(
                 builder: (context) => const SettingsInvitacionesPage()
+            ));
+          }, color: constants.blueGeneral,),
+
+          _buildFila(titulo: "Canjear stickers", onTap: () async {
+            Navigator.push(context, MaterialPageRoute(
+                builder: (context) => const CanjearStickersPage()
             ));
           }, color: constants.blueGeneral,),
 

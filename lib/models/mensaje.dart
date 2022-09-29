@@ -14,7 +14,6 @@ class Mensaje {
   final String id;
   final MensajeTipo tipo;
   final String fecha;
-  /// Message date in MySQL format
   final String fechaCompleto;
   final String? contenido;
   final Usuario autorUsuario;
@@ -57,23 +56,4 @@ class Mensaje {
     return "El $dia/$mes a las $hora:$minuto hs";
   }
 
-  /*static Mensaje fromMap(Map<String, dynamic> map) {
-    return Mensaje(
-      authorAvatar: map['foto_autor'],
-      authorUserId: map['id_usuario_autor'],
-      authorUserName: map['username_autor'],
-      completeDate: map['fecha_completa'],
-      content: map['contenido'],
-      date: map['fecha'],
-      id: map['id_mensaje'],
-      incoming: map['entrante'],
-      postAuthorAvatar: map['respuesta_foto_autor'],
-      postAuthorId: map['respuesta_id_autor'],
-      postAuthorName: map['respuesta_nombre_autor'],
-      postContent: map['respuesta_contenido'],
-      postDate: map['respuesta_fecha_contenido'],
-      postId: map['respuesta_id_contenido'],
-      type: map['tipo_mensaje'],
-    );
-  }*/
 }

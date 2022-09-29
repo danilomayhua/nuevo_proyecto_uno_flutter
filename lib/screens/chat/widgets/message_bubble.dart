@@ -261,12 +261,19 @@ class _MessageBubbleState extends State<MessageBubble> {
         ),
       ),
       onTap: () async {
-        var realLink = link.startsWith('http') ? link : 'http://$link';
+        var realLink = link.startsWith('http') ? link : 'https://$link';
 
-        if (await canLaunch(realLink))
-          await launch(realLink);
-        else
+        Uri url = Uri.parse(realLink);
+
+        try {
+          // Tiene que estar dentro de try-catch (no usar canLaunchUrl)
+
+          // Si no se usa LaunchMode.externalApplication, algunos link(por ej. youtube.com) no los abre
+          await launchUrl(url, mode: LaunchMode.externalApplication,);
+
+        } catch(e) {
           throw 'Could not launch $realLink';
+        }
       },
     ),
   );

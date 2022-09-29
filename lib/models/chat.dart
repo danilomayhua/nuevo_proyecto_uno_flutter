@@ -9,21 +9,13 @@ class Chat {
   /// Puede ser 'INDIVIDUAL' o 'GRUPAL'
   final ChatTipo tipo;
 
-  final int? numMensajesPendientes;
+  int? numMensajesPendientes;
 
-  final Mensaje? ultimoMensaje;
-  /*final String ultimoMensajeAutor;
-  final String ultimoMensajeContenido;
-  final String ultimoMensajeFecha;*/
+  Mensaje? ultimoMensaje;
 
   final Actividad? actividadChat;
-  /*final String idPublicacionChat;
-  final String descripcionPublicacionChat;*/
 
   final Usuario? usuarioChat;
-  /*final String idUsuario;
-  final String fotoUsuario;
-  final String nombreUsuario;*/
 
   Chat({required this.id, required this.tipo, required this.numMensajesPendientes,
       this.actividadChat, this.usuarioChat, this.ultimoMensaje});

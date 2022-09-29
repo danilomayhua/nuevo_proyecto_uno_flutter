@@ -72,7 +72,7 @@ class _MisActividadesAntiguasPageState extends State<MisActividadesAntiguasPage>
           }
 
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
             child: CardActividad(actividad: _actividades[index]),
           );
         },
