@@ -178,6 +178,7 @@ class _MessageBubbleState extends State<MessageBubble> {
                           Container(
                             width: 150,
                             height: 150,
+                            padding: const EdgeInsets.symmetric(vertical: 16,),
                             margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8,),
                             child: widget.message.propinaSticker!.sticker.getImageAssetName() != null
                                 ? Image.asset(widget.message.propinaSticker!.sticker.getImageAssetName()!)

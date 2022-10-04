@@ -87,7 +87,7 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
 
     if(notificacion.tipo == NotificacionTipo.ACTIVIDAD_INGRESO_SOLICITUD){
 
-      texto = '${notificacion.autorUsuario.nombre} envió una solicitud para entrar a tu actividad.';
+      texto = '${notificacion.autorUsuario!.nombre} envió una solicitud para entrar a tu actividad.';
       onTap = (){
         Navigator.push(context,
           MaterialPageRoute(builder: (context) => ChatSolicitudesPage(actividad: notificacion.actividad!,)),
@@ -106,7 +106,7 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
 
     } else if(notificacion.tipo == NotificacionTipo.ACTIVIDAD_CREADOR){
 
-      texto = '${notificacion.autorUsuario.nombre} te agregó como co-creador de una actividad. Tienes que confirmar para ser parte.';
+      texto = '${notificacion.autorUsuario!.nombre} te agregó como co-creador de una actividad. Tienes que confirmar para ser parte.';
       onTap = (){
         Navigator.push(context,
           MaterialPageRoute(builder: (context) => ActividadPage(actividad: notificacion.actividad!,)),
@@ -116,9 +116,9 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
     } else if(notificacion.tipo == NotificacionTipo.STICKER_ENVIADO){
 
       if(notificacion.chat!.tipo == ChatTipo.GRUPAL){
-        texto = '${notificacion.autorUsuario.nombre} envió un sticker al chat grupal donde eres co-creador ¡Tú lo recibiste!';
+        texto = '${notificacion.autorUsuario!.nombre} envió un sticker al chat grupal donde eres co-creador ¡Tú lo recibiste!';
       } else {
-        texto = '¡${notificacion.autorUsuario.nombre} te envió un sticker!';
+        texto = '¡${notificacion.autorUsuario!.nombre} te envió un sticker!';
       }
       iconFoto = Icon(CupertinoIcons.bitcoin, color: constants.blackGeneral,);
       onTap = (){
@@ -129,20 +129,28 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
 
     } else if(notificacion.tipo == NotificacionTipo.CONTACTO_SOLICITUD){
 
-      texto = '${notificacion.autorUsuario.nombre} te envió una solicitud para agregarte a contactos.';
+      texto = '${notificacion.autorUsuario!.nombre} te envió una solicitud para agregarte a contactos.';
       onTap = (){
         Navigator.push(context,
-          MaterialPageRoute(builder: (context) => UserPage(usuario: notificacion.autorUsuario,)),
+          MaterialPageRoute(builder: (context) => UserPage(usuario: notificacion.autorUsuario!,)),
         );
       };
 
     } else if(notificacion.tipo == NotificacionTipo.CONTACTO_NUEVO){
 
-      texto = '${notificacion.autorUsuario.nombre} aceptó tu solicitud de contactos.';
+      texto = '${notificacion.autorUsuario!.nombre} aceptó tu solicitud de contactos.';
       onTap = (){
         Navigator.push(context,
-          MaterialPageRoute(builder: (context) => UserPage(usuario: notificacion.autorUsuario,)),
+          MaterialPageRoute(builder: (context) => UserPage(usuario: notificacion.autorUsuario!,)),
         );
+      };
+
+    } else if(notificacion.tipo == NotificacionTipo.AVISO_PERSONALIZADO){
+
+      texto = notificacion.avisoPersonalizado ?? "";
+      iconFoto = Icon(Icons.error_outline, color: constants.blackGeneral,);
+      onTap = (){
+        if(notificacion.avisoPersonalizado != null) _showDialogAvisoPersonalizado(notificacion.avisoPersonalizado!);
       };
 
     } else {
@@ -164,7 +172,7 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
         ),
         leading: CircleAvatar(
           backgroundColor: constants.greyBackgroundImage,
-          backgroundImage: iconFoto == null ? NetworkImage(notificacion.autorUsuario.foto) : null,
+          backgroundImage: iconFoto == null ? NetworkImage(notificacion.autorUsuario!.foto) : null,
           child: iconFoto == null ? null : iconFoto,
         ),
         trailing: Column(
@@ -277,18 +285,30 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
             );
           }
 
-          _notificaciones.add(Notificacion(
-            id: element['id'].toString(),
-            tipo: Notificacion.getNotificacionTipoFromString(element['tipo']),
-            autorUsuario: Usuario(
+          String? avisoPersonalizado;
+          if(element['aviso_personalizado'] != null){
+            avisoPersonalizado = element['aviso_personalizado'];
+          }
+
+
+          Usuario? autorUsuario;
+          if(element['autor_usuario'] != null){
+            autorUsuario = Usuario(
               id: element['autor_usuario']['id'],
               nombre: element['autor_usuario']['nombre_completo'],
               username: element['autor_usuario']['username'],
               foto: constants.urlBase + element['autor_usuario']['foto_url'],
-            ),
+            );
+          }
+
+          _notificaciones.add(Notificacion(
+            id: element['id'].toString(),
+            tipo: Notificacion.getNotificacionTipoFromString(element['tipo']),
+            autorUsuario: autorUsuario,
             fecha: element['fecha_texto'],
             actividad: actividad,
             chat: chat,
+            avisoPersonalizado: avisoPersonalizado,
             isNuevo: element['is_nuevo'],
           ));
         }
@@ -300,6 +320,24 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
 
     setState(() {
       _loadingNotificaciones = false;
+    });
+  }
+
+  void _showDialogAvisoPersonalizado(String aviso){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(children: [
+            Text(aviso),
+          ], mainAxisSize: MainAxisSize.min,),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Entendido"),
+          ),
+        ],
+      );
     });
   }
 

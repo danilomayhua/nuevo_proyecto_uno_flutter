@@ -378,14 +378,14 @@ class _UserPageState extends State<UserPage> {
                         itemBuilder: (context, index){
 
                           return Padding(
-                            padding: const EdgeInsets.only(right: 4),
+                            padding: const EdgeInsets.only(right: 8),
                             child: Stack(
                               alignment: Alignment.bottomRight,
                               children: [
                                 Container(
                                   height: 36,
                                   width: 40,
-                                  padding: const EdgeInsets.symmetric(horizontal: 4,),
+                                  padding: const EdgeInsets.symmetric(vertical: 4,),
                                   margin: const EdgeInsets.only(right: 4),
                                   child: _stickersRecibidos[index].getImageAssetName() != null
                                       ? Image.asset(_stickersRecibidos[index].getImageAssetName()!)

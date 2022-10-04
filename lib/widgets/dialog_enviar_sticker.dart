@@ -143,9 +143,10 @@ class _DialogEnviarStickerState extends State<DialogEnviarSticker> {
       Text("Disponib. ${sticker.numeroDisponibles}",
         style: const TextStyle(color: constants.blackGeneral, fontSize: 10,),
       ),
-      SizedBox(
+      Container(
         width: 50,
         height: 50,
+        padding: const EdgeInsets.symmetric(vertical: 8,),
         child: sticker.getImageAssetName() != null ? Image.asset(sticker.getImageAssetName()!) : null,
       ),
       Text("${sticker.cantidadSatoshis} sats",

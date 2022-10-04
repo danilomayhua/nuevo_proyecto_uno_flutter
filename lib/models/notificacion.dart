@@ -9,21 +9,24 @@ enum NotificacionTipo {
   ACTIVIDAD_CREADOR,
   STICKER_ENVIADO,
   CONTACTO_SOLICITUD,
-  CONTACTO_NUEVO
+  CONTACTO_NUEVO,
+  AVISO_PERSONALIZADO
 }
 
 class Notificacion {
   final String id;
   final NotificacionTipo tipo;
-  final Usuario autorUsuario;
+  final Usuario? autorUsuario;
   final String fecha;
   final Actividad? actividad;
   final Chat? chat;
 
+  final String? avisoPersonalizado;
+
   bool isNuevo;
 
   Notificacion({required this.id, required this.tipo, required this.autorUsuario, required this.fecha,
-      this.actividad, this.chat, this.isNuevo = false});
+      this.actividad, this.chat, this.avisoPersonalizado, this.isNuevo = false});
 
   static NotificacionTipo getNotificacionTipoFromString(String tipoString){
     if(tipoString == "ACTIVIDAD_INGRESO_SOLICITUD"){
@@ -38,6 +41,8 @@ class Notificacion {
       return NotificacionTipo.CONTACTO_SOLICITUD;
     } else if(tipoString == "CONTACTO_NUEVO"){
       return NotificacionTipo.CONTACTO_NUEVO;
+    } else if(tipoString == "AVISO_PERSONALIZADO"){
+      return NotificacionTipo.AVISO_PERSONALIZADO;
     } else {
       return NotificacionTipo.INDEFINIDO;
     }

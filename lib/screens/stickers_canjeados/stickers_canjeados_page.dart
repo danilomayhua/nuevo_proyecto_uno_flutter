@@ -109,9 +109,10 @@ class _StickersCanjeadosPageState extends State<StickersCanjeadosPage> {
 
   Widget _buildSticker(StickerRecibido stickerRecibido){
     return Column(children: [
-      SizedBox(
+      Container(
         width: 50,
         height: 50,
+        padding: const EdgeInsets.symmetric(vertical: 8,),
         child: stickerRecibido.sticker.getImageAssetName() != null ? Image.asset(stickerRecibido.sticker.getImageAssetName()!) : null,
       ),
       Text("${stickerRecibido.sticker.cantidadSatoshis} sats",

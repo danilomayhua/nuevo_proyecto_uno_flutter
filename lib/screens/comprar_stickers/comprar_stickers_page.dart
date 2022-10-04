@@ -132,9 +132,10 @@ class _ComprarStickersPageState extends State<ComprarStickersPage> {
             ),
           ),
           const SizedBox(height: 4,),
-          SizedBox(
+          Container(
             width: 50,
             height: 50,
+            padding: const EdgeInsets.symmetric(vertical: 4,),
             child: sticker.getImageAssetName() != null ? Image.asset(sticker.getImageAssetName()!) : null,
           ),
         ],),

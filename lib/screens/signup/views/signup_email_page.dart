@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:tenfo/screens/signup/views/signup_profile_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
+import 'package:url_launcher/url_launcher.dart';
 
 class SignupEmailPage extends StatefulWidget {
   const SignupEmailPage({Key? key}) : super(key: key);
@@ -151,15 +152,36 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
     showDialog(context: context, builder: (context){
       return AlertDialog(
         content: SingleChildScrollView(
-          child: Column(children: const [
-            Text("Actualmente, la app está en versión beta y tiene un registro cerrado. Queremos dar una buena experiencia, ayudar "
-                "en la veracidad de los perfiles dentro y generar confianza entre los usuarios.\n\n"
-                "Si tienes un correo universitario de los disponibles, puedes registrarte. Puedes revisar nuestro "
-                "instagram @tenfo.app para ver la lista actualizada de universidades disponibles.\n"
-                "Si fuiste invitado directamente, puedes registrarte con el correo que diste.\n\n"
-                "Gracias por la comprensión.",
-              style: TextStyle(color: constants.blackGeneral, height: 1.3,),
-              //textAlign: TextAlign.center,
+          child: Column(children: [
+            RichText(
+              text: TextSpan(
+                style: const TextStyle(color: constants.blackGeneral, fontSize: 16, height: 1.3,),
+                text: "Actualmente, la app está en versión beta y tiene un registro cerrado. Queremos dar una buena experiencia, ayudar "
+                    "en la veracidad de los perfiles dentro y generar confianza entre los usuarios.\n\n"
+                    "Si tienes un correo universitario de los disponibles, puedes registrarte. Puedes revisar nuestro "
+                    "instagram ",
+                children: [
+                  TextSpan(
+                    text: "@tenfo.app",
+                    style: TextStyle(color: constants.grey, decoration: TextDecoration.underline,),
+                    recognizer: TapGestureRecognizer()..onTap = () async {
+                      String urlString = "https://www.instagram.com/tenfo.app";
+                      Uri url = Uri.parse(urlString);
+
+                      try {
+                        await launchUrl(url, mode: LaunchMode.externalApplication,);
+                      } catch (e){
+                        throw 'Could not launch $urlString';
+                      }
+                    },
+                  ),
+                  const TextSpan(
+                    text: " para ver la lista actualizada de universidades disponibles.\n"
+                        "Si fuiste invitado directamente, puedes registrarte con el correo que diste.\n\n"
+                        "Gracias por la comprensión.",
+                  ),
+                ],
+              ),
             ),
           ], mainAxisSize: MainAxisSize.min,),
         ),
