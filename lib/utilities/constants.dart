@@ -107,6 +107,7 @@ const String urlConfiguracionCambiarUsername = "/api/configuracion-cuenta/cambia
 const String urlConfiguracionCambiarNombre = "/api/configuracion-cuenta/cambiar-nombre";
 const String urlConfiguracionCambiarNacimiento = "/api/configuracion-cuenta/cambiar-nacimiento";
 const String urlConfiguracionCambiarContrasena = "/api/configuracion-cuenta/cambiar-contrasena";
+const String urlConfiguracionEliminarCuenta = "/api/configuracion-cuenta/eliminar-cuenta";
 
 const String urlInvitacionCantidadDisponible = "/api/invitacion/cantidad-disponible";
 const String urlInvitacionHabilitarEmail = "/api/invitacion/habilitar-email";

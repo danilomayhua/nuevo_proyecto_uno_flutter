@@ -108,7 +108,7 @@ class _PagarStickersPageState extends State<PagarStickersPage> {
         const SizedBox(height: 8,),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16,),
-          child: Text("Pagar con Bitcoin Lightning Network",
+          child: Text("Pagar con Bitcoin en Lightning Network",
             style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
           ),
         ),
@@ -129,7 +129,7 @@ class _PagarStickersPageState extends State<PagarStickersPage> {
           ),
         ),
         const SizedBox(height: 16,),
-        Container(
+        /*Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: ElevatedButton.icon(
@@ -154,7 +154,7 @@ class _PagarStickersPageState extends State<PagarStickersPage> {
             style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
           ),
         ),
-        const SizedBox(height: 16,),
+        const SizedBox(height: 16,),*/
         /*Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -174,7 +174,8 @@ class _PagarStickersPageState extends State<PagarStickersPage> {
         const SizedBox(height: 24,),*/
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16,),
-          child: Text("Factura Lightning Network",
+          //child: Text("Factura Lightning Network",
+          child: Text("Copiar factura Lightning Network:",
             style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
           ),
         ),

@@ -88,7 +88,8 @@ class _ComprarStickersPageState extends State<ComprarStickersPage> {
                 onPressed: (){
                   _validarCompraSeleccion();
                 },
-                child: const Text("Comprar"),
+                //child: const Text("Comprar"),
+                child: const Text("Siguiente"),
               ),
             ),
             Text(_totalSatoshis == 0 ? ""
@@ -105,10 +106,16 @@ class _ComprarStickersPageState extends State<ComprarStickersPage> {
   Widget _buildTextoCabecera(){
     return const Padding(
       padding: EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 8,),
-      child: Text("Regala stickers con bitcoins. Los stickers tendran el mismo valor "
+      /*child: Text("Regala stickers con bitcoins. Los stickers tendran el mismo valor "
           "por el cual lo compraste. El usuario al que envies el sticker, podrá canjearlo por bitcoin al mismo valor. "
           "Da propinas o haz micro-regalos con los stickers.\nTienes que tener una billetera en bitcoin para hacer la compra. "
           "Los valores están representados en satoshis (1 sats = 0,00000001 btc). Los valores en ARS \$ es un precio aproximado de su equivalente.",
+        style: TextStyle(color: constants.grey, fontSize: 12,),
+      ),*/
+      child: Text("Da propinas o haz pequeños regalos con stickers en bitcoin. Los stickers tendrán el mismo valor por el cual lo "
+          "adquiriste. El usuario al que envíes el sticker, podrá canjearlo por bitcoin al mismo valor.\n"
+          "Tienes que tener una billetera en bitcoin para hacer la adquisición. Los valores están representados en "
+          "satoshis (1 sats = 0,00000001 btc). Los valores en ARS \$ es un precio aproximado de su equivalente.",
         style: TextStyle(color: constants.grey, fontSize: 12,),
       ),
     );

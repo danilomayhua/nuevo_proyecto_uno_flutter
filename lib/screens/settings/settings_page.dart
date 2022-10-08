@@ -7,6 +7,7 @@ import 'package:tenfo/models/usuario.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/canjear_stickers/canjear_stickers_page.dart';
 import 'package:tenfo/screens/settings/views/settings_contrasena_page.dart';
+import 'package:tenfo/screens/settings/views/settings_cuenta_page.dart';
 import 'package:tenfo/screens/settings/views/settings_descripcion_page.dart';
 import 'package:tenfo/screens/settings/views/settings_email_page.dart';
 import 'package:tenfo/screens/settings/views/settings_instagram_page.dart';
@@ -115,6 +116,12 @@ class _SettingsPageState extends State<SettingsPage> {
           _buildFila(titulo: "Contraseña", onTap: () async {
             Navigator.push(context, MaterialPageRoute(
                 builder: (context) => const SettingsContrasenaPage()
+            ));
+          },),
+
+          _buildFila(titulo: "Cuenta", onTap: () async {
+            Navigator.push(context, MaterialPageRoute(
+                builder: (context) => const SettingsCuentaPage()
             ));
           },),
 

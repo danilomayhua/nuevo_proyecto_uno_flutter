@@ -128,8 +128,10 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
             child: RichText(
               text: TextSpan(
                 style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
-                text: "Recuerda que la app está en versión beta. El registro solo está disponible para correos preseleccionados "
-                    "y estudiantes de algunas universidades en Buenos Aires. ",
+                /*text: "Recuerda que la app está en versión beta. El registro solo está disponible para correos preseleccionados "
+                    "y estudiantes de algunas universidades en Buenos Aires. ",*/
+                text: "Recuerda que el registro solo está disponible para correos preseleccionados y estudiantes de algunas "
+                    "universidades en Buenos Aires. ",
                 children: [
                   TextSpan(
                     text: "Más información.",
@@ -156,7 +158,11 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
             RichText(
               text: TextSpan(
                 style: const TextStyle(color: constants.blackGeneral, fontSize: 16, height: 1.3,),
-                text: "Actualmente, la app está en versión beta y tiene un registro cerrado. Queremos dar una buena experiencia, ayudar "
+                /*text: "Actualmente, la app está en versión beta y tiene un registro cerrado. Queremos dar una buena experiencia, ayudar "
+                    "en la veracidad de los perfiles dentro y generar confianza entre los usuarios.\n\n"
+                    "Si tienes un correo universitario de los disponibles, puedes registrarte. Puedes revisar nuestro "
+                    "instagram ",*/
+                text: "Actualmente, la app tiene un registro cerrado. Queremos dar una buena experiencia, ayudar "
                     "en la veracidad de los perfiles dentro y generar confianza entre los usuarios.\n\n"
                     "Si tienes un correo universitario de los disponibles, puedes registrarte. Puedes revisar nuestro "
                     "instagram ",
