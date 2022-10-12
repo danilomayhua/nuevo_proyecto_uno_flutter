@@ -87,13 +87,13 @@ class _UserPageState extends State<UserPage> {
 
           if(widget.isFromProfile)
             ...[
-              IconButton(
-                //icon: const Icon(Icons.style_outlined),
-                icon: const Icon(CupertinoIcons.bitcoin_circle),
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ComprarStickersPage()));
-                },
-              ),
+              if(!Platform.isIOS)
+                IconButton(
+                  icon: const Icon(CupertinoIcons.bitcoin_circle),
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ComprarStickersPage()));
+                  },
+                ),
               IconButton(
                 icon: const Icon(Icons.manage_accounts_outlined),
                 onPressed: () async {
@@ -522,7 +522,7 @@ class _UserPageState extends State<UserPage> {
               _showDialogEnviarSticker();
             },
             icon: const Icon(CupertinoIcons.bitcoin),
-            label: Text('Sticker', style: TextStyle(fontSize: 18)),
+            label: Text(Platform.isIOS ? 'Propina' : 'Sticker', style: TextStyle(fontSize: 18)),
             /*label: Text('Sticker-Propina',
               style: TextStyle(fontSize: 16, height: 1),
             ),*/

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:tenfo/models/sticker.dart';
@@ -31,7 +32,9 @@ class _ComprarStickersPageState extends State<ComprarStickersPage> {
   void initState() {
     super.initState();
 
-    _obtenerCotizacionBitcoinARS();
+    if(!Platform.isIOS){
+      _obtenerCotizacionBitcoinARS();
+    }
 
     _cargarStickersVenta();
   }
@@ -40,14 +43,16 @@ class _ComprarStickersPageState extends State<ComprarStickersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Conseguir stickers"),
+        title: Text(Platform.isIOS ? "Conseguir propinas para enviar" : "Conseguir stickers"),
         actions: [
-          IconButton(
-            icon: Icon(Icons.account_balance_wallet_outlined),
-            onPressed: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context) => StickersDisponiblesPage()));
-            },
-          ),
+          // En iOS, solo se muestra cuando se hace la compra
+          if(!Platform.isIOS || _isCompraRealizada)
+            IconButton(
+              icon: Icon(Icons.account_balance_wallet_outlined),
+              onPressed: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) => StickersDisponiblesPage()));
+              },
+            ),
         ],
       ),
       body: _loadingStickersVenta ? const Center(
@@ -88,8 +93,7 @@ class _ComprarStickersPageState extends State<ComprarStickersPage> {
                 onPressed: (){
                   _validarCompraSeleccion();
                 },
-                //child: const Text("Comprar"),
-                child: const Text("Siguiente"),
+                child: Text(Platform.isIOS ? "Siguiente" : "Comprar"),
               ),
             ),
             Text(_totalSatoshis == 0 ? ""
@@ -104,18 +108,19 @@ class _ComprarStickersPageState extends State<ComprarStickersPage> {
   }
 
   Widget _buildTextoCabecera(){
-    return const Padding(
+    return Padding(
       padding: EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 8,),
-      /*child: Text("Regala stickers con bitcoins. Los stickers tendran el mismo valor "
-          "por el cual lo compraste. El usuario al que envies el sticker, podrá canjearlo por bitcoin al mismo valor. "
-          "Da propinas o haz micro-regalos con los stickers.\nTienes que tener una billetera en bitcoin para hacer la compra. "
-          "Los valores están representados en satoshis (1 sats = 0,00000001 btc). Los valores en ARS \$ es un precio aproximado de su equivalente.",
-        style: TextStyle(color: constants.grey, fontSize: 12,),
-      ),*/
-      child: Text("Da propinas o haz pequeños regalos con stickers en bitcoin. Los stickers tendrán el mismo valor por el cual lo "
-          "adquiriste. El usuario al que envíes el sticker, podrá canjearlo por bitcoin al mismo valor.\n"
+      child: Text(Platform.isIOS
+          ? "Da propinas regalando comidas/bebidas en bitcoin. Estos tendrán el mismo valor por el cual lo "
+          "adquiriste. El usuario al que envíes la comida/bebida, tendrá bitcoin al mismo valor.\n"
           "Tienes que tener una billetera en bitcoin para hacer la adquisición. Los valores están representados en "
+          "satoshis (1 sats = 0,00000001 btc)."
+
+          : "Da propinas o haz pequeños regalos con stickers en bitcoin. Los stickers tendrán el mismo valor por el cual lo "
+          "compraste. El usuario al que envíes el sticker, podrá canjearlo por bitcoin al mismo valor.\n"
+          "Tienes que tener una billetera en bitcoin para hacer la compra. Los valores están representados en "
           "satoshis (1 sats = 0,00000001 btc). Los valores en ARS \$ es un precio aproximado de su equivalente.",
+
         style: TextStyle(color: constants.grey, fontSize: 12,),
       ),
     );
@@ -282,7 +287,7 @@ class _ComprarStickersPageState extends State<ComprarStickersPage> {
     }
 
     if(stickersSeleccionados.isEmpty){
-      _showSnackBar("Selecciona algún sticker presionando el icono +");
+      _showSnackBar(Platform.isIOS ? "Selecciona alguno presionando el icono +" : "Selecciona algún sticker presionando el icono +");
       return;
     }
 

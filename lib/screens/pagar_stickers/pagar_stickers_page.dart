@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -52,7 +53,7 @@ class _PagarStickersPageState extends State<PagarStickersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Pago"),
+        title: Text(Platform.isIOS ? "Adquirir" : "Pago"),
       ),
       body: _isLoadingFactura
           ? const Center(child: CircularProgressIndicator(),)
@@ -74,7 +75,7 @@ class _PagarStickersPageState extends State<PagarStickersPage> {
                 child: RichText(text: TextSpan(
                   style: const TextStyle(color: constants.blackGeneral, fontSize: 12,),
                   children: [
-                    TextSpan(text: "Sticker ${sticker.cantidadSatoshis} sats "),
+                    TextSpan(text: Platform.isIOS ? "Propina ${sticker.cantidadSatoshis} sats " : "Sticker ${sticker.cantidadSatoshis} sats "),
                     TextSpan(text: "x${sticker.numeroDisponibles}",
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
@@ -106,9 +107,9 @@ class _PagarStickersPageState extends State<PagarStickersPage> {
             ),],
           ),*/
         const SizedBox(height: 8,),
-        const Padding(
+        Padding(
           padding: EdgeInsets.symmetric(horizontal: 16,),
-          child: Text("Pagar con Bitcoin en Lightning Network",
+          child: Text(Platform.isIOS ? "Usar Bitcoin en Lightning Network" : "Pagar con Bitcoin en Lightning Network",
             style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
           ),
         ),
@@ -129,6 +130,7 @@ class _PagarStickersPageState extends State<PagarStickersPage> {
           ),
         ),
         const SizedBox(height: 16,),
+        // TODO : agregar boton para Android
         /*Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -174,8 +176,7 @@ class _PagarStickersPageState extends State<PagarStickersPage> {
         const SizedBox(height: 24,),*/
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16,),
-          //child: Text("Factura Lightning Network",
-          child: Text("Copiar factura Lightning Network:",
+          child: Text("Factura Lightning Network:",
             style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
           ),
         ),
@@ -212,9 +213,11 @@ class _PagarStickersPageState extends State<PagarStickersPage> {
           ],),
         ),
         const SizedBox(height: 24,),
-        const Padding(
+        Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Text("Una vez realizada la transacción, en unos segundos se agregarán los stickers.",
+          child: Text(Platform.isIOS
+              ? "Una vez realizada, en unos segundos se agregarán las propinas a enviar."
+              : "Una vez realizada la transacción, en unos segundos se agregarán los stickers.",
             style: TextStyle(color: constants.grey, fontSize: 12,),
           ),
         ),

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -65,11 +66,12 @@ class _SettingsPageState extends State<SettingsPage> {
             ));
           }, color: constants.blueGeneral,),
 
-          _buildFila(titulo: "Canjear stickers", onTap: () async {
-            Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const CanjearStickersPage()
-            ));
-          }, color: constants.blueGeneral,),
+          if(!Platform.isIOS)
+            _buildFila(titulo: "Canjear stickers", onTap: () async {
+              Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => const CanjearStickersPage()
+              ));
+            }, color: constants.blueGeneral,),
 
           _buildFila(titulo: "Descripción", onTap: () async {
             Navigator.push(context, MaterialPageRoute(

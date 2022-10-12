@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:tenfo/models/chat.dart';
@@ -51,7 +52,7 @@ class _DialogEnviarStickerState extends State<DialogEnviarSticker> {
   Widget build(BuildContext context) {
     return AlertDialog(
       content: Column(children: [
-        const Text('Elige un sticker a enviar:',
+        Text(Platform.isIOS ? 'Elige uno a enviar:' : 'Elige un sticker a enviar:',
           style: TextStyle(color: constants.grey, fontSize: 12,),
         ),
         const SizedBox(height: 8,),
@@ -62,7 +63,7 @@ class _DialogEnviarStickerState extends State<DialogEnviarSticker> {
               ? Container(
                 width: double.maxFinite,
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                child: const Text("No tienes stickers actualmente.",
+                child: Text(Platform.isIOS ? "No tienes propinas para enviar actualmente.": "No tienes stickers actualmente.",
                   style: TextStyle(
                     color: constants.blackGeneral,
                     fontSize: 12,

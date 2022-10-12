@@ -28,7 +28,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Used to upload photos</string>
+	<string>Need to update the profile picture</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

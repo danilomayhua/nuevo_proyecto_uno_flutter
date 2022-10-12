@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -238,7 +239,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
               },
               icon: const Icon(CupertinoIcons.bitcoin),
               //label: Text('Enviar propina', style: TextStyle(fontSize: 16)),
-              label: Text('Enviar sticker', style: TextStyle(fontSize: 16)),
+              label: Text(Platform.isIOS ? 'Enviar propina' : 'Enviar sticker', style: TextStyle(fontSize: 16)),
               style: OutlinedButton.styleFrom(
                 primary: Colors.white,
                 backgroundColor: constants.blueGeneral,
@@ -687,8 +688,12 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
     showDialog(context: context, builder: (context){
       return AlertDialog(
         content: SingleChildScrollView(
-          child: Column(children: const [
-            Text("Envía un sticker como un buen gesto a los co-creadores.\n\n"
+          child: Column(children: [
+            Text(Platform.isIOS
+              ? "Envía una propina/regalo como un buen gesto a los co-creadores.\n\n"
+                "El co-creador que lo reciba, tendrá el mismo valor en bitcoin.\n\n"
+                "Cuando se envía una propina, este será enviado aleatoriamente hacia alguno de los co-creadores."
+              : "Envía un sticker como un buen gesto a los co-creadores.\n\n"
                 "Los stickers son micro-regalos que el co-creador que lo reciba podrá canjear por el mismo valor del sticker en bitcoin.\n\n"
                 "Cuando se envía un sticker, este será enviado aleatoriamente hacia alguno de los co-creadores.",
               style: TextStyle(color: constants.grey, fontSize: 12,),
