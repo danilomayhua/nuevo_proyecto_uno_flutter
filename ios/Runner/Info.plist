@@ -28,7 +28,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Need to update the profile picture</string>
+	<string>Permita el acceso a las fotos para cargar fotos de su biblioteca.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

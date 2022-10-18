@@ -597,8 +597,8 @@ class _UserPageState extends State<UserPage> {
             leading: const Icon(Icons.photo_library),
             title: const Text('Cambiar foto de perfil'),
             onTap: () {
-              _galleryPhoto();
               Navigator.of(context).pop();
+              _galleryPhoto();
             },
           ),
         ],),
