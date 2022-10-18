@@ -249,20 +249,23 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
               ),
             ),
           ),
-          const SizedBox(height: 12),
-          Align(
-            alignment: Alignment.center,
-            child: InkWell(
-              child: const Text("¿Cómo funciona?",
-                style: TextStyle(color: constants.grey, fontSize: 12,
-                  decoration: TextDecoration.underline,
+          if(!Platform.isIOS)
+            ...[
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.center,
+                child: InkWell(
+                  child: const Text("¿Cómo funciona?",
+                    style: TextStyle(color: constants.grey, fontSize: 12,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                  onTap: (){
+                    _showDialogAyudaSticker();
+                  },
                 ),
               ),
-              onTap: (){
-                _showDialogAyudaSticker();
-              },
-            ),
-          ),
+            ],
 
           const SizedBox(height: 24,),
           const Padding(

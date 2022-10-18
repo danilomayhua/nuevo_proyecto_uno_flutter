@@ -51,79 +51,7 @@ class _DialogEnviarStickerState extends State<DialogEnviarSticker> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      content: Column(children: [
-        Text(Platform.isIOS ? 'Elige uno a enviar:' : 'Elige un sticker a enviar:',
-          style: TextStyle(color: constants.grey, fontSize: 12,),
-        ),
-        const SizedBox(height: 8,),
-        Flexible(child: SingleChildScrollView(
-          controller: _scrollController,
-          child: Column(children: [
-            (_stickers.isEmpty && !_loadingStickers)
-              ? Container(
-                width: double.maxFinite,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Text(Platform.isIOS ? "No tienes propinas para enviar actualmente.": "No tienes stickers actualmente.",
-                  style: TextStyle(
-                    color: constants.blackGeneral,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              )
-              : Flexible(child: Container(
-                width: double.maxFinite,
-                //constraints: const BoxConstraints(maxWidth: 400,),
-                child: GridView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 100,
-                    mainAxisSpacing: 8,
-                  ),
-                  itemCount: _loadingStickers ? (_stickers.length + 1) : _stickers.length, // Necesario verificar _loadingStickers (Si no, cuando ocupa una fila, el loading oculto agrega otra fila abajo)
-                  itemBuilder: (BuildContext context, int index) {
-                    if(index == _stickers.length){
-                      return _buildLoadingStickers();
-                    }
-
-                    return GestureDetector(
-                      onTap: _enviandoSticker ? null : () => setState(() => _selectedStickerIndex = index),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: _selectedStickerIndex == index ? Colors.black12 : Colors.transparent,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: _buildSticker(_stickers[index]),
-                      ),
-                    );
-                  },
-                ),
-              ),),
-            const SizedBox(height: 8,),
-            if(!_loadingStickers)
-              OutlinedButton(
-                onPressed: (){
-                  Navigator.of(context).pop();
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) => ComprarStickersPage(),
-                  ));
-                },
-                child: Text(_stickers.length == 0 ? "Conseguir" : "Conseguir más",
-                  style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 12,),
-                ),
-                style: OutlinedButton.styleFrom(
-                  primary: constants.blueGeneral,
-                  backgroundColor: Colors.white,
-                  //onSurface: constants.grey,
-                  side: const BorderSide(color: constants.blueGeneral, width: 0.5,),
-                  shape: const StadiumBorder(),
-                ),
-              ),
-          ], mainAxisSize: MainAxisSize.min,),
-        )),
-      ], mainAxisSize: MainAxisSize.min,),
+      content: Platform.isIOS ? _buildContenidoBloqueado() : _buildContenido(),
       actions: [
         TextButton(
           onPressed: _enviandoSticker ? null : () => Navigator.of(context).pop(),
@@ -137,6 +65,99 @@ class _DialogEnviarStickerState extends State<DialogEnviarSticker> {
         ),
       ],
     );
+  }
+
+  Widget _buildContenidoBloqueado(){
+    if(_stickers.isEmpty){
+      return Padding(
+        padding: const EdgeInsets.only(top: 16,),
+        child: Row(children: const [
+          Icon(Icons.lock_outline, color: constants.blackGeneral,),
+          SizedBox(width: 8,),
+          Text("Próximamente",
+            style: TextStyle(fontSize: 16, color: constants.blackGeneral),
+          ),
+        ], mainAxisAlignment: MainAxisAlignment.center,),
+      );
+    } else {
+      return _buildContenido();
+    }
+  }
+
+  Widget _buildContenido(){
+    return Column(children: [
+      Text(Platform.isIOS ? 'Elige uno a enviar:' : 'Elige un sticker a enviar:',
+        style: TextStyle(color: constants.grey, fontSize: 12,),
+      ),
+      const SizedBox(height: 8,),
+      Flexible(child: SingleChildScrollView(
+        controller: _scrollController,
+        child: Column(children: [
+          (_stickers.isEmpty && !_loadingStickers)
+          ? Container(
+            width: double.maxFinite,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Text(Platform.isIOS ? "No tienes propinas para enviar actualmente.": "No tienes stickers actualmente.",
+              style: TextStyle(
+                color: constants.blackGeneral,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          )
+          : Flexible(child: Container(
+            width: double.maxFinite,
+            //constraints: const BoxConstraints(maxWidth: 400,),
+            child: GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 100,
+                mainAxisSpacing: 8,
+              ),
+              itemCount: _loadingStickers ? (_stickers.length + 1) : _stickers.length, // Necesario verificar _loadingStickers (Si no, cuando ocupa una fila, el loading oculto agrega otra fila abajo)
+              itemBuilder: (BuildContext context, int index) {
+                if(index == _stickers.length){
+                  return _buildLoadingStickers();
+                }
+
+                return GestureDetector(
+                  onTap: _enviandoSticker ? null : () => setState(() => _selectedStickerIndex = index),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: _selectedStickerIndex == index ? Colors.black12 : Colors.transparent,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: _buildSticker(_stickers[index]),
+                  ),
+                );
+              },
+            ),
+          ),),
+          const SizedBox(height: 8,),
+          if(!_loadingStickers)
+            OutlinedButton(
+              onPressed: (){
+                Navigator.of(context).pop();
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => ComprarStickersPage(),
+                ));
+              },
+              child: Text(_stickers.length == 0 ? "Conseguir" : "Conseguir más",
+                style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 12,),
+              ),
+              style: OutlinedButton.styleFrom(
+                primary: constants.blueGeneral,
+                backgroundColor: Colors.white,
+                //onSurface: constants.grey,
+                side: const BorderSide(color: constants.blueGeneral, width: 0.5,),
+                shape: const StadiumBorder(),
+              ),
+            ),
+        ], mainAxisSize: MainAxisSize.min,),
+      )),
+    ], mainAxisSize: MainAxisSize.min,);
   }
 
   Widget _buildSticker(Sticker sticker){

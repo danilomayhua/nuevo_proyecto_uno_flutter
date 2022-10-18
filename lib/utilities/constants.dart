@@ -31,9 +31,9 @@ final usernameColors = [
   Colors.teal[500],
 ];
 
-//const String urlBase = "http://192.168.0.8:3000";
+//const String urlBase = "http://192.168.0.9:3000";
 const String urlBase = "https://tenfo.app:3000";
-//const String urlBaseWebSocket = "ws://192.168.0.8:3000/chat";
+//const String urlBaseWebSocket = "ws://192.168.0.9:3000/chat";
 const String urlBaseWebSocket = "wss://tenfo.app:3000/chat";
 
 const String urlLogin = "/api/autenticacion/login";
