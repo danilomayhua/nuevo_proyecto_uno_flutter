@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -183,7 +184,8 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
         const SizedBox(height: 16,),
 
         Container(
-          constraints: BoxConstraints(minWidth: 120,),
+          constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+          width: double.infinity,
           child: ElevatedButton(
             onPressed: _enviandoNombreCompleto ? null : () => _validarNombreCompleto(),
             child: const Text("Siguiente"),
@@ -253,7 +255,8 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
         const SizedBox(height: 16,),
 
         Container(
-          constraints: BoxConstraints(minWidth: 120,),
+          constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+          width: double.infinity,
           child: ElevatedButton(
             onPressed: _enviandoNacimiento ? null : () => _validarNacimiento(),
             child: const Text("Siguiente"),
@@ -358,7 +361,8 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
         const SizedBox(height: 16,),
 
         Container(
-          constraints: BoxConstraints(minWidth: 120,),
+          constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+          width: double.infinity,
           child: ElevatedButton(
             onPressed: _enviandoRegistro ? null : () => _validarUsuarioContrasena(),
             child: const Text("Crear usuario"),
@@ -368,6 +372,29 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
           ),
         ),
         const SizedBox(height: 16,),
+
+        Align(
+          alignment: Alignment.centerLeft,
+          child: RichText(
+            text: TextSpan(
+              style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
+              text: "Al continuar, aceptas los ",
+              children: [
+                TextSpan(
+                  text: "Términos y Condiciones",
+                  style: TextStyle(decoration: TextDecoration.underline,),
+                  recognizer: TapGestureRecognizer()..onTap = (){
+                    _showDialogTerminosCondiciones();
+                  },
+                ),
+                TextSpan(
+                  text: " y confirmas haberlos leído.",
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8,),
       ],),
     );
   }
@@ -465,6 +492,111 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
       _enviandoRegistro = false;
     });
   }
+
+
+  void _showDialogTerminosCondiciones(){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(
+            children: _terminosCondiciones(),
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Entendido"),
+          ),
+        ],
+      );
+    });
+  }
+
+  List<Widget> _terminosCondiciones(){
+    return [
+      Text("Términos y Condiciones",
+        style: TextStyle(color: constants.blackGeneral, fontSize: 18, fontWeight: FontWeight.bold,),
+      ),
+      SizedBox(height: 8,),
+      Text("Al acceder y utilizar este servicio, usted acepta y accede a estar obligado por los términos y "
+          "condiciones vistos en esta página. Asimismo, al utilizar estos servicios particulares, usted estará "
+          "sujeto a toda regla o guía de uso correspondiente que se haya publicado para dichos servicios. Toda participación "
+          "en este servicio constituirá la aceptación de este acuerdo. Si no acepta cumplir con lo anterior, por favor, no lo utilice.",
+        style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
+      ),
+
+      _subtitulo("Uso prohibido"),
+      _lista("Todos los usuarios deben comprometerse con la ética y los valores, y deben abstenerse de insultar y abusar del sitio."),
+      _lista("En las actividades creadas:"),
+      _sublista("No se permite nombrar a ninguna persona, a no ser que esta sea un personaje público."),
+      _sublista("No se permite hacer incitaciones de actos sexuales y/o violentos, incitar el odio, o hacer comentarios difamando a otra "
+          "persona u organización."),
+      _sublista("No se puede usar perfiles que no sean de personas(perfiles falsos)."),
+      _sublista("La sección es para crear actividades, encuentros o expresar sobre temas que puedan generar una conversación."),
+      _lista("No se permiten imágenes violentas o adultas."),
+      _lista("Al hacer uso prohibido en la app, se le dará un aviso, pudiendo resultar en el bloqueo de su cuenta si continua "
+          "infringiendo los términos."),
+
+      _subtitulo("Política de privacidad"),
+      _lista("Recopilamos información sobre su uso en Tenfo, incluyendo publicaciones vistas, interacciones con otros usuarios y "
+          "otra información sobre sus interacciones. Esta información es utilizada para, entre otras cosas, personalizar su experiencia, "
+          "monitorear, analizar y mejorar los servicios."),
+      _lista("No venderemos, intercambiaremos, alquilaremos ni divulgaremos información a terceros desde esta plataforma o sitios fuera de "
+          "nuestra red y solo divulgaremos información cuando lo solicite una entidad legal u organizacional."),
+      _lista("Su nombre y nombre de usuario, siempre será publico y será visible en su perfil. Si a futuro ingresa una foto de perfil, esta "
+          "también sera publica y se podrá ver en su perfil."),
+      _lista("Cuando necesitamos cualquier información de usted. Le pediremos su consentimiento."),
+
+      _subtitulo("Eliminación de contenido"),
+      _lista("Tenemos el derecho de eliminar cualquier publicación, con la justificación que los administradores de la plataforma consideren adecuada."),
+      _lista("Tenemos el derecho de eliminar cuentas inactivas en la duración que consideremos adecuada."),
+      _lista("Tambien podemos cancelar su acceso a la app, con la justificación que los administradores de la plataforma consideren adecuada, lo cual "
+          "podrá resultar en la incautación y destrucción de toda la información que esté asociada con su cuenta."),
+
+      _subtitulo("Límites de responsabilidad"),
+      _lista("Todo el contenido comunicado en la app es responsabilidad de sus autores y Tenfo no es responsable de su contenido ni de ningún daño que "
+          "pueda resultar de este contenido o del uso de cualquiera de los servicios del sitio."),
+      _lista("Al aceptar estos términos y condiciones, aceptas ser considerado responsable de cualquier repercusión legal que pueda provenir del "
+          "contenido que publicas."),
+
+      _subtitulo("Modificaciones de Términos y Condiciones"),
+      _lista("Tenemos el derecho de modificar los términos y condiciones si es necesario y cuando sea adecuado."),
+      _lista("Tenfo se reserva el derecho de modificar estas condiciones de vez en cuando según lo considere oportuno; asimismo, el uso permanente "
+          "de la plataforma significará su aceptación de cualquier ajuste a tales términos. Por lo tanto, se le recomienda volver a leer esta "
+          "declaración de manera regular en https://tenfo.app/terminos.html"),
+
+      _subtitulo("Contáctenos"),
+      _lista("Si desea contactarnos sobre cualquier otra cosa, puede usar el correo electrónico que se especifica a continuación: soporte@tenfo.app"),
+    ];
+  }
+
+  Widget _subtitulo(String texto){
+    return Padding(
+      padding: EdgeInsets.only(top: 16),
+      child: Text("$texto",
+        style: TextStyle(color: constants.blackGeneral, fontSize: 16, fontWeight: FontWeight.bold,),
+      ),
+    );
+  }
+  Widget _lista(String texto){
+    return Padding(
+      padding: EdgeInsets.only(left: 8, top: 4,),
+      child: Text("• $texto",
+        style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
+      ),
+    );
+  }
+  Widget _sublista(String texto){
+    return Padding(
+      padding: EdgeInsets.only(left: 16, top: 4,),
+      child: Text("◦ $texto",
+        style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
+      ),
+    );
+  }
+
 
   void _showSnackBar(String texto){
     ScaffoldMessenger.of(context).removeCurrentSnackBar();

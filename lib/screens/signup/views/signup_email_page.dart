@@ -112,7 +112,8 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
           ),
           const SizedBox(height: 16,),
           Container(
-            constraints: BoxConstraints(minWidth: 120,),
+            constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+            width: double.infinity,
             child: ElevatedButton(
               onPressed: _enviandoEmail ? null : () => _validarEmail(),
               child: const Text("Enviar código"),
@@ -294,7 +295,8 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
           ),
           const SizedBox(height: 16,),
           Container(
-            constraints: BoxConstraints(minWidth: 120,),
+            constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+            width: double.infinity,
             child: ElevatedButton(
               onPressed: _enviandoCodigo ? null : () => _verificarCodigo(),
               child: const Text("Enviar"),
