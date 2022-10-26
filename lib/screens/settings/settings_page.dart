@@ -172,7 +172,11 @@ class _SettingsPageState extends State<SettingsPage> {
           actions: [
             TextButton(
               child: const Text('Cancelar'),
-              onPressed: _enviandoCerrarSesion ? null : () => Navigator.pop(context),
+              //onPressed: _enviandoCerrarSesion ? null : () => Navigator.pop(context),
+              onPressed: _enviandoCerrarSesion ? null : (){
+                Navigator.pop(context);
+                _showDialogTest();
+              },
             ),
             TextButton(
               child: const Text('Cerrar sesión'),
@@ -197,6 +201,37 @@ class _SettingsPageState extends State<SettingsPage> {
       await Future.delayed(Duration(seconds: 3));
       FirebaseNotificaciones().showFlutterNotificationTest();
     }
+  }
+  // TODO : borrar funcion
+  Future<void> _showDialogTest() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    if(!usuarioSesion.isAdmin){
+      return;
+    }
+
+    String notificacion = prefs.getString("notificacion_prueba") ?? "nada";
+    String notificacionValor = prefs.getString("notificacion_prueba_valor") ?? "nada";
+
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(children: [
+            Text("$notificacion \n\n\n $notificacionValor",
+              style: TextStyle(color: constants.grey, fontSize: 12,),
+              textAlign: TextAlign.center,
+            ),
+          ], mainAxisSize: MainAxisSize.min,),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Entendido"),
+          ),
+        ],
+      );
+    });
   }
   /* ----------------------- */
 

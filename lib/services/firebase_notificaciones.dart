@@ -144,12 +144,26 @@ class FirebaseNotificaciones {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.reload(); // Necesario para consistencia en foreground y background
 
-    String payload = jsonEncode({
-      'screen' : '',
-      'data' : ''
-    });
+    bool isLoggedIn = prefs.getBool(SharedPreferencesKeys.isLoggedIn) ?? false;
+    if(isLoggedIn){
+      await _crearNotificacionesGuardadas(prefs);
 
-    await _showNotificationWithSound(_localNotificationIdGenerales, "Esta es una notificacion", "Probando", payload);
+      String payload = jsonEncode({
+        'screen' : '',
+        'data' : ''
+      });
+
+      await _showNotificationWithSound(_localNotificationIdGenerales, "Esta es una notificacion", "Probando", payload);
+      
+      
+      var notificacionesActuales = jsonDecode(prefs.getString(SharedPreferencesKeys.notificacionesPush)!);
+      int numero = notificacionesActuales['notificacion_general']['numero'];
+      print("Hay $numero notificaciones");
+
+      //Map<String, dynamic> dataTest = {"datos":"perfecto"};
+      //prefs.setString("notificacion_prueba", "si llego");
+      //prefs.setString("notificacion_prueba_valor", dataTest.toString());
+    }
   }
   /* --------------------------- */
 
@@ -159,6 +173,8 @@ class FirebaseNotificaciones {
 
     bool isLoggedIn = prefs.getBool(SharedPreferencesKeys.isLoggedIn) ?? false;
     if(isLoggedIn){
+      prefs.setString("notificacion_prueba", "Si llego"); // TODO : borrar
+      prefs.setString("notificacion_prueba_valor", message.data.toString()); // TODO : borrar
 
       await _crearNotificacionesGuardadas(prefs);
 
