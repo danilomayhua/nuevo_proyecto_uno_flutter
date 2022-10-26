@@ -94,6 +94,15 @@ class FirebaseNotificaciones {
         .onError((err) {});
 
 
+    // Permisos para iOS (para ser necesario llamarlo desde FlutterLocalNotificationsPlugin tambien)
+    await _flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+
     // Esto solo debe llamarse una vez a nivel global
     final NotificationAppLaunchDetails? notificationAppLaunchDetails = await _flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
     if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
@@ -130,6 +139,19 @@ class FirebaseNotificaciones {
 
     }
   }
+  // TODO : borrar funcion
+  Future<void> showFlutterNotificationTest() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.reload(); // Necesario para consistencia en foreground y background
+
+    String payload = jsonEncode({
+      'screen' : '',
+      'data' : ''
+    });
+
+    await _showNotificationWithSound(_localNotificationIdGenerales, "Esta es una notificacion", "Probando", payload);
+  }
+  /* --------------------------- */
 
   Future<void> showFlutterNotification(RemoteMessage message) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

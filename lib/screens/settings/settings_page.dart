@@ -18,6 +18,7 @@ import 'package:tenfo/screens/settings/views/settings_nombre_page.dart';
 import 'package:tenfo/screens/settings/views/settings_privacidad_page.dart';
 import 'package:tenfo/screens/settings/views/settings_username_page.dart';
 import 'package:tenfo/screens/welcome/welcome_page.dart';
+import 'package:tenfo/services/firebase_notificaciones.dart'; // TODO : borrar
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 
@@ -184,7 +185,20 @@ class _SettingsPageState extends State<SettingsPage> {
         );
       });
     });
+    _mostrarNotificacionPrueba();
   }
+  // TODO : borrar funcion
+  Future<void> _mostrarNotificacionPrueba() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    if(usuarioSesion.isAdmin){
+      print("Se mostrara una notificacion");
+      await Future.delayed(Duration(seconds: 3));
+      FirebaseNotificaciones().showFlutterNotificationTest();
+    }
+  }
+  /* ----------------------- */
 
   Future<void> _cerrarSesion(setStateDialog) async {
     setStateDialog(() {

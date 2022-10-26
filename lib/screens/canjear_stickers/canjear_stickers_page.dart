@@ -79,7 +79,8 @@ class _CanjearStickersPageState extends State<CanjearStickersPage> {
 
         child: _loadingStickersRecibido ? CircularProgressIndicator() : const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Text("No tienes stickers disponibles a canjear. Aquí podrás canjear los stickers que te regalen otros usuarios.",
+          child: Text("No tienes stickers disponibles a canjear. Aquí podrás canjear los stickers que te regalen otros usuarios.\n\n\n"
+              "Si hubo algún fallo al canjear un sticker, comunícate con nosotros al email soporte@tenfo.app",
             style: TextStyle(color: constants.grey, fontSize: 14,),
             textAlign: TextAlign.center,
           ),
@@ -180,7 +181,9 @@ class _CanjearStickersPageState extends State<CanjearStickersPage> {
       width: double.maxFinite,
       padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 8,),
       alignment: Alignment.center,
-      child: const Text("Selecciona para canjear los stickers que te regalaron otros usuarios. Los stickers canjeados también se seguirán mostrando en tu perfil.",
+      child: const Text("Selecciona para canjear los stickers que te regalaron otros usuarios. Los stickers canjeados también se seguirán "
+          "mostrando en tu perfil.\n\n"
+          "Si hubo algún fallo al canjear un sticker, comunícate con nosotros en soporte@tenfo.app",
         style: TextStyle(color: constants.grey, fontSize: 12,),
       ),
     );

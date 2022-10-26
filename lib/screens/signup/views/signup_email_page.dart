@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -223,11 +224,16 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
     });
 
     _email = email;
+    String dispositivo = "android";
+    if(Platform.isIOS){
+      dispositivo = "iOS";
+    }
 
     var response = await HttpService.httpPost(
       url: constants.urlRegistroEnviarCodigo,
       body: {
-        "email": email
+        "email": email,
+        "plataforma": dispositivo
       },
     );
 

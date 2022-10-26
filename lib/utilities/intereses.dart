@@ -88,7 +88,7 @@ class Intereses {
         return "Por ej. hacer equipos para juegos de PC, juegos de celular, encuentros para jugar en consola, etc.";
         break;
       case "5":
-        return "Por ej. hacer una juntada, previa para una fiesta, una guitarreada, etc.";
+        return "Por ej. hacer una juntada, previa para una fiesta, juntarse para ir a un recital, etc.";
         break;
       default:
         return "";
