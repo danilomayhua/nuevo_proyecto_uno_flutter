@@ -130,33 +130,34 @@ class _PagarStickersPageState extends State<PagarStickersPage> {
           ),
         ),
         const SizedBox(height: 16,),
-        // TODO : agregar boton para Android
-        /*Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: ElevatedButton.icon(
-            onPressed: () async {
-              Uri url = Uri.parse("lightning:$_lightningNetworkInvoice");
+        if(!Platform.isIOS)
+          ...[
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  Uri url = Uri.parse("lightning:$_lightningNetworkInvoice");
 
-              try {
-                await launchUrl(url, mode: LaunchMode.externalApplication,);
-              } catch(e){
-                _showSnackBar("No se encontró una billetera compatible.");
-              }
-            },
-            icon: const Icon(Icons.payment_outlined),
-            label: const Text("Abrir en billetera"),
-          ),
-        ),
-        const SizedBox(height: 16,),
-        const Align(
-          alignment: Alignment.center,
-          //child: Text("O mostrar",
-          child: Text("O copiar",
-            style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
-          ),
-        ),
-        const SizedBox(height: 16,),*/
+                  try {
+                    await launchUrl(url, mode: LaunchMode.externalApplication,);
+                  } catch(e){
+                    _showSnackBar("No se encontró una billetera compatible.");
+                  }
+                },
+                icon: const Icon(Icons.payment_outlined),
+                label: const Text("Abrir en billetera"),
+              ),
+            ),
+            const SizedBox(height: 16,),
+            const Align(
+              alignment: Alignment.center,
+              child: Text("O copiar",
+                style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
+              ),
+            ),
+            const SizedBox(height: 16,),
+          ],
         /*Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16),

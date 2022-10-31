@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
@@ -444,6 +445,10 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
     } catch(e) {
       //
     }
+    String origenPlataforma = "android";
+    if(Platform.isIOS){
+      origenPlataforma = "iOS";
+    }
 
     var response = await HttpService.httpPost(
       url: constants.urlRegistroUsuario,
@@ -457,6 +462,7 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
         "codigo": widget.codigo,
         "registro_activado_token": widget.registroActivadoToken,
         "firebase_token": firebaseToken ?? "",
+        "plataforma": origenPlataforma,
       },
     );
 

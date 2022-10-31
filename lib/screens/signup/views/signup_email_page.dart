@@ -130,11 +130,12 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
             child: RichText(
               text: TextSpan(
                 style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
-                // TODO : cambiar texto para Android
-                /*text: "Recuerda que la app está en versión beta. El registro solo está disponible para correos preseleccionados "
-                    "y estudiantes de algunas universidades en Buenos Aires. ",*/
-                text: "Recuerda que el registro solo está disponible para correos preseleccionados y estudiantes de algunas "
-                    "universidades en Buenos Aires. ",
+                text: Platform.isIOS
+                    ? "Recuerda que el registro solo está disponible para correos preseleccionados y estudiantes de algunas "
+                    "universidades en Buenos Aires. "
+
+                    : "Recuerda que la app está en versión beta. El registro solo está disponible para correos preseleccionados "
+                    "y estudiantes de algunas universidades en Buenos Aires. ",
                 children: [
                   TextSpan(
                     text: "Más información.",
@@ -161,12 +162,13 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
             RichText(
               text: TextSpan(
                 style: const TextStyle(color: constants.blackGeneral, fontSize: 16, height: 1.3,),
-                // TODO : cambiar texto para Android
-                /*text: "Actualmente, la app está en versión beta y tiene un registro cerrado. Queremos dar una buena experiencia, ayudar "
+                text: Platform.isIOS
+                    ? "Actualmente, la app tiene un registro cerrado. Queremos dar una buena experiencia, ayudar "
                     "en la veracidad de los perfiles dentro y generar confianza entre los usuarios.\n\n"
                     "Si tienes un correo universitario de los disponibles, puedes registrarte. Puedes revisar nuestro "
-                    "instagram ",*/
-                text: "Actualmente, la app tiene un registro cerrado. Queremos dar una buena experiencia, ayudar "
+                    "instagram "
+
+                    : "Actualmente, la app está en versión beta y tiene un registro cerrado. Queremos dar una buena experiencia, ayudar "
                     "en la veracidad de los perfiles dentro y generar confianza entre los usuarios.\n\n"
                     "Si tienes un correo universitario de los disponibles, puedes registrarte. Puedes revisar nuestro "
                     "instagram ",
@@ -224,16 +226,16 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
     });
 
     _email = email;
-    String dispositivo = "android";
+    String origenPlataforma = "android";
     if(Platform.isIOS){
-      dispositivo = "iOS";
+      origenPlataforma = "iOS";
     }
 
     var response = await HttpService.httpPost(
       url: constants.urlRegistroEnviarCodigo,
       body: {
         "email": email,
-        "plataforma": dispositivo
+        "plataforma": origenPlataforma
       },
     );
 

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -135,6 +136,10 @@ class _LoginPageState extends State<LoginPage> {
     } catch(e) {
       //
     }
+    String origenPlataforma = "android";
+    if(Platform.isIOS){
+      origenPlataforma = "iOS";
+    }
 
     var response = await HttpService.httpPost(
       url: constants.urlLogin,
@@ -142,6 +147,7 @@ class _LoginPageState extends State<LoginPage> {
         "username": username,
         "contrasena": contrasena,
         "firebase_token": firebaseToken ?? "",
+        "plataforma": origenPlataforma,
       },
     );
 
