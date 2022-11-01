@@ -28,7 +28,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Permita el acceso a las fotos para cargar fotos de su biblioteca.</string>
+	<string>Allow access to photos to upload photos from your library. It will be used as profile picture.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

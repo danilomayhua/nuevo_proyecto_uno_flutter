@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -240,6 +241,10 @@ class FirebaseNotificaciones {
     /*setState(() {
       _loading = true;
     });*/
+    String origenPlataforma = "android";
+    if(Platform.isIOS){
+      origenPlataforma = "iOS";
+    }
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
@@ -247,7 +252,8 @@ class FirebaseNotificaciones {
     var response = await HttpService.httpPost(
       url: constants.urlGuardarFirebaseToken,
       body: {
-        "firebase_token": token
+        "firebase_token": token,
+        "plataforma": origenPlataforma,
       },
       usuarioSesion: usuarioSesion,
     );
