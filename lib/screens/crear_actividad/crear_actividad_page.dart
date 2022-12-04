@@ -78,7 +78,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
       appBar: AppBar(
         title: const Text("Crear actividad"),
         leading: IconButton(
-          icon: _pageCurrent == 0 ? Icon(Icons.clear) : Icon(Icons.arrow_back),
+          icon: _pageCurrent == 0 ? const Icon(Icons.clear) : const BackButtonIcon(),
           onPressed: (){
             if(_pageCurrent == 0){
               Navigator.of(context).pop();

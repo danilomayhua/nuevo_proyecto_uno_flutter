@@ -62,12 +62,7 @@ class ChatAppBarState extends State<ChatAppBar> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.black),
-                onPressed: () {
-                  Navigator.maybePop(context);
-                },
-              ),
+              const BackButton(),
               Expanded(
                 child: TextButton(
                   child: Row(
