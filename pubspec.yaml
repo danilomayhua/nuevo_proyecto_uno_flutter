@@ -50,6 +50,7 @@ dependencies:
   mime: ^1.0.2
   image_cropper: ^1.5.1
   smooth_page_indicator: ^1.0.0+2
+  geolocator: ^9.0.2
 
 dev_dependencies:
   flutter_test:

@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       navigatorKey: FirebaseNotificaciones().navigationKey,
-      title: 'Flutter Demo',
+      title: 'Tenfo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         appBarTheme: AppBarTheme(

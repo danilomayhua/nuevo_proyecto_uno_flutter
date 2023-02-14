@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:tenfo/models/actividad.dart';
 import 'package:tenfo/models/actividad_requisito.dart';
 import 'package:tenfo/models/usuario.dart';
@@ -21,6 +22,13 @@ class CrearActividadPage extends StatefulWidget {
 }
 
 enum ActividadTipo { publico, privado, requisitos }
+
+enum LocationPermissionStatus {
+  loading,
+  permitted,
+  notPermitted,
+  serviceDisabled,
+}
 
 class _CrearActividadPageState extends State<CrearActividadPage> {
   final PageController _pageController = PageController();
@@ -45,6 +53,9 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
   bool _enviando = false;
 
+  LocationPermissionStatus _permissionStatus = LocationPermissionStatus.loading;
+  Position? _position;
+
   @override
   void initState() {
     super.initState();
@@ -63,6 +74,8 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         setState(() {});
       }
     });
+
+    _obtenerUbicacion();
   }
 
   @override
@@ -372,6 +385,34 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
     );
   }
 
+  Future<void> _obtenerUbicacion() async {
+    _position = null;
+
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      _permissionStatus = LocationPermissionStatus.serviceDisabled;
+      return;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      _permissionStatus = LocationPermissionStatus.notPermitted;
+      return;
+    }
+
+    try {
+
+      _position = await Geolocator.getCurrentPosition();
+      _permissionStatus = LocationPermissionStatus.permitted;
+
+    } catch (e){
+      _permissionStatus = LocationPermissionStatus.notPermitted;
+      return;
+    }
+
+    return;
+  }
+
   void _validarContenidoUno(){
     if(_titleController.text.trim() == ''){
       _showSnackBar("El título está vacío");
@@ -384,6 +425,23 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
       } else {
         _showSnackBar("Selecciona a qué interés pertenece");
       }
+      return;
+    }
+
+    if(_permissionStatus != LocationPermissionStatus.permitted){
+      if(_permissionStatus == LocationPermissionStatus.loading){
+        _showSnackBar("Obteniendo ubicación. Espere...");
+      }
+
+      if(_permissionStatus == LocationPermissionStatus.serviceDisabled){
+        // TODO : Deberia volver a comprobar por si los activo después de recibir el aviso
+        _showSnackBar("Tienes los servicios de ubicación deshabilitados. Actívalo desde Ajustes.");
+      }
+
+      if(_permissionStatus == LocationPermissionStatus.notPermitted){
+        _showSnackBar("Debes habilitar la ubicación en Inicio para poder crear actividades.");
+      }
+
       return;
     }
 
@@ -897,6 +955,8 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         "interes_id": _selectedInteresId,
         "privacidad_tipo": Actividad.getActividadPrivacidadTipoToString(actividadPrivacidadTipo),
         "creadores": creadoresId,
+        "ubicacion_latitud": _position?.latitude.toString() ?? "",
+        "ubicacion_longitud": _position?.longitude.toString() ?? ""
       },
       usuarioSesion: usuarioSesion,
     );
@@ -938,7 +998,13 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         });
 
       } else {
-        _showSnackBar("Se produjo un error inesperado");
+
+        if(datosJson['error_tipo'] == 'ubicacion_no_disponible'){
+          _showSnackBar("Lo sentimos, actualmente Tenfo no está disponible en tu ciudad.");
+        } else{
+          _showSnackBar("Se produjo un error inesperado");
+        }
+
       }
     }
 
