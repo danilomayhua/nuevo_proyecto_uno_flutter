@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:tenfo/models/actividad.dart';
-import 'package:tenfo/models/actividad_requisito.dart';
 import 'package:tenfo/models/chat.dart';
 import 'package:tenfo/models/checkbox_item_intereses.dart';
 import 'package:tenfo/models/usuario.dart';
@@ -20,6 +20,12 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+enum LocationPermissionStatus {
+  loading,
+  permitted,
+  notPermitted,
+}
+
 class _HomePageState extends State<HomePage> {
   List<String> _intereses = [];
   List<Widget> _interesesIcons = [];
@@ -33,17 +39,17 @@ class _HomePageState extends State<HomePage> {
   bool _verMasActividades = false;
   String _ultimoActividades = "false";
 
+  LocationPermissionStatus _permissionStatus = LocationPermissionStatus.loading;
+  Position? _position;
+  bool _isCiudadDisponible = true;
+
   @override
   void initState() {
     super.initState();
 
     _mostrarIntereses();
 
-    _loadingActividades = false;
-    _verMasActividades = false;
-    _ultimoActividades = "false";
-
-    _cargarActividades();
+    _recargarActividades();
 
     _scrollController = ScrollController();
     _scrollController.addListener(() {
@@ -82,13 +88,20 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           _buildSeccionIntereses(),
-          (!_loadingActividades && _actividades.length == 0)
+
+          if(_permissionStatus != LocationPermissionStatus.loading && _permissionStatus == LocationPermissionStatus.notPermitted)
+            _buildSeccionSolicitarUbicacion(),
+
+          if (_permissionStatus != LocationPermissionStatus.loading && _permissionStatus == LocationPermissionStatus.permitted)
+            (!_loadingActividades && _actividades.length == 0)
               ? SliverFillRemaining(
                 hasScrollBody: false,
                 child: Container(
                   alignment: Alignment.center,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: const Text("No hay actividades relacionadas con tus intereses disponibles.",
+                  child: Text(_isCiudadDisponible
+                      ? "No hay actividades cerca disponibles según tus intereses."
+                      : "Lo sentimos, actualmente Tenfo no está disponible en tu ciudad.",
                     style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
                     textAlign: TextAlign.center,
                   ),
@@ -122,13 +135,50 @@ class _HomePageState extends State<HomePage> {
     _buildInteresesIcons();
   }
 
-  void _recargarActividades(){
-    _loadingActividades = false;
+  Future<void> _recargarActividades() async {
+    _loadingActividades = true;
     _verMasActividades = false;
     _ultimoActividades = "false";
 
     _actividades = [];
-    _cargarActividades();
+
+    bool ubicacionPermitida = await _verificarUbicacion();
+    if(ubicacionPermitida){
+
+      _position = await Geolocator.getCurrentPosition();
+      _cargarActividades();
+
+    } else {
+      _loadingActividades = false;
+      setState(() {});
+    }
+  }
+
+  Future<bool> _verificarUbicacion() async {
+    _position = null;
+
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      _permissionStatus = LocationPermissionStatus.notPermitted;
+      return false;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      _permissionStatus = LocationPermissionStatus.notPermitted;
+      return false;
+    }
+
+    try {
+
+      _permissionStatus = LocationPermissionStatus.permitted;
+
+    } catch (e){
+      _permissionStatus = LocationPermissionStatus.notPermitted;
+      return false;
+    }
+
+    return true;
   }
 
   Future<void> _cargarActividades() async {
@@ -141,11 +191,14 @@ class _HomePageState extends State<HomePage> {
 
     String interesesIdString = usuarioSesion.interesesId.join(",");
 
-    var response = await HttpService.httpGet(
-      url: constants.urlHomeActividades,
-      queryParams: {
+    // Se usa POST porque envia datos privados (ubicacion)
+    var response = await HttpService.httpPost(
+      url: constants.urlHomeVerActividades,
+      body: {
         "ultimo_id": _ultimoActividades,
-        "intereses": interesesIdString
+        "intereses": interesesIdString,
+        "ubicacion_latitud": _position?.latitude.toString() ?? "",
+        "ubicacion_longitud": _position?.longitude.toString() ?? ""
       },
       usuarioSesion: usuarioSesion,
     );
@@ -200,7 +253,10 @@ class _HomePageState extends State<HomePage> {
 
       } else {
 
-        if(datosJson['error_tipo'] == 'intereses_vacio'){
+        if(datosJson['error_tipo'] == 'ubicacion_no_disponible'){
+          _isCiudadDisponible = false;
+          _showDialogCiudadNoDisponible();
+        } else if(datosJson['error_tipo'] == 'intereses_vacio'){
           _showDialogCambiarIntereses();
         } else{
           _showSnackBar("Se produjo un error inesperado");
@@ -211,6 +267,31 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       _loadingActividades = false;
+    });
+  }
+
+  void _showDialogCiudadNoDisponible(){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: const <Widget>[
+              Text("Lo sentimos, actualmente Tenfo no está disponible en tu ciudad. Puedes revisar nuestro instagram @tenfo.app para "
+                  "ver las ciudades disponibles actualmente.",
+                style: TextStyle(color: constants.blackGeneral),),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: (){
+              Navigator.of(context).pop();
+            },
+            child: const Text("Entendido"),
+          ),
+        ],
+      );
     });
   }
 
@@ -386,6 +467,76 @@ class _HomePageState extends State<HomePage> {
     setStateDialog(() {
       _enviandoIntereses = false;
     });
+  }
+
+  Widget _buildSeccionSolicitarUbicacion(){
+    return SliverFillRemaining(
+      hasScrollBody: false,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16,),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Icon(Icons.location_on, size: 50.0, color: constants.grey,),
+            const SizedBox(height: 15.0,),
+            Text(
+              'Es necesario permitir ubicación para ver actividades de tu ciudad y al crear tus actividades. '
+                  'Tu ubicación siempre será privada y nunca será compartida con otros usuarios.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14.0,
+                color: Colors.grey[700],
+              ),
+            ),
+            const SizedBox(height: 15.0,),
+            Container(
+              constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+              child: ElevatedButton(
+                onPressed: () {
+                  _habilitarUbicacion();
+                },
+                child: const Text('Permitir ubicación'),
+                style: ElevatedButton.styleFrom(
+                  shape: const StadiumBorder(),
+                ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _habilitarUbicacion() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      _showSnackBar("Tienes los servicios de ubicación deshabilitados. Actívalo desde Ajustes.");
+      return;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      _showSnackBar("Los permisos están denegados. Permite la ubicación desde Ajustes en la app.");
+      return;
+    }
+
+    try {
+
+      _permissionStatus = LocationPermissionStatus.permitted;
+      setState(() {});
+
+      _recargarActividades();
+
+    } catch (e){
+      //
+    }
   }
 
   Widget _buildLoadingActividades(){
