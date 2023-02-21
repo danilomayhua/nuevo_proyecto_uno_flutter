@@ -29,7 +29,7 @@ class ActividadPage extends StatefulWidget {
   State<ActividadPage> createState() => _ActividadPageState();
 }
 
-enum _PopupMenuOption { eliminarActividad }
+enum _PopupMenuOption { eliminarActividad, reportarActividad }
 
 class _ActividadPageState extends State<ActividadPage> {
 
@@ -37,6 +37,7 @@ class _ActividadPageState extends State<ActividadPage> {
 
   bool _loadingActividad = false;
   bool _enviandoEliminarActividad = false;
+  bool _enviandoReportarActividad = false;
   bool _enviandoConfirmarCocreador = false;
 
   bool _noMostrarActividad = false;
@@ -92,6 +93,20 @@ class _ActividadPageState extends State<ActividadPage> {
                 const PopupMenuItem<_PopupMenuOption>(
                   value: _PopupMenuOption.eliminarActividad,
                   child: Text('Eliminar actividad'),
+                ),
+              ],
+            ),
+          if(!widget.actividad.isAutor)
+            PopupMenuButton<_PopupMenuOption>(
+              onSelected: (_PopupMenuOption result) {
+                if(result == _PopupMenuOption.reportarActividad) {
+                  _showDialogReportarActividad();
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<_PopupMenuOption>>[
+                const PopupMenuItem<_PopupMenuOption>(
+                  value: _PopupMenuOption.reportarActividad,
+                  child: Text('Reportar'),
                 ),
               ],
             ),
@@ -318,6 +333,30 @@ class _ActividadPageState extends State<ActividadPage> {
     });
   }
 
+  void _showDialogReportarActividad(){
+    showDialog(context: context, builder: (context) {
+      return StatefulBuilder(builder: (context, setStateDialog) {
+        return AlertDialog(
+          title: const Text('¿Quieres reportar esta actividad?'),
+          content: const Text('Revisaremos esta actividad y tomaremos medidas si infringe nuestros términos y condiciones. Tus informes son confidenciales y solo serán compartidos con nuestro equipo de moderación.'),
+          actions: [
+            TextButton(
+              child: const Text('Cancelar'),
+              onPressed: _enviandoReportarActividad ? null : () => Navigator.pop(context),
+            ),
+            TextButton(
+              child: const Text('Reportar'),
+              style: TextButton.styleFrom(
+                primary: constants.redAviso,
+              ),
+              onPressed: _enviandoReportarActividad ? null : () => _reportarActividad(setStateDialog),
+            ),
+          ],
+        );
+      });
+    });
+  }
+
   void _showDialogAyudaTiposActividad(){
     showDialog(context: context, builder: (context){
       return AlertDialog(
@@ -509,6 +548,43 @@ class _ActividadPageState extends State<ActividadPage> {
 
     setStateDialog(() {
       _enviandoEliminarActividad = false;
+    });
+  }
+
+  Future<void> _reportarActividad(setStateDialog) async {
+    setStateDialog(() {
+      _enviandoReportarActividad = true;
+    });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    var response = await HttpService.httpPost(
+      url: constants.urlReportarActividad,
+      body: {
+        "actividad_id": widget.actividad.id
+      },
+      usuarioSesion: usuarioSesion,
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+
+        Navigator.pop(context);
+
+        _showSnackBar("Tu reporte ha sido recibido y será revisado por nuestro equipo de moderación. Gracias por ayudarnos a mantener una comunidad segura y respetuosa para todos.");
+
+      } else {
+        Navigator.pop(context);
+
+        _showSnackBar("Se produjo un error inesperado");
+      }
+    }
+
+    setStateDialog(() {
+      _enviandoReportarActividad = false;
     });
   }
 

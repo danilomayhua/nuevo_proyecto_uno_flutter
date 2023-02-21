@@ -51,6 +51,7 @@ const String urlHomeCambiarIntereses = "/api/home/cambiar-intereses";
 const String urlVerActividad = "/api/actividad/ver";
 const String urlCrearActividad = "/api/actividad/crear";
 const String urlEliminarActividad = "/api/actividad/eliminar";
+const String urlReportarActividad = "/api/actividad/reportar";
 
 const String urlActividadBuscadorCocreador = "/api/actividad/buscador-agregar-cocreador";
 
