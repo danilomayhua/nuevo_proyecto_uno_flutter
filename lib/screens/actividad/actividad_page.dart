@@ -18,11 +18,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ActividadPage extends StatefulWidget {
   ActividadPage({Key? key, required this.actividad, this.reload = true,
-    this.creadoresPendientes = const [], this.onChangeIngreso}) : super(key: key);
+    this.creadoresPendientes = const [], this.creadoresPendientesExternosCodigo = const [],
+    this.onChangeIngreso}) : super(key: key);
 
   Actividad actividad;
   final bool reload;
   final List<Usuario> creadoresPendientes;
+  final List<String> creadoresPendientesExternosCodigo;
   final void Function(Actividad)? onChangeIngreso;
 
   @override
