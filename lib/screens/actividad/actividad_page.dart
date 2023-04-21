@@ -12,6 +12,7 @@ import 'package:tenfo/screens/user/user_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/intereses.dart';
+import 'package:tenfo/utilities/share_utils.dart';
 import 'package:tenfo/widgets/actividad_boton_entrar.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,12 +47,14 @@ class _ActividadPageState extends State<ActividadPage> {
 
   bool _isCreadorPendiente = false;
   List<Usuario> _creadoresPendientes = [];
+  List<String> _creadoresPendientesExternosCodigo = [];
 
   @override
   void initState() {
     super.initState();
 
     _creadoresPendientes = widget.creadoresPendientes;
+    _creadoresPendientesExternosCodigo = widget.creadoresPendientesExternosCodigo;
 
     if(widget.reload){
       _cargarActividad();
@@ -229,7 +232,7 @@ class _ActividadPageState extends State<ActividadPage> {
 
           const SizedBox(height: 16,),
 
-          if(widget.actividad.isAutor && _creadoresPendientes.length > 0)
+          if(widget.actividad.isAutor && (_creadoresPendientes.isNotEmpty || _creadoresPendientesExternosCodigo.isNotEmpty))
             Column(children: [
               const Padding(
                 padding: EdgeInsets.only(left: 16, top: 12, right: 16, bottom: 0,),
@@ -243,31 +246,60 @@ class _ActividadPageState extends State<ActividadPage> {
                   //textAlign: TextAlign.center,
                 ),
               ),
-              ListView.builder(
-                itemCount: _creadoresPendientes.length,
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemBuilder: (context, index) => ListTile(
-                  dense: true,
-                  title: Text(_creadoresPendientes[index].nombre,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+              if(_creadoresPendientes.isNotEmpty)
+                ListView.builder(
+                  itemCount: _creadoresPendientes.length,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) => ListTile(
+                    dense: true,
+                    title: Text(_creadoresPendientes[index].nombre,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Text(_creadoresPendientes[index].username,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    leading: CircleAvatar(
+                      backgroundColor: constants.greyBackgroundImage,
+                      backgroundImage: NetworkImage(_creadoresPendientes[index].foto),
+                    ),
+                    onTap: (){
+                      Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => UserPage(usuario: _creadoresPendientes[index],)),
+                      );
+                    },
                   ),
-                  subtitle: Text(_creadoresPendientes[index].username,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  leading: CircleAvatar(
-                    backgroundColor: constants.greyBackgroundImage,
-                    backgroundImage: NetworkImage(_creadoresPendientes[index].foto),
-                  ),
-                  onTap: (){
-                    Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => UserPage(usuario: _creadoresPendientes[index],)),
-                    );
-                  },
                 ),
-              ),
+              if(_creadoresPendientesExternosCodigo.isNotEmpty)
+                ListView.builder(
+                  itemCount: _creadoresPendientesExternosCodigo.length,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) => ListTile(
+                    dense: true,
+                    title: const Text("Invitado externo",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontStyle: FontStyle.italic),
+                    ),
+                    subtitle: Text("Código: " + (_creadoresPendientesExternosCodigo[index].split('').join(' ')),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    leading: const CircleAvatar(
+                      backgroundColor: constants.greyBackgroundImage,
+                      child: Icon(Icons.group, color: constants.blackGeneral,),
+                    ),
+                    onTap: (){
+                      ShareUtils.shareActivityCocreatorCode(
+                        _creadoresPendientesExternosCodigo[index],
+                        widget.actividad.titulo,
+                      );
+                    },
+                  ),
+                ),
               const SizedBox(height: 16,),
             ], crossAxisAlignment: CrossAxisAlignment.start,),
 
@@ -446,6 +478,7 @@ class _ActividadPageState extends State<ActividadPage> {
         _noMostrarActividad = false;
 
         _creadoresPendientes = [];
+        _creadoresPendientesExternosCodigo = [];
 
         List<Usuario> creadores = [];
         datosActividad['creadores'].forEach((usuario) {
@@ -467,6 +500,12 @@ class _ActividadPageState extends State<ActividadPage> {
           }
 
         });
+
+        if(datosActividad['creadores_externos_codigo'] != null){
+          datosActividad['creadores_externos_codigo'].forEach((codigo) {
+            _creadoresPendientesExternosCodigo.add(codigo);
+          });
+        }
 
         Actividad actividad = Actividad(
           id: datosActividad['id'],

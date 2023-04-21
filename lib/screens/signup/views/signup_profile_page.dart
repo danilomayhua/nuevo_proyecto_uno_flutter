@@ -487,6 +487,8 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
           _usuarioErrorText = 'El nombre de usuario no está disponible.';
         } else if(datosJson['error_tipo'] == 'email_registrado'){
           _showSnackBar("Se produjo un error inesperado");
+        } else if(datosJson['error_tipo'] == 'codigo_invitacion_invalido'){
+          _showDialogCodigoInvitacionInvalido();
         } else {
           _showSnackBar("Se produjo un error inesperado");
         }
@@ -496,6 +498,31 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
 
     setState(() {
       _enviandoRegistro = false;
+    });
+  }
+
+  void _showDialogCodigoInvitacionInvalido(){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(children: const [
+            Text("Lo sentimos, el código invitación introducido anteriormente, ya fue utilizado en estos momentos.\n\n"
+                "Tendrás que ingresar otro código de invitación o hacer el registro directamente.",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 16, height: 1.3,),
+            ),
+          ], mainAxisSize: MainAxisSize.min,),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Entendido"),
+          ),
+        ],
+      );
+    }).then((value){
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+          builder: (context) => const WelcomePage()
+      ), (route) => false);
     });
   }
 

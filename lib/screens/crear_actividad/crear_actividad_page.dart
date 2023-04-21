@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:tenfo/models/actividad.dart';
 import 'package:tenfo/models/actividad_requisito.dart';
 import 'package:tenfo/models/usuario.dart';
@@ -16,6 +15,7 @@ import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/intereses.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tenfo/utilities/share_utils.dart';
 
 class CrearActividadPage extends StatefulWidget {
   const CrearActividadPage({Key? key}) : super(key: key);
@@ -45,6 +45,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
   List<UsuarioCocreadorPendiente> _creadores = [];
   List<Usuario> _creadoresBusqueda = [];
   bool _loadingCreadoresBusqueda = false;
+  bool _dialogCreadoresIsOpen = false;
   Timer? _timer;
   bool _enviandoCrearInvitacion = false;
 
@@ -110,21 +111,27 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         ),
       ),
       backgroundColor: Colors.white,
-      body: PageView(
-        controller: _pageController,
-        physics: const NeverScrollableScrollPhysics(),
-        onPageChanged: (index){
-          WidgetsBinding.instance?.focusManager.primaryFocus?.unfocus();
-        },
-        children: [
-          SingleChildScrollView(
-            child: contenidoUno(),
-          ),
-          SingleChildScrollView(
-            child: contenidoDos(),
-          ),
-        ],
-      ),
+      body: Column(children: [
+        Expanded(child: PageView(
+          controller: _pageController,
+          physics: const NeverScrollableScrollPhysics(),
+          onPageChanged: (index){
+            WidgetsBinding.instance?.focusManager.primaryFocus?.unfocus();
+          },
+          children: [
+            SingleChildScrollView(
+              child: contenidoUno(),
+            ),
+            SingleChildScrollView(
+              child: contenidoDos(),
+            ),
+          ],
+        )),
+        const Text("Las actividades solo duran 48 h visibles",
+          style: TextStyle(color: constants.grey, fontSize: 12,),
+        ),
+        const SizedBox(height: 16,),
+      ]),
     );
 
     return WillPopScope(
@@ -376,7 +383,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
     String titulo = "";
     String subtitulo = "";
 
-    if(cocreador.tipo == UsuarioCocreadorPendienteTipo.INVITADO_DIRECTO){
+    if(cocreador.tipo == UsuarioCocreadorPendienteTipo.CREADOR_PENDIENTE){
       titulo = cocreador.usuario!.nombre;
       subtitulo = cocreador.usuario!.username;
     } else {
@@ -389,7 +396,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
       title: Text(titulo,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: cocreador.tipo == UsuarioCocreadorPendienteTipo.INVITADO_DIRECTO
+        style: cocreador.tipo == UsuarioCocreadorPendienteTipo.CREADOR_PENDIENTE
             ? null : const TextStyle(fontStyle: FontStyle.italic),
       ),
       subtitle: Text(subtitulo,
@@ -398,14 +405,20 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
       ),
       leading: CircleAvatar(
         backgroundColor: constants.greyBackgroundImage,
-        backgroundImage: cocreador.tipo == UsuarioCocreadorPendienteTipo.INVITADO_DIRECTO
+        backgroundImage: cocreador.tipo == UsuarioCocreadorPendienteTipo.CREADOR_PENDIENTE
             ? NetworkImage(cocreador.usuario!.foto) : null,
-        child: cocreador.tipo == UsuarioCocreadorPendienteTipo.INVITADO_DIRECTO
+        child: cocreador.tipo == UsuarioCocreadorPendienteTipo.CREADOR_PENDIENTE
             ? null : const Icon(Icons.group, color: constants.blackGeneral,),
       ),
+      onTap: cocreador.tipo == UsuarioCocreadorPendienteTipo.CREADOR_PENDIENTE ? null : (){
+        ShareUtils.shareActivityCocreatorCode(
+          cocreador.invitacionCodigo!,
+          _titleController.text.trim(),
+        );
+      },
       trailing: IconButton(
         onPressed: (){
-          if(cocreador.tipo == UsuarioCocreadorPendienteTipo.INVITADO_DIRECTO){
+          if(cocreador.tipo == UsuarioCocreadorPendienteTipo.CREADOR_PENDIENTE){
             setState(() {
               _creadores.removeAt(index);
             });
@@ -515,6 +528,9 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
     String textoBusqueda = "";
 
     showDialog(context: context, builder: (context){
+
+      _dialogCreadoresIsOpen = true;
+
       return StatefulBuilder(builder: (context, setStateDialog){
         return AlertDialog(
           content: Container(
@@ -605,8 +621,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
                                 text: "Más información.",
                                 style: const TextStyle(decoration: TextDecoration.underline,),
                                 recognizer: TapGestureRecognizer()..onTap = (){
-                                  // TODO : NECESARIO - agregar dialog de más información
-                                  //_showDialogMasInformacion();
+                                  _showDialogAyudaCreadorExterno();
                                 },
                               ),
                             ],
@@ -641,7 +656,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
                             }
                             setState(() {
                               _creadores.add(UsuarioCocreadorPendiente(
-                                tipo: UsuarioCocreadorPendienteTipo.INVITADO_DIRECTO,
+                                tipo: UsuarioCocreadorPendienteTipo.CREADOR_PENDIENTE,
                                 usuario: _creadoresBusqueda[index],
                               ));
                               _creadoresBusqueda.clear();
@@ -662,7 +677,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
           ],
         );
       });
-    });
+    }).then((value) => _dialogCreadoresIsOpen = false);
   }
 
   Future<void> _buscarUsuario(String texto, setStateDialog) async {
@@ -714,65 +729,74 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
     });
   }
 
+  void _showDialogAyudaCreadorExterno(){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(children: const [
+            Text("Invita a tus amigos que aún no tienen la app para colaborar contigo en una actividad.\n\n"
+                "Esto creará un código para tu invitado, donde al ingresarlo, será agregado automáticamente como co-creador de esta actividad.\n\n"
+                "Si tu amigo no tiene un correo de los permitidos para registrarse, podrá registrarse igualmente y se restará de tus invitaciones directas que tienes disponibles.",
+              style: TextStyle(color: constants.grey, fontSize: 12,),
+              textAlign: TextAlign.center,
+            ),
+          ], mainAxisSize: MainAxisSize.min,),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Entendido"),
+          ),
+        ],
+      );
+    });
+  }
+
   Future<void> _crearInvitacionCocreadorExterno(setStateDialog) async {
     setStateDialog(() {
       _enviandoCrearInvitacion = true;
     });
 
-    await Future.delayed(const Duration(seconds: 3)); // TODO : NECESARIO - agregar llamada a API
-    /*SharedPreferences prefs = await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
 
-    var response = await HttpService.httpPost(
-      url: constants.urlCrearInvitacionCocreador,
-      body: {
-        "usuario_id": ""
-      },
+    var response = await HttpService.httpGet(
+      url: constants.urlActividadCodigoCocreadorExterno,
+      queryParams: {},
       usuarioSesion: usuarioSesion,
     );
 
     if(response.statusCode == 200){
       var datosJson = jsonDecode(response.body);
 
-      if(datosJson['error'] == false){*/
+      if(datosJson['error'] == false){
 
-        /*
-        Al crear el codigo, enviar los codigos que están actualmente.
-        De modo que si creó alguno, pero lo eliminó, lo vuelva a utilizar. Y asi,
-        con los codigos enviados, comprueba y no devuelve uno disponible repetido (porque aun no está en una actividad).
-        Solo puede volver a utilizar los codigos que no estan vinculados a una actividad.
-        Siempre habria como maximo 3 codigos disponibles, el limite de cocreadores.
-        Si no hay ninguno disponible, crea uno nuevo.
+        String codigoInvitacion = datosJson['data']['codigo'];
 
-        Los codigos disponibles no tendrian que tener validez. Si alguien lo usa al registrarse, no
-        lo toma en cuenta o lo toma como invalido.
+        if(_dialogCreadoresIsOpen) {
+          Navigator.of(context).pop();
+        }
 
-
-         No es posible hacerlo asi. Porque si alguien comparte un codigo, y luego lo elimina para inhabilitarlo,.
-         Y luego crea otra actividad, usaria el mismo codigo, y la persona que le compartio primero, si lo usa,
-         se uniria a otra actividad.
-         */
-        String codigoInvitacion = "563289";//datosJson['data']['invitacion_codigo'];
-
-        String textoCompartir = "Unite como co-creador de mi actividad \"${_titleController.text.trim()}\" en Tenfo.\n"
-            "Ingresa el siguiente código de invitación al unirte:\n\n"
-            "${codigoInvitacion.split('').join(' ')}\n\n"
-            "Link en App Store: https://apps.apple.com/ar/app/tenfo/id6443714838\n\n"
-            "Link en Google Play: https://play.google.com/store/apps/details?id=app.tenfo.mobile";
-
-        Navigator.of(context).pop(); // TODO : NECESARIO - verificar y cerrar solo si es el dialog
-        Share.share(textoCompartir);
+        ShareUtils.shareActivityCocreatorCode(codigoInvitacion, _titleController.text.trim());
 
         _creadores.add(UsuarioCocreadorPendiente(
-          tipo: UsuarioCocreadorPendienteTipo.INVITADO_EXTERNO,
+          tipo: UsuarioCocreadorPendienteTipo.CREADOR_PENDIENTE_EXTERNO,
           invitacionCodigo: codigoInvitacion,
         ));
 
-      /*} else {
-        Navigator.of(context).pop();
-        _showSnackBar("Se produjo un error inesperado");
+      } else {
+        if(_dialogCreadoresIsOpen) {
+          Navigator.of(context).pop();
+        }
+
+        if(datosJson['error_tipo'] == 'limite_codigos'){
+          _showSnackBar("Ya has generado el máximo de códigos permitidos para hoy.");
+        } else{
+          _showSnackBar("Se produjo un error inesperado");
+        }
+
       }
-    }*/
+    }
 
     _enviandoCrearInvitacion = false; // Actualizar afuera, por si ya no existe setStateDialog
     setState(() {});
@@ -1141,7 +1165,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
     List<String> creadoresId = [];
     List<String> creadoresExternoCodigo = [];
     for(UsuarioCocreadorPendiente usuarioCocreadorPendiente in _creadores){
-      if(usuarioCocreadorPendiente.tipo == UsuarioCocreadorPendienteTipo.INVITADO_DIRECTO){
+      if(usuarioCocreadorPendiente.tipo == UsuarioCocreadorPendienteTipo.CREADOR_PENDIENTE){
         creadoresUsuario.add(usuarioCocreadorPendiente.usuario!);
         creadoresId.add(usuarioCocreadorPendiente.usuario!.id);
       } else {
@@ -1191,6 +1215,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
               ),
               reload: false,
               creadoresPendientes: creadoresUsuario,
+              creadoresPendientesExternosCodigo: creadoresExternoCodigo,
             )
         )).then((value) => {
 

@@ -1,8 +1,8 @@
 import 'package:tenfo/models/usuario.dart';
 
 enum UsuarioCocreadorPendienteTipo {
-  INVITADO_DIRECTO,
-  INVITADO_EXTERNO
+  CREADOR_PENDIENTE,
+  CREADOR_PENDIENTE_EXTERNO
 }
 
 class UsuarioCocreadorPendiente {
@@ -13,10 +13,10 @@ class UsuarioCocreadorPendiente {
   UsuarioCocreadorPendiente({required this.tipo, this.usuario, this.invitacionCodigo});
 
   static UsuarioCocreadorPendienteTipo getUsuarioCocreadorPendienteTipoFromString(String tipoString){
-    if(tipoString == "INVITADO_EXTERNO"){
-      return UsuarioCocreadorPendienteTipo.INVITADO_EXTERNO;
+    if(tipoString == "CREADOR_PENDIENTE_EXTERNO"){
+      return UsuarioCocreadorPendienteTipo.CREADOR_PENDIENTE_EXTERNO;
     } else {
-      return UsuarioCocreadorPendienteTipo.INVITADO_DIRECTO;
+      return UsuarioCocreadorPendienteTipo.CREADOR_PENDIENTE;
     }
   }
 }
