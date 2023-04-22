@@ -3,13 +3,17 @@ import 'dart:io';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:tenfo/screens/signup/views/signup_invitation_page.dart';
 import 'package:tenfo/screens/signup/views/signup_profile_page.dart';
+import 'package:tenfo/screens/welcome/welcome_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:url_launcher/url_launcher.dart';
 
 class SignupEmailPage extends StatefulWidget {
-  const SignupEmailPage({Key? key}) : super(key: key);
+  const SignupEmailPage({Key? key, this.codigoInvitacion}) : super(key: key);
+
+  final String? codigoInvitacion;
 
   @override
   State<SignupEmailPage> createState() => _SignupEmailPageState();
@@ -31,6 +35,8 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
   final TextEditingController _codigoController = TextEditingController();
   String? _codigoErrorText;
 
+  bool _tieneCodigoInvitacion = false;
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +50,8 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
         setState(() {});
       }
     });
+
+    _tieneCodigoInvitacion = widget.codigoInvitacion != null;
   }
 
   @override
@@ -51,10 +59,19 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        leading: BackButton(
+        leading: IconButton(
+          icon: _tieneCodigoInvitacion
+              ? _pageCurrent == 0 ? const Icon(Icons.clear) : const BackButtonIcon()
+              : const BackButtonIcon(),
           onPressed: (){
             if(_pageCurrent == 0){
-              Navigator.of(context).pop();
+              if(_tieneCodigoInvitacion){
+                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                    builder: (context) => const WelcomePage()
+                ), (route) => false);
+              } else {
+                Navigator.of(context).pop();
+              }
             } else {
               _pageController.previousPage(
                 duration: const Duration(milliseconds: 300),
@@ -81,77 +98,128 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
 
   Widget _contenidoParteUno(){
     return SingleChildScrollView(
-      child: Padding(
+      child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16,),
+        constraints: BoxConstraints(
+          minHeight: MediaQuery.of(context).size.height
+              - MediaQuery.of(context).padding.top
+              - MediaQuery.of(context).padding.bottom
+              - kToolbarHeight,
+        ),
         child: Column(children: [
-          const SizedBox(height: 16,),
 
-          Text("¿Cuál es tu email?",
-            style: TextStyle(color: constants.blackGeneral, fontSize: 24,),
-          ),
-          const SizedBox(height: 24,),
+          Column(children: [
+            const SizedBox(height: 16,),
 
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text("Se enviará un código de confirmación",
-              style: TextStyle(color: constants.grey,),
-              textAlign: TextAlign.left,
+            const Text("¿Cuál es tu email?",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 24,),
             ),
-          ),
-          const SizedBox(height: 16,),
-          TextField(
-            controller: _emailController,
-            decoration: InputDecoration(
-              hintText: "nombre@universidad.edu",
-              border: const OutlineInputBorder(),
-              counterText: '',
-              errorText: _emailErrorText,
-              errorMaxLines: 2,
-            ),
-            maxLength: 100,
-            keyboardType: TextInputType.emailAddress,
-          ),
-          const SizedBox(height: 16,),
-          Container(
-            constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _enviandoEmail ? null : () => _validarEmail(),
-              child: const Text("Enviar código"),
-              style: ElevatedButton.styleFrom(
-                shape: const StadiumBorder(),
-              ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
-            ),
-          ),
-          const SizedBox(height: 24,),
+            const SizedBox(height: 24,),
 
-          Align(
-            alignment: Alignment.centerLeft,
-            child: RichText(
-              text: TextSpan(
-                style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
-                text: Platform.isIOS
-                    ? "Recuerda que el registro solo está disponible para correos preseleccionados y estudiantes de algunas "
-                    "universidades en Buenos Aires. "
-
-                    : "Recuerda que la app está en versión beta. El registro solo está disponible para correos preseleccionados "
-                    "y estudiantes de algunas universidades en Buenos Aires. ",
-                children: [
-                  TextSpan(
-                    text: "Más información.",
-                    style: TextStyle(color: constants.blueGeneral, decoration: TextDecoration.underline,),
-                    recognizer: TapGestureRecognizer()..onTap = (){
-                      _showDialogMasInformacion();
-                    },
-                  ),
-                ],
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text("Se enviará un código de confirmación",
+                style: TextStyle(color: constants.grey,),
+                textAlign: TextAlign.left,
               ),
             ),
-          ),
-          const SizedBox(height: 16,),
-        ],),
+            const SizedBox(height: 16,),
+            TextField(
+              controller: _emailController,
+              decoration: InputDecoration(
+                hintText: "nombre@universidad.edu",
+                border: const OutlineInputBorder(),
+                counterText: '',
+                errorText: _emailErrorText,
+                errorMaxLines: 2,
+              ),
+              maxLength: 100,
+              keyboardType: TextInputType.emailAddress,
+            ),
+            const SizedBox(height: 16,),
+            Container(
+              constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _enviandoEmail ? null : () => _validarEmail(),
+                child: const Text("Enviar código"),
+                style: ElevatedButton.styleFrom(
+                  shape: const StadiumBorder(),
+                ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+              ),
+            ),
+            const SizedBox(height: 24,),
+
+            Align(
+              alignment: Alignment.centerLeft,
+              child: _buildTextInfo(),
+            ),
+            const SizedBox(height: 16,),
+          ]),
+
+          Column(children: [
+            if(!_tieneCodigoInvitacion)
+              ...[
+                const SizedBox(height: 16,),
+                GestureDetector(
+                  child: const Text("¿Tienes un código de invitación?",
+                    style: TextStyle(color: constants.blueGeneral, decoration: TextDecoration.underline,),
+                  ),
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (context) => const SignupInvitationPage(),
+                    ));
+                  },
+                ),
+              ],
+            const SizedBox(height: 16,),
+          ]),
+
+        ], mainAxisAlignment: MainAxisAlignment.spaceBetween,),
       ),
     );
+  }
+
+  Widget _buildTextInfo(){
+    if(_tieneCodigoInvitacion){
+      return RichText(
+        text: TextSpan(
+          style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
+          text: "Si no tienes un correo universitario habilitado, podrás registrarte si la persona que te compartió "
+              "el código posee invitaciones directas sin uso. ",
+          children: [
+            TextSpan(
+              text: "Más información.",
+              style: TextStyle(color: constants.grey, decoration: TextDecoration.underline,),
+              recognizer: TapGestureRecognizer()..onTap = (){
+                _showDialogMasInformacionCodigoInvitacion();
+              },
+            ),
+          ],
+        ),
+      );
+    } else {
+      return RichText(
+        text: TextSpan(
+          style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
+          text: Platform.isIOS
+              ? "Recuerda que el registro solo está disponible para correos preseleccionados y estudiantes de algunas "
+              "universidades en Buenos Aires. "
+
+              : "Recuerda que la app está en versión beta. El registro solo está disponible para correos preseleccionados "
+              "y estudiantes de algunas universidades en Buenos Aires. ",
+          children: [
+            TextSpan(
+              text: "Más información.",
+              style: TextStyle(color: constants.grey, decoration: TextDecoration.underline,),
+              recognizer: TapGestureRecognizer()..onTap = (){
+                _showDialogMasInformacion();
+              },
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   void _showDialogMasInformacion(){
@@ -207,6 +275,54 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
     });
   }
 
+  void _showDialogMasInformacionCodigoInvitacion(){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(children: [
+            RichText(
+              text: TextSpan(
+                style: const TextStyle(color: constants.blackGeneral, fontSize: 16, height: 1.3,),
+                text: "Actualmente, la app está en versión beta y tiene un registro cerrado. Queremos dar una buena experiencia, ayudar "
+                    "en la veracidad de los perfiles dentro y generar confianza entre los usuarios.\n\n"
+                    "Si tienes un correo universitario de los disponibles, puedes registrarte. Puedes revisar nuestro "
+                    "instagram ",
+                children: [
+                  TextSpan(
+                    text: "@tenfo.app",
+                    style: TextStyle(color: constants.grey, decoration: TextDecoration.underline,),
+                    recognizer: TapGestureRecognizer()..onTap = () async {
+                      String urlString = "https://www.instagram.com/tenfo.app";
+                      Uri url = Uri.parse(urlString);
+
+                      try {
+                        await launchUrl(url, mode: LaunchMode.externalApplication,);
+                      } catch (e){
+                        throw 'Could not launch $urlString';
+                      }
+                    },
+                  ),
+                  const TextSpan(
+                    text: " para ver la lista actualizada de universidades disponibles.\n\n"
+                        "Si no tienes un correo universitario, pero el código que estás usando es de una persona que aún tiene "
+                        "invitaciones directas, puedes registrarte con tu correo común.\nCada usuario tiene una cantidad limitada de invitaciones directas.\n\n"
+                        "Gracias por la comprensión.",
+                  ),
+                ],
+              ),
+            ),
+          ], mainAxisSize: MainAxisSize.min,),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Entendido"),
+          ),
+        ],
+      );
+    });
+  }
+
   void _validarEmail(){
     _emailErrorText = null;
 
@@ -230,12 +346,14 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
     if(Platform.isIOS){
       origenPlataforma = "iOS";
     }
+    String codigoInvitacion = widget.codigoInvitacion ?? "";
 
     var response = await HttpService.httpPost(
       url: constants.urlRegistroEnviarCodigo,
       body: {
         "email": email,
-        "plataforma": origenPlataforma
+        "plataforma": origenPlataforma,
+        "codigo_invitacion": codigoInvitacion
       },
     );
 
@@ -251,12 +369,20 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
         if(datosJson['error_tipo'] == 'email_registrado'){
           _emailErrorText = 'Este email ya está registrado.';
         } else if(datosJson['error_tipo'] == 'email_no_permitido'){
-          _emailErrorText = 'Este email no está disponible para registrarse. Revisa abajo en "Más información".';
+
+          if(_tieneCodigoInvitacion){
+            _emailErrorText = 'Este email no está disponible para registrarse y el código no posee invitaciones directas. Revisa en "Más información".';
+          } else {
+            _emailErrorText = 'Este email no está disponible para registrarse. Revisa abajo en "Más información".';
+          }
+
         } else if(datosJson['error_tipo'] == 'codigo_enviado'){
 
           _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
           _showSnackBar("Ya se envió anteriormente un código a este email. Podría estar en la sección de spam.");
 
+        } else if(datosJson['error_tipo'] == 'codigo_invitacion_invalido'){
+          _showDialogCodigoInvitacionInvalido();
         } else {
           _showSnackBar("Se produjo un error inesperado");
         }
@@ -269,6 +395,31 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
     });
   }
 
+  void _showDialogCodigoInvitacionInvalido(){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(children: const [
+            Text("Lo sentimos, el código invitación introducido anteriormente, ya fue utilizado en estos momentos.\n\n"
+                "Tendrás que ingresar otro código de invitación o hacer el registro directamente.",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 16, height: 1.3,),
+            ),
+          ], mainAxisSize: MainAxisSize.min,),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Entendido"),
+          ),
+        ],
+      );
+    }).then((value){
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+          builder: (context) => const WelcomePage()
+      ), (route) => false);
+    });
+  }
+
   Widget _contenidoParteDos(){
     return SingleChildScrollView(
       child: Padding(
@@ -276,7 +427,7 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
         child: Column(children: [
           const SizedBox(height: 16,),
 
-          Text("Escribe el código",
+          const Text("Escribe el código",
             style: TextStyle(color: constants.blackGeneral, fontSize: 24,),
           ),
           const SizedBox(height: 24,),

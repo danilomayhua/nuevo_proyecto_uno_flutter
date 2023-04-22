@@ -60,7 +60,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           const SizedBox(height: 24,),
 
-          _buildFila(titulo: "Invitaciones", onTap: () async {
+          _buildFila(titulo: "Invitaciones directas", onTap: () async {
             Navigator.push(context, MaterialPageRoute(
                 builder: (context) => const SettingsInvitacionesPage()
             ));

@@ -37,14 +37,13 @@ class _SettingsInvitacionesPageState extends State<SettingsInvitacionesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Invitaciones"),
+        title: const Text("Invitaciones directas"),
       ),
       body: (_numeroInvitaciones == 0) ? Center(
 
         child: _loadingNumeroInvitaciones ? CircularProgressIndicator() : const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Text("No tienes invitaciones disponibles para enviar. Desde aquí se envía invitación directa a amigos "
-              "para habilitar su registro.",
+          child: Text("No tienes invitaciones directas disponibles para usar. Desde aquí se habilita el registro a amigos ingresando su email.",
             style: TextStyle(color: constants.grey, fontSize: 14,),
             textAlign: TextAlign.center,
           ),

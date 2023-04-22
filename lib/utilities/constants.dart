@@ -42,6 +42,7 @@ const String urlLogout = "/api/autenticacion/logout";
 const String urlRegistroEnviarCodigo = "/api/registro/enviar-codigo-email";
 const String urlRegistroVerificarCodigo = "/api/registro/verificar-codigo-email";
 const String urlRegistroUsuario = "/api/registro/crear-usuario";
+const String urlRegistroVerificarInvitacion = "/api/registro/verificar-invitacion-codigo";
 
 const String urlGuardarFirebaseToken = "/api/firebase/actualizar-token";
 
@@ -54,6 +55,7 @@ const String urlEliminarActividad = "/api/actividad/eliminar";
 const String urlReportarActividad = "/api/actividad/reportar";
 
 const String urlActividadBuscadorCocreador = "/api/actividad/buscador-agregar-cocreador";
+const String urlActividadCodigoCocreadorExterno = "/api/actividad/codigo-cocreador-externo";
 
 const String urlActividadUnirse = "/api/actividad/unirse";
 const String urlActividadCancelarSolicitud = "/api/actividad/cancelar-solicitud-unirse";
