@@ -478,7 +478,7 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
         prefs.setBool(SharedPreferencesKeys.isLoggedIn, true);
 
         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-            builder: (context) => const PrincipalPage(principalPageView: PrincipalPageView.mensajes,)
+            builder: (context) => const PrincipalPage(principalPageView: PrincipalPageView.mensajes, isFromSignup: true,)
         ), (root) => false);
 
       } else {

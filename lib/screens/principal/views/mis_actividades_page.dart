@@ -82,18 +82,9 @@ class MisActividadesPageState extends State<MisActividadesPage> {
         child: _loadingActividades ? CircularProgressIndicator() : Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(children: [
-            RichText(
+            const Text("No hay actividades recientes donde eres co-creador. Las actividades duran 48 horas visibles.",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
               textAlign: TextAlign.center,
-              text: const TextSpan(
-                style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
-                text: "No tienes actividades disponibles.\nCrea una ",
-                children: [
-                  WidgetSpan(
-                    child: Icon(Icons.add_circle_outline, color: constants.blackGeneral,),
-                    alignment: PlaceholderAlignment.middle,
-                  ),
-                ],
-              ),
             ),
             const SizedBox(height: 8,),
             _buildBotonVerAnteriores(),
@@ -124,7 +115,7 @@ class MisActividadesPageState extends State<MisActividadesPage> {
           }
 
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
             child: CardActividad(actividad: _actividades[index]),
           );
         },

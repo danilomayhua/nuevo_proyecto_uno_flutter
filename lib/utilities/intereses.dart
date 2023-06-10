@@ -5,10 +5,10 @@ class Intereses {
   static List<String> getListaIntereses(){
     List<String> listIntereses = [];
 
-    listIntereses.add("2");
-    listIntereses.add("3");
-    listIntereses.add("4");
     listIntereses.add("5");
+    listIntereses.add("3");
+    listIntereses.add("2");
+    listIntereses.add("4");
     listIntereses.add("1");
 
     /*listIntereses.add("6");
@@ -45,22 +45,22 @@ class Intereses {
     }
   }
 
-  static Icon getIcon(String interesId){
+  static Icon getIcon(String interesId, {double? size}){
     switch(interesId){
       case "1":
-        return Icon(Icons.emoji_objects_outlined, color: Colors.amber,);
+        return Icon(Icons.emoji_objects_outlined, color: Colors.amber, size: size,);
         break;
       case "2":
-        return Icon(Icons.school_outlined, color: Colors.purple,);
+        return Icon(Icons.school_outlined, color: Colors.purple, size: size,);
         break;
       case "3":
-        return Icon(Icons.sports_outlined, color: Colors.blueGrey,);
+        return Icon(Icons.sports_outlined, color: Colors.blueGrey, size: size,);
         break;
       case "4":
-        return Icon(Icons.sports_esports, color: Colors.indigoAccent,);
+        return Icon(Icons.sports_esports, color: Colors.indigoAccent, size: size,);
         break;
       case "5":
-        return Icon(Icons.local_bar_outlined, color: Colors.deepOrangeAccent,);
+        return Icon(Icons.local_bar_outlined, color: Colors.deepOrangeAccent, size: size,);
         break;
       /*case "6":
         return Icon(Icons.color_lens_outlined, color: Colors.black,);

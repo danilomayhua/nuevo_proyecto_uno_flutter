@@ -31,9 +31,9 @@ final usernameColors = [
   Colors.teal[500],
 ];
 
-//const String urlBase = "http://192.168.0.8:3000";
+//const String urlBase = "http://192.168.0.24:3000";
 const String urlBase = "https://tenfo.app:3000";
-//const String urlBaseWebSocket = "ws://192.168.0.8:3000/chat";
+//const String urlBaseWebSocket = "ws://192.168.0.24:3000/chat";
 const String urlBaseWebSocket = "wss://tenfo.app:3000/chat";
 
 const String urlLogin = "/api/autenticacion/login";
@@ -54,6 +54,7 @@ const String urlCrearActividad = "/api/actividad/crear";
 const String urlEliminarActividad = "/api/actividad/eliminar";
 const String urlReportarActividad = "/api/actividad/reportar";
 
+const String urlActividadSugerenciasTitulo = "/api/actividad/sugerencias-crear-actividad";
 const String urlActividadBuscadorCocreador = "/api/actividad/buscador-agregar-cocreador";
 const String urlActividadCodigoCocreadorExterno = "/api/actividad/codigo-cocreador-externo";
 

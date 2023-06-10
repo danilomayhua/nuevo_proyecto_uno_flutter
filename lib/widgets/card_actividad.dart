@@ -51,7 +51,7 @@ class _CardActividadState extends State<CardActividad> {
         border: Border.all(color: constants.grey),
         color: Colors.white,
       ),
-      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      padding: const EdgeInsets.only(left: 8, top: 12, right: 8, bottom: 4,), // bottom es menor, porque el boton inferior tiene un margen agregado
       child: Column(
         children: [
           Row(
@@ -65,14 +65,19 @@ class _CardActividadState extends State<CardActividad> {
             ],
             mainAxisAlignment: MainAxisAlignment.end,
           ),
-          const SizedBox(height: 8,),
-          Text(widget.actividad.titulo,
-            style: TextStyle(color: constants.blackGeneral, fontSize: 16,
-              height: 1.3, fontWeight: FontWeight.w500,),
-            maxLines: 4,
-            overflow: TextOverflow.ellipsis,
+          const SizedBox(height: 16,),
+          Align(
+            alignment: Alignment.center,
+            child: Text(widget.actividad.titulo,
+              style: TextStyle(color: constants.blackGeneral, fontSize: 18,
+                height: 1.3, fontWeight: FontWeight.w500,),
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
           ),
-          SizedBox(height: 16,),
+          const SizedBox(height: 24,),
+          /*
           if(widget.actividad.descripcion != null)
             Container(
               alignment: Alignment.centerLeft,
@@ -83,6 +88,7 @@ class _CardActividadState extends State<CardActividad> {
               ),
             ),
           SizedBox(height: 24,),
+          */
           Row(
             children: [
               SizedBox(

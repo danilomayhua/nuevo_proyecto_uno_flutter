@@ -128,22 +128,23 @@ class _ActividadPageState extends State<ActividadPage> {
           Row(children: [
             const SizedBox(width: 16,),
             Container(
-              padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
               decoration: BoxDecoration(
-                border: Border.all(color: constants.blackGeneral, width: 0.5,),
-                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: constants.grey, width: 0.5,),
+                borderRadius: BorderRadius.circular(4),
               ),
               child: Row(children: [
                 Text(Intereses.getNombre(widget.actividad.interes),
-                  style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
+                  style: const TextStyle(color: constants.blackGeneral, fontSize: 12,),
                 ),
-                Intereses.getIcon(widget.actividad.interes),
+                const SizedBox(width: 2,),
+                Intereses.getIcon(widget.actividad.interes, size: 16,),
               ], mainAxisSize: MainAxisSize.min,),
             ),
             const Spacer(),
             RichText(
               text: TextSpan(
-                style: TextStyle(color: constants.grey, fontSize: 14,),
+                style: const TextStyle(color: constants.grey, fontSize: 14,),
                 text: widget.actividad.getPrivacidadTipoString(),
                 children: [
                   WidgetSpan(
@@ -169,15 +170,18 @@ class _ActividadPageState extends State<ActividadPage> {
             const SizedBox(width: 16,),
           ],),
 
-          const SizedBox(height: 16,),
+          const SizedBox(height: 24,),
 
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16,),
+          Container(
+            constraints: const BoxConstraints(minHeight: 40),
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.symmetric(horizontal: 16,),
             child: Text(widget.actividad.titulo,
               style: const TextStyle(color: constants.blackGeneral, fontSize: 18,
                 height: 1.3, fontWeight: FontWeight.w500,),
             ),
           ),
+          /*
           Container(
             constraints: BoxConstraints(minHeight: 64),
             alignment: Alignment.centerLeft,
@@ -186,7 +190,9 @@ class _ActividadPageState extends State<ActividadPage> {
               style: TextStyle(color: constants.blackGeneral, fontSize: 16, height: 1.4,),
             ),
           ),
-          const SizedBox(height: 8,),
+          */
+          const SizedBox(height: 24,),
+
           Container(
             alignment: Alignment.centerRight,
             padding: EdgeInsets.symmetric(horizontal: 16,),

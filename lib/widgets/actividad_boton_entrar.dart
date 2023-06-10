@@ -45,7 +45,6 @@ class _ActividadBotonEntrarState extends State<ActividadBotonEntrar> {
           primary: Colors.white,
           backgroundColor: constants.blueGeneral,
           //onSurface: constants.grey,
-          side: const BorderSide(color: Colors.transparent, width: 0.5,),
           shape: const StadiumBorder(),
         ),
       );
@@ -64,12 +63,11 @@ class _ActividadBotonEntrarState extends State<ActividadBotonEntrar> {
         },
         //onPressed: null,
         icon: const Icon(Icons.near_me, size: 16,),
-        label: const Text("Ir al chat grupal", style: TextStyle(fontSize: 12),),
+        label: const Text("Ir al chat", style: TextStyle(fontSize: 12),),
         style: OutlinedButton.styleFrom(
           primary: Colors.white,
           backgroundColor: constants.blueGeneral,
           //onSurface: constants.grey,
-          side: const BorderSide(color: Colors.transparent, width: 0.5,),
           shape: const StadiumBorder(),
         ),
       );
@@ -150,7 +148,7 @@ class _ActividadBotonEntrarState extends State<ActividadBotonEntrar> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: const <Widget>[
-              Text("Únete a la actividad y sé parte del chat grupal.\n\n"
+              Text("¡Te uniste a la actividad!.\n\n"
                   "Recuerda que solo puedes unirte a una cantidad limitada de actividades por día.",
                 style: TextStyle(color: constants.blackGeneral),),
             ],

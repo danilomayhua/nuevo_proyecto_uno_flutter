@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/screens/signup/views/signup_invitation_page.dart';
-import 'package:tenfo/screens/signup/views/signup_profile_page.dart';
+import 'package:tenfo/screens/signup/views/signup_location_page.dart';
 import 'package:tenfo/screens/welcome/welcome_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
@@ -500,7 +500,7 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
         String registroActivadoToken = datosJson['data']['registro_activado_token'];
 
         Navigator.pushReplacement(context, MaterialPageRoute(
-            builder: (context) => SignupProfilePage(
+            builder: (context) => SignupLocationPage(
               email: _email,
               codigo: codigo,
               registroActivadoToken: registroActivadoToken,
