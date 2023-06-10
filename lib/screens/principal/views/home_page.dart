@@ -4,16 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:tenfo/models/actividad.dart';
 import 'package:tenfo/models/chat.dart';
-import 'package:tenfo/models/checkbox_item_intereses.dart';
 import 'package:tenfo/models/usuario.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/buscador/buscador_page.dart';
+import 'package:tenfo/screens/crear_actividad/crear_actividad_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/intereses.dart';
-import 'package:tenfo/utilities/shared_preferences_keys.dart';
 import 'package:tenfo/widgets/card_actividad.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tenfo/widgets/dialog_cambiar_intereses.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -29,10 +29,9 @@ enum LocationPermissionStatus {
 class _HomePageState extends State<HomePage> {
   List<String> _intereses = [];
   List<Widget> _interesesIcons = [];
-  List<CheckboxItemIntereses> _listInteresesCheckbox = [];
-  bool _enviandoIntereses = false;
 
   List<Actividad> _actividades = [];
+  bool _isActividadesPermitido = true;
 
   ScrollController _scrollController = ScrollController();
   bool _loadingActividades = false;
@@ -66,10 +65,10 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text("Actividades"),
+        title: const Text("Actividades"),
         actions: [
           IconButton(
-            icon: Icon(Icons.search),
+            icon: const Icon(Icons.search),
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => BuscadorPage()));
             },
@@ -79,48 +78,59 @@ class _HomePageState extends State<HomePage> {
       body: CustomScrollView(
         controller: _scrollController,
         slivers: [
-          const SliverPadding(
-            padding: EdgeInsets.only(left: 8, top: 24, right: 8, bottom: 8),
-            sliver: SliverToBoxAdapter(
-              child: Text("Mis intereses: ",
-                style: TextStyle(color: constants.blackGeneral,),
-              ),
-            ),
-          ),
-          _buildSeccionIntereses(),
-
           if(_permissionStatus != LocationPermissionStatus.loading && _permissionStatus == LocationPermissionStatus.notPermitted)
             _buildSeccionSolicitarUbicacion(),
 
           if (_permissionStatus != LocationPermissionStatus.loading && _permissionStatus == LocationPermissionStatus.permitted)
-            (!_loadingActividades && _actividades.length == 0)
-              ? SliverFillRemaining(
-                hasScrollBody: false,
-                child: Container(
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(_isCiudadDisponible
-                      ? "No hay actividades cerca disponibles según tus intereses."
-                      : "Lo sentimos, actualmente Tenfo no está disponible en tu ciudad.",
-                    style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
-                    textAlign: TextAlign.center,
-                  ),
+            ...[
+              if(_actividades.isEmpty && _loadingActividades)
+                const SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(child: CircularProgressIndicator()),
                 ),
-              )
-              : SliverPadding(
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-                sliver: SliverList(delegate: SliverChildBuilderDelegate((context, index){
 
-                  if(index == _actividades.length){
-                    return _buildLoadingActividades();
-                  }
+              if(_actividades.isNotEmpty || !_loadingActividades)
+                ...[
+                  if(!_isActividadesPermitido)
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: _buildActividadesNoPermitido(),
+                    ),
 
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
-                    child: CardActividad(actividad: _actividades[index]),
-                  );
-                }, childCount: _actividades.length + 1)),
-              ),
+                  if(_isActividadesPermitido)
+                    ...[
+                      const SliverPadding(
+                        padding: EdgeInsets.only(left: 8, top: 16, right: 8, bottom: 8),
+                        sliver: SliverToBoxAdapter(
+                          child: Text("Mis intereses: ",
+                            style: TextStyle(color: constants.blackGeneral,),
+                          ),
+                        ),
+                      ),
+                      _buildSeccionIntereses(),
+
+                      (_actividades.isEmpty)
+                        ? SliverFillRemaining(
+                          hasScrollBody: false,
+                          child: _buildActividadesVacio(),
+                        )
+                        : SliverPadding(
+                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                          sliver: SliverList(delegate: SliverChildBuilderDelegate((context, index){
+
+                            if(index == _actividades.length){
+                              return _buildLoadingActividades();
+                            }
+
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
+                              child: CardActividad(actividad: _actividades[index]),
+                            );
+                          }, childCount: _actividades.length + 1)),
+                        ),
+                    ],
+                ],
+            ],
         ],
       ),
       backgroundColor: constants.greyBackgroundScreen,
@@ -189,6 +199,12 @@ class _HomePageState extends State<HomePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
 
+    if(usuarioSesion.interesesId.isEmpty){
+      _showDialogCambiarIntereses();
+      _isActividadesPermitido = false; // Puede que si tenga permitido, si acepto ser cocreador y nunca eligió sus intereses
+      setState(() {_loadingActividades = false;});
+      return;
+    }
     String interesesIdString = usuarioSesion.interesesId.join(",");
 
     // Se usa POST porque envia datos privados (ubicacion)
@@ -251,9 +267,12 @@ class _HomePageState extends State<HomePage> {
           _actividades.add(actividad);
         }
 
+        _isActividadesPermitido = datosJson['is_permitido_ver_actividades'];
+
       } else {
 
         if(datosJson['error_tipo'] == 'ubicacion_no_disponible'){
+          _isActividadesPermitido = true;
           _isCiudadDisponible = false;
           _showDialogCiudadNoDisponible();
         } else if(datosJson['error_tipo'] == 'intereses_vacio'){
@@ -295,9 +314,88 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Widget _buildActividadesNoPermitido(){
+    return Container(
+      color: Colors.grey[300],
+      padding: const EdgeInsets.symmetric(horizontal: 16,),
+      child: Column(children: [
+        Container(
+          //constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            onPressed: (){
+              _showDialogCambiarIntereses();
+            },
+            icon: const Icon(Icons.edit_outlined, size: 16,),
+            label: const Text("Editar intereses",
+                style: TextStyle(fontSize: 12,)
+            ),
+            style: TextButton.styleFrom(
+              primary: constants.blackGeneral,
+              padding: const EdgeInsets.all(0),
+            ),
+          ),
+        ),
+
+        Expanded(child: Column(children: [
+          Text("Para ver las actividades, debes tener una tuya creada en las últimas 48 horas.",
+            style: TextStyle(color: Colors.grey[800], fontSize: 16,),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24,),
+          Container(
+            constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+            child: ElevatedButton.icon(
+              onPressed: (){
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => const CrearActividadPage(),
+                ));
+              },
+              icon: const Icon(Icons.add_rounded, size: 24,),
+              label: const Text("Crear actividad", style: TextStyle(fontSize: 16,),),
+              style: ElevatedButton.styleFrom(
+                shape: const StadiumBorder(
+                  side: BorderSide(color: constants.grey, width: 0.5,),
+                ),
+                primary: Colors.white,
+                onPrimary: constants.blueGeneral,
+              ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+            ),
+          ),
+        ], mainAxisAlignment: MainAxisAlignment.center,)),
+
+        // Lo hace ver más centrado al Expanded (es una altura aproximada del TextButton "Editar intereses")
+        const SizedBox(height: 40,),
+      ],),
+    );
+  }
+
+  Widget _buildActividadesVacio(){
+
+    if(!_isCiudadDisponible){
+      return Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: const Text("Lo sentimos, actualmente Tenfo no está disponible en tu ciudad.",
+          style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+
+    return Container(
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: const Text("No hay actividades cerca disponibles según tus intereses.",
+        style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
   Widget _buildSeccionIntereses(){
     return SliverPadding(
-      padding: EdgeInsets.only(left: 8, /*top: 24,*/ right: 8, bottom: 16),
+      padding: const EdgeInsets.only(left: 8, right: 8,),
       sliver: SliverToBoxAdapter(
         child: Wrap(
           spacing: 4,
@@ -310,8 +408,12 @@ class _HomePageState extends State<HomePage> {
 
   void _buildInteresesIcons(){
     _interesesIcons = [];
-    _intereses.forEach((String element) {
-      _interesesIcons.add(_buildInteres(Intereses.getNombre(element), Intereses.getIcon(element)));
+
+    List<String> listIntereses = Intereses.getListaIntereses();
+    listIntereses.forEach((element) {
+      if(_intereses.contains(element)){
+        _interesesIcons.add(_buildInteres(Intereses.getNombre(element), Intereses.getIcon(element)));
+      }
     });
     _interesesIcons.add(_buildInteresCambiar());
 
@@ -353,121 +455,18 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showDialogCambiarIntereses(){
-    List<String> listIntereses = Intereses.getListaIntereses();
-
-    _listInteresesCheckbox = [];
-    listIntereses.forEach((String element) {
-      _listInteresesCheckbox.add(CheckboxItemIntereses(interesId: element, seleccionado: _intereses.contains(element)));
-    });
-
-    showDialog(context: context, builder: (context){
-      return StatefulBuilder(builder: (context, setState){
-        return AlertDialog(
-          content: Container(
-              width: double.maxFinite,
-              child: ListView.builder(itemBuilder: (context, index){
-                if(index == 0){
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16,),
-                    child: Text("Selecciona tus intereses para ver actividades relacionados con estos. Elige mínimo uno (1):",
-                      style: TextStyle(color: constants.grey, fontSize: 12), textAlign: TextAlign.center,),
-                  );
-                }
-
-                index = index - 1;
-
-                return CheckboxListTile(
-                  contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 0),
-                  value: _listInteresesCheckbox[index].seleccionado,
-                  onChanged: (newValue){
-                    setState(() {
-                      _listInteresesCheckbox[index].seleccionado = newValue;
-                    });
-                  },
-                  title: Text(Intereses.getNombre(_listInteresesCheckbox[index].interesId)),
-                  subtitle: Text(Intereses.getDescripcion(_listInteresesCheckbox[index].interesId), style: TextStyle(fontSize: 12),),
-                  secondary: Intereses.getIcon(_listInteresesCheckbox[index].interesId),
-                );
-
-              }, itemCount: _listInteresesCheckbox.length + 1, shrinkWrap: true,)
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: _enviandoIntereses ? null : () => _validarInteresesNuevos(setState),
-              child: const Text("Enviar"),
-            ),
-          ],
-        );
-      });
-    });
-  }
-
-  _validarInteresesNuevos(setStateDialog){
-    setStateDialog(() {
-      _enviandoIntereses = true;
-    });
-
-    List<String> nuevosIntereses = [];
-
-    _listInteresesCheckbox.forEach((CheckboxItemIntereses element) {
-      if(element.seleccionado == true){
-        nuevosIntereses.add(element.interesId);
-      }
-    });
-
-    if(nuevosIntereses.length < 1){
-
-      setStateDialog(() {
-        _enviandoIntereses = false;
-      });
-
-    } else {
-      _enviarInteresesNuevos(setStateDialog, nuevosIntereses);
-    }
-  }
-
-  _enviarInteresesNuevos(setStateDialog, List<String> nuevosIntereses) async {
-    setStateDialog(() {
-      _enviandoIntereses = true;
-    });
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
-
-    var response = await HttpService.httpPost(
-      url: constants.urlHomeCambiarIntereses,
-      body: {
-        "intereses": nuevosIntereses
-      },
-      usuarioSesion: usuarioSesion,
-    );
-
-    if(response.statusCode == 200){
-      var datosJson = jsonDecode(response.body);
-
-      if(datosJson['error'] == false){
-
+    showDialog(context: context, builder: (context) {
+      return DialogCambiarIntereses(intereses: _intereses, onChanged: (nuevosIntereses){
         _intereses = nuevosIntereses;
         _buildInteresesIcons();
-
-
-        usuarioSesion.interesesId = nuevosIntereses;
-        prefs.setString(SharedPreferencesKeys.usuarioSesion, jsonEncode(usuarioSesion));
-
 
         Navigator.of(context).pop();
 
         _recargarActividades();
-
-      } else {
-        _showSnackBar("Se produjo un error inesperado");
-      }
-    }
-
-    setStateDialog(() {
-      _enviandoIntereses = false;
+      },);
     });
   }
+
 
   Widget _buildSeccionSolicitarUbicacion(){
     return SliverFillRemaining(

@@ -11,11 +11,13 @@ import 'package:tenfo/screens/principal/views/perfil_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tenfo/widgets/dialog_cambiar_intereses.dart';
 
 class PrincipalPage extends StatefulWidget {
-  const PrincipalPage({Key? key, this.principalPageView = PrincipalPageView.home}) : super(key: key);
+  const PrincipalPage({Key? key, this.principalPageView = PrincipalPageView.home, this.isFromSignup = false}) : super(key: key);
 
   final PrincipalPageView principalPageView;
+  final bool isFromSignup;
 
   @override
   State<PrincipalPage> createState() => _PrincipalPageState();
@@ -62,6 +64,10 @@ class _PrincipalPageState extends State<PrincipalPage> {
     _cargarPantalla();
 
     _cargarNumeroPendientesNotificacionesAvisos();
+
+    if(widget.isFromSignup){
+      _cargarInteresesUsuarioNuevo();
+    }
   }
 
   @override
@@ -187,6 +193,20 @@ class _PrincipalPageState extends State<PrincipalPage> {
         elevation: 4,
       ),
     );
+  }
+
+  Future<void> _cargarInteresesUsuarioNuevo() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    if(usuarioSesion.interesesId.isEmpty){
+      showDialog(context: context, builder: (context) {
+        return DialogCambiarIntereses(intereses: const [], onChanged: (nuevosIntereses){
+          Navigator.of(context).pop();
+          //_recargarActividades();
+        },);
+      });
+    }
   }
 
   Future<void> _cargarNumeroPendientesNotificacionesAvisos() async {

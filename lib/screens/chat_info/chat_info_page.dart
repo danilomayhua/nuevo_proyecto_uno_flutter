@@ -116,20 +116,22 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
                 ));
               },
               child: Container(
+                width: double.infinity,
+                constraints: const BoxConstraints(minHeight: 96),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: constants.grey),
                   color: Colors.white,
                 ),
-                margin: EdgeInsets.symmetric(vertical: 16, horizontal: 16,),
-                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                margin: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 24,),
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16,),
                 child: Column(children: [
                   Text(_actividad!.titulo,
-                    style: const TextStyle(color: constants.blackGeneral, fontSize: 18,
-                      height: 1.3, fontWeight: FontWeight.w500,),
+                    style: const TextStyle(color: constants.blackGeneral, fontSize: 18, height: 1.3,),
                     maxLines: 4,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  /*
                   Container(
                     alignment: Alignment.centerLeft,
                     padding: EdgeInsets.symmetric(vertical: 16),
@@ -139,6 +141,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  */
                 ], crossAxisAlignment: CrossAxisAlignment.start),
               ),
             ),
@@ -152,10 +155,12 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
             child: Row(children: [
               Expanded(child: InputDecorator(
                 isEmpty: (_encuentroLink ?? "") == "" ? true : false,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   enabled: false,
                   isDense: true,
-                  hintText: "Ingresa un link de Zoom, Google Meet, FaceTime...",
+                  hintText: _isCreador
+                      ? "Ingresa un link de Maps, Zoom, Google Meet, FaceTime..."
+                      : "Indefinido (link de Maps, Zoom, FaceTime...)",
                   hintStyle: TextStyle(fontSize: 12,),
                   //counterText: '',
                   border: OutlineInputBorder(),
@@ -198,10 +203,12 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
             child: Row(children: [
               Expanded(child: InputDecorator(
                 isEmpty: _encuentroFechaString == "" ? true : false,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   enabled: false,
                   isDense: true,
-                  hintText: "Indefinido",//"""DD/MM/AAAA hh:mm",
+                  hintText: _isCreador
+                      ? "Ingresa un horario"
+                      : "Horario indefinido", //"DD/MM/AAAA hh:mm",
                   hintStyle: TextStyle(fontSize: 12,),
                   //counterText: '',
                   border: OutlineInputBorder(),
@@ -544,7 +551,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
             controller: _encuentroLinkController,
             decoration: InputDecoration(
               isDense: true,
-              hintText: "Ingresa un link de Zoom, Google Meet, FaceTime...",
+              hintText: "Ingresa un link de Maps, Zoom, Google Meet, FaceTime...",
               counterText: '',
               border: OutlineInputBorder(),
               errorText: _encuentroLinkErrorText,

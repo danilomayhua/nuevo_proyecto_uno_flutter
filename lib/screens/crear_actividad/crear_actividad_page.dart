@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:tenfo/models/actividad.dart';
 import 'package:tenfo/models/actividad_requisito.dart';
+import 'package:tenfo/models/actividad_sugerencia_titulo.dart';
 import 'package:tenfo/models/usuario.dart';
 import 'package:tenfo/models/usuario_cocreador_pendiente.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
@@ -16,6 +17,7 @@ import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/intereses.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/utilities/share_utils.dart';
+import 'package:tenfo/widgets/dialog_cambiar_intereses.dart';
 
 class CrearActividadPage extends StatefulWidget {
   const CrearActividadPage({Key? key}) : super(key: key);
@@ -39,6 +41,10 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
   List<String> _intereses = [];
   final TextEditingController _titleController = TextEditingController();
+  final FocusNode _titleFocusNode = FocusNode();
+  bool _loadingActividadSugerenciasTitulo = false;
+  List<ActividadSugerenciaTitulo> _actividadSugerenciasTitulo = [];
+  String _lastSugerenciasTituloInteresId = "";
   final TextEditingController _descriptionController = TextEditingController();
   String? _selectedInteresId;
 
@@ -68,8 +74,19 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
     SharedPreferences.getInstance().then((prefs){
       UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
-      _intereses = usuarioSesion.interesesId;
+
+      // Muestra los intereses en orden
+      List<String> listIntereses = Intereses.getListaIntereses();
+      listIntereses.forEach((element) {
+        if(usuarioSesion.interesesId.contains(element)){
+          _intereses.add(element);
+        }
+      });
+
       setState(() {});
+
+      if(_intereses.isEmpty) _showDialogCambiarIntereses();
+      if(_intereses.isNotEmpty) _cargarActividadSugerenciasTitulo(_intereses[0]); // Muestra opciones con el primer interes por defecto
     });
     _titleController.text = '';
     _descriptionController.text = '';
@@ -127,8 +144,13 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
             ),
           ],
         )),
-        const Text("Las actividades solo duran 48 h visibles",
-          style: TextStyle(color: constants.grey, fontSize: 12,),
+        GestureDetector(
+          child: const Text("¿Quién podrá ver esta actividad?",
+            style: TextStyle(color: constants.grey, fontSize: 12, decoration: TextDecoration.underline,),
+          ),
+          onTap: (){
+            _showDialogAyudaActividadVisible();
+          },
         ),
         const SizedBox(height: 16,),
       ]),
@@ -148,33 +170,109 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
     );
   }
 
+  void _showDialogAyudaActividadVisible(){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(children: const [
+            Text("La actividad estará visible durante 48 horas solamente.\n\n"
+                "Solo las personas cercanas a tu ubicación que hayan creado una actividad en las últimas 48 horas podrán verla.",
+              style: TextStyle(color: constants.blackGeneral,),
+              textAlign: TextAlign.left,
+            ),
+          ], mainAxisSize: MainAxisSize.min,),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Entendido"),
+          ),
+        ],
+      );
+    });
+  }
+
   Widget contenidoUno(){
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       child: Column(children: [
         TextField(
+          focusNode: _titleFocusNode,
           controller: _titleController,
           decoration: const InputDecoration(
             hintText: "¿Qué actividad vas a realizar?",
-            labelText: "Título",
-            floatingLabelBehavior: FloatingLabelBehavior.always,
+            hintStyle: TextStyle(fontWeight: FontWeight.normal,),
+            //labelText: "Título",
+            //floatingLabelBehavior: FloatingLabelBehavior.always,
             border: OutlineInputBorder(),
+            counterText: "",
           ),
           maxLength: 200,
           minLines: 1,
           maxLines: 4,
           keyboardType: TextInputType.multiline,
           textCapitalization: TextCapitalization.sentences,
+          style: const TextStyle(fontWeight: FontWeight.bold,),
         ),
 
-        const SizedBox(height: 24,),
+        const SizedBox(height: 16,),
 
+        Container(
+          width: double.infinity,
+          child: const Text("Opciones:", textAlign: TextAlign.left,
+            style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
+          ),
+        ),
+        const SizedBox(height: 8,),
+        Container(
+          alignment: Alignment.centerLeft,
+          height: 75,
+          child: _loadingActividadSugerenciasTitulo ? const CircularProgressIndicator() : ListView.builder(itemBuilder: (context, index){
+
+            return InkWell(
+              onTap: (){
+                if(_actividadSugerenciasTitulo[index].requiereCompletar){
+                  _titleController.text = _actividadSugerenciasTitulo[index].texto + ' ';
+
+                  _titleFocusNode.requestFocus();
+                  _titleController.selection = TextSelection.collapsed(offset: _titleController.text.length);
+                } else {
+                  _titleController.text = _actividadSugerenciasTitulo[index].texto;
+
+                  _titleFocusNode.unfocus();
+                }
+                setState(() {});
+              },
+              child: Container(
+                width: 200,
+                margin: const EdgeInsets.only(right: 16),
+                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8,),
+                decoration: BoxDecoration(
+                  border: Border.all(color: constants.grey),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                alignment: Alignment.center,
+                child: Text(_actividadSugerenciasTitulo[index].requiereCompletar
+                    ? (_actividadSugerenciasTitulo[index].texto + '...') : _actividadSugerenciasTitulo[index].texto,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  maxLines: 4,
+                ),
+              ),
+            );
+
+          }, scrollDirection: Axis.horizontal, itemCount: _actividadSugerenciasTitulo.length, shrinkWrap: true,),
+        ),
+        const SizedBox(height: 8,),
+
+        /*
         TextField(
           controller: _descriptionController,
           decoration: const InputDecoration(
             isDense: true,
-            //contentPadding: EdgeInsets.only(top: 4, bottom: 8),
-            //hintText: "Descripción detallada...",
             labelText: "Descripción detallada (opcional)",
             counterText: '',
             border: OutlineInputBorder(),
@@ -186,18 +284,19 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
           textCapitalization: TextCapitalization.sentences,
           style: TextStyle(fontSize: 12,),
         ),
+        */
 
         const SizedBox(height: 24,),
 
         Container(
           width: double.infinity,
-          child: const Text("¿A qué interés pertenece?", textAlign: TextAlign.center,
+          child: const Text("¿A qué interés pertenece?", textAlign: TextAlign.left,
             style: TextStyle(color: constants.blackGeneral,),
           ),
         ),
         const SizedBox(height: 8,),
         Container(
-          alignment: Alignment.center,
+          alignment: Alignment.centerLeft,
           height: 75,
           child: ListView.builder(itemBuilder: (context, index){
 
@@ -206,6 +305,8 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
                 setState(() {
                   _selectedInteresId = _intereses[index];
                 });
+
+                if(_intereses[index] != _lastSugerenciasTituloInteresId) _cargarActividadSugerenciasTitulo(_intereses[index]);
               },
               child: Container(
                 width: 60,
@@ -246,8 +347,8 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
             },
             child: const Text("Siguiente"),
             style: ElevatedButton.styleFrom(
-              //primary: ,
-            ),
+              shape: const StadiumBorder(),
+            ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
           ),
         ),
         const SizedBox(height: 8,),
@@ -277,7 +378,6 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
                   child: Container(
                     width: 32,
                     height: 32,
-                    //margin: EdgeInsets.only(left: 4),
                     child: IconButton(
                       onPressed: (){
                         _showDialogAyudaCreadores();
@@ -364,8 +464,8 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
             onPressed: _enviando ? null : () => _validarContenidoDos(),
             child: const Text("Crear actividad"),
             style: ElevatedButton.styleFrom(
-              //primary: ,
-            ),
+              shape: const StadiumBorder(),
+            ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
           ),
         ),
         const SizedBox(height: 8,),
@@ -435,6 +535,61 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
     );
   }
 
+  void _showDialogCambiarIntereses(){
+    showDialog(context: context, builder: (context) {
+      return DialogCambiarIntereses(intereses: _intereses, onChanged: (nuevosIntereses){
+        _intereses = nuevosIntereses;
+
+        Navigator.of(context).pop();
+
+        _cargarActividadSugerenciasTitulo(_intereses[0]); // Muestra opciones con el primer interes por defecto
+      },);
+    });
+  }
+
+  Future<void> _cargarActividadSugerenciasTitulo(String interesId) async {
+    setState(() {
+      _loadingActividadSugerenciasTitulo = true;
+    });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    var response = await HttpService.httpGet(
+      url: constants.urlActividadSugerenciasTitulo,
+      queryParams: {
+        "interes_id": interesId
+      },
+      usuarioSesion: usuarioSesion,
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = await jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+
+        _actividadSugerenciasTitulo.clear();
+
+        List<dynamic> actividadSugerenciasTitulo = datosJson['data']['actividad_sugerencias_titulo'];
+        for (var element in actividadSugerenciasTitulo) {
+          _actividadSugerenciasTitulo.add(ActividadSugerenciaTitulo(
+            texto: element['texto'],
+            requiereCompletar: element['requiere_completar'],
+          ));
+        }
+
+        _lastSugerenciasTituloInteresId = interesId;
+
+      } else {
+        _showSnackBar("Se produjo un error inesperado");
+      }
+    }
+
+    setState(() {
+      _loadingActividadSugerenciasTitulo = false;
+    });
+  }
+
   Future<void> _obtenerUbicacion() async {
     _position = null;
 
@@ -464,17 +619,18 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
   }
 
   void _validarContenidoUno(){
+    if(_intereses.isEmpty){
+      _showSnackBar("Primero debes seleccionar tus intereses en Inicio");
+      return;
+    }
+
     if(_titleController.text.trim() == ''){
-      _showSnackBar("El título está vacío");
+      _showSnackBar("El contenido está vacío");
       return;
     }
 
     if(_selectedInteresId == null){
-      if(_intereses.isEmpty){
-        _showSnackBar("Primero debes seleccionar tus intereses en Inicio");
-      } else {
-        _showSnackBar("Selecciona a qué interés pertenece");
-      }
+      _showSnackBar("Selecciona a qué interés pertenece");
       return;
     }
 

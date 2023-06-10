@@ -98,20 +98,22 @@ class _ChatSolicitudesPageState extends State<ChatSolicitudesPage> {
         };*/
       },
       child: Container(
+        width: double.infinity,
+        constraints: const BoxConstraints(minHeight: 96),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: constants.grey),
           color: Colors.white,
         ),
-        margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 16,),
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        margin: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 24,),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16,),
         child: Column(children: [
           Text(widget.actividad.titulo,
-            style: const TextStyle(color: constants.blackGeneral, fontSize: 18,
-              height: 1.3, fontWeight: FontWeight.w500,),
+            style: const TextStyle(color: constants.blackGeneral, fontSize: 18, height: 1.3,),
             maxLines: 4,
             overflow: TextOverflow.ellipsis,
           ),
+          /*
           Container(
             alignment: Alignment.centerLeft,
             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -121,6 +123,7 @@ class _ChatSolicitudesPageState extends State<ChatSolicitudesPage> {
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          */
         ], crossAxisAlignment: CrossAxisAlignment.start),
       ),
     );
