@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+  <background android:drawable="@color/ic_launcher_background"/>
+  <!-- Cambie foreground generado por el paquete flutter_launcher_icons, porque no escalaba bien los iconos -->
+  <!--<foreground android:drawable="@drawable/ic_launcher_foreground"/>-->
+  <foreground>
+    <inset
+        android:drawable="@drawable/ic_launcher_foreground"
+        android:inset="26%" /> <!-- El porcentaje se puede ajustar (depende de como es el icono) -->
+  </foreground>
+</adaptive-icon>
