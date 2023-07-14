@@ -125,6 +125,8 @@ const String urlVerNotificaciones = "/api/notificaciones/ver";
 
 const String urlNumeroPendientesNotificacionesAvisos = "/api/notificaciones/ver-numero-pendientes-y-avisos";
 
+const String urlCrearHistorialUsuarioActivo = "/api/historial-usuario-activo/crear";
+
 
 const String urlExternoCotizacionBTC = "https://criptoya.com/api/lemoncash/btc/ars";
 

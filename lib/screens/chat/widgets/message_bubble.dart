@@ -202,8 +202,8 @@ class _MessageBubbleState extends State<MessageBubble> {
                               margin: const EdgeInsets.only(top: 8, bottom: 4,),
                               constraints: const BoxConstraints(maxWidth: 200),
                               child: Text(widget.message.propinaSticker!.isRecibido
-                                  ? "El sticker lo recibe aleatoriamente alguno de los co-creadores. Tú recibiste este sticker."
-                                  : "El sticker lo recibe aleatoriamente alguno de los co-creadores.",
+                                  ? "El sticker lo recibe aleatoriamente alguno de los cocreadores. Tú recibiste este sticker."
+                                  : "El sticker lo recibe aleatoriamente alguno de los cocreadores.",
                                 style: TextStyle(
                                   color: widget.message.isEntrante ? constants.grey : Colors.white,
                                   fontSize: 10,

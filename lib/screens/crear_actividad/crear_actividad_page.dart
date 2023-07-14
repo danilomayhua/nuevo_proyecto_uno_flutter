@@ -14,9 +14,11 @@ import 'package:tenfo/screens/actividad/actividad_page.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
+import 'package:tenfo/utilities/historial_usuario.dart';
 import 'package:tenfo/utilities/intereses.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/utilities/share_utils.dart';
+import 'package:tenfo/utilities/shared_preferences_keys.dart';
 import 'package:tenfo/widgets/dialog_cambiar_intereses.dart';
 
 class CrearActividadPage extends StatefulWidget {
@@ -68,6 +70,9 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
   LocationPermissionStatus _permissionStatus = LocationPermissionStatus.loading;
   Position? _position;
 
+  List<Map<String, dynamic>> _historialesUsuario = [];
+  bool _isEnviadoHistorialesUsuario = false;
+
   @override
   void initState() {
     super.initState();
@@ -116,13 +121,10 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         leading: IconButton(
           icon: _pageCurrent == 0 ? const Icon(Icons.clear) : const BackButtonIcon(),
           onPressed: (){
+            _handleBack();
+
             if(_pageCurrent == 0){
               Navigator.of(context).pop();
-            } else {
-              _pageController.previousPage(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-              );
             }
           },
         ),
@@ -158,16 +160,30 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
     return WillPopScope(
       child: child,
-      onWillPop: _pageCurrent != 0 ? (){
+      onWillPop: (){
+        _handleBack();
 
-        _pageController.previousPage(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-        return Future.value(false);
-
-      } : null, // Tiene que ser null para que funcione en iOS
+        if(_pageCurrent == 0){
+          // Posiblemente esto no funcione en iOS y no cierre CrearActividad (onWillPop tiene que ser null para que funcione)
+          // En ese caso _handleBack() se podria llamar repetidamente con _pageCurrent en 0
+          return Future.value(true);
+        } else {
+          return Future.value(false);
+        }
+      },
     );
+  }
+
+  void _handleBack(){
+    if(_pageCurrent == 0){
+      // Envia historial del usuario cuando cancela CrearActividad
+      _enviarHistorialesUsuario();
+    } else {
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   void _showDialogAyudaActividadVisible(){
@@ -371,7 +387,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
             textAlign: TextAlign.left,
             text: TextSpan(
               style: TextStyle(color: constants.blackGeneral),
-              text: "¿Quién más crea la actividad? (opcional)",
+              text: "¿Quién más crea la actividad?",
               children: [
                 WidgetSpan(
                   alignment: PlaceholderAlignment.middle,
@@ -403,13 +419,13 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
           child: OutlinedButton.icon(
             onPressed: (){
               if(_creadores.length >= 3){
-                _showSnackBar("Solo se pueden añadir tres(3) co-creadores");
+                _showSnackBar("Solo se pueden añadir tres(3) cocreadores");
               } else {
                 _showDialogCreadores();
               }
             },
             icon: const Icon(Icons.add, size: 18,),
-            label: const Text("Añadir co-creadores", style: TextStyle(fontSize: 12,)),
+            label: const Text("Añadir cocreadores", style: TextStyle(fontSize: 12,)),
             style: OutlinedButton.styleFrom(
               primary: constants.blackGeneral,
               padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -653,6 +669,9 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
     _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
+
+    // Agrega historial del usuario
+    _agregarHistorialUsuario(HistorialUsuario.getCrearActividadPasoDos());
   }
 
   void _showDialogAyudaCreadores(){
@@ -660,11 +679,39 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
       return AlertDialog(
         content: SingleChildScrollView(
           child: Column(children: const [
-            Text("Puedes añadir a tus amigos cercanos con los cuales vas a organizar la actividad.\n\n"
-                "Todos aparecerán enlistados como co-creadores de la actividad y podrán eliminar o aceptar integrantes nuevos en el chat grupal.\n\n"
-                "Los usuarios primero tendrán que confirmar ser co-creadores. Puedes añadir hasta tres(3) en total.",
-              style: TextStyle(color: constants.grey, fontSize: 12,),
-              textAlign: TextAlign.center,
+            Text("¿Qué son los cocreadores?",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 14, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.left,
+            ),
+            SizedBox(height: 16,),
+            Text("Los cocreadores son tus amigos cercanos con quienes puedes organizar y crear actividades en conjunto.\n"
+                "Todos se mostrarán enlistados como cocreadores de la actividad y tendrán permisos de administrador en el chat grupal.",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
+              textAlign: TextAlign.left,
+            ),
+
+            SizedBox(height: 24,),
+
+            Text("¿Por qué agregar cocreadores?",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 14, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.left,
+            ),
+            SizedBox(height: 16,),
+            Text("Agregar cocreadores a tus actividades puede hacerlas más atractivas y amigables.\n"
+                "Cuando una actividad cuenta con varios cocreadores, fomenta a más personas a unirse y participar.",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
+              textAlign: TextAlign.left,
+            ),
+            SizedBox(height: 24,),
+
+            Text("¿Cómo funciona?",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 14, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.left,
+            ),
+            SizedBox(height: 16,),
+            Text("Cuando añades a alguien como cocreador, esta persona será notificada y deberá confirmar ser cocreador de la actividad.",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
+              textAlign: TextAlign.left,
             ),
           ], mainAxisSize: MainAxisSize.min,),
         ),
@@ -676,6 +723,9 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         ],
       );
     });
+
+    // Agrega historial del usuario
+    _agregarHistorialUsuario(HistorialUsuario.getCrearActividadCocreadoresInformacion());
   }
 
   void _showDialogCreadores(){
@@ -740,16 +790,15 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
                     ? const Center(child: CircularProgressIndicator())
                     : _creadoresBusqueda.isEmpty
                       ? Center(child: Column(children: [
-                        if(textoBusqueda.isNotEmpty)
-                          ... const [
-                            Spacer(),
-                            Text("No hay resultados",
-                              style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
-                            ),
-                            Spacer(),
-                          ],
 
-                        OutlinedButton.icon(
+                        const Spacer(),
+                        if(textoBusqueda.isNotEmpty)
+                          const Text("No hay resultados",
+                            style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
+                          ),
+                        const Spacer(),
+
+                        ElevatedButton.icon(
                           onPressed: _enviandoCrearInvitacion ? null : () {
 
                             _crearInvitacionCocreadorExterno(setStateDialog);
@@ -763,15 +812,15 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
                           label: const Text("Invitar amigo",
                             style: TextStyle(fontSize: 12,),
                           ),
-                          style: OutlinedButton.styleFrom(
+                          style: ElevatedButton.styleFrom(
                             shape: const StadiumBorder(),
-                          ),
+                          ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
                         ),
                         const SizedBox(height: 8,),
                         RichText(
                           text: TextSpan(
                             style: const TextStyle(color: constants.grey, fontSize: 12,),
-                            text: "Comparte un código con tus amigos fuera de la app y se agregarán como co-creador. ",
+                            text: "Comparte un código con tus amigos fuera de la app y se agregarán como cocreador. ",
                             children: [
                               TextSpan(
                                 text: "Más información.",
@@ -834,6 +883,9 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         );
       });
     }).then((value) => _dialogCreadoresIsOpen = false);
+
+    // Agrega historial del usuario
+    _agregarHistorialUsuario(HistorialUsuario.getCrearActividadBuscador());
   }
 
   Future<void> _buscarUsuario(String texto, setStateDialog) async {
@@ -858,6 +910,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
       usuarioSesion: usuarioSesion,
     );
 
+    List<dynamic>? usuarios;
     if(response.statusCode == 200){
       var datosJson = await jsonDecode(response.body);
 
@@ -865,8 +918,8 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
         _creadoresBusqueda.clear();
 
-        List<dynamic> usuarios = datosJson['data']['usuarios'];
-        for (var element in usuarios) {
+        usuarios = datosJson['data']['usuarios'];
+        for (var element in usuarios!) {
           _creadoresBusqueda.add(Usuario(
             id: element['id'],
             nombre: element['nombre_completo'],
@@ -883,6 +936,11 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
     setStateDialog(() {
       _loadingCreadoresBusqueda = false;
     });
+
+
+    // Agrega historial del usuario
+    List<String>? usuariosId = usuarios?.map<String>((element) => element['id']).toList();
+    _agregarHistorialUsuario(HistorialUsuario.getCrearActividadBuscadorResultado(texto, usuariosId));
   }
 
   void _showDialogAyudaCreadorExterno(){
@@ -891,10 +949,10 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         content: SingleChildScrollView(
           child: Column(children: const [
             Text("Invita a tus amigos que aún no tienen la app para colaborar contigo en una actividad.\n\n"
-                "Esto creará un código para tu invitado, donde al ingresarlo, será agregado automáticamente como co-creador de esta actividad.\n\n"
+                "Esto creará un código para tu invitado, donde al ingresarlo, será agregado automáticamente como cocreador de esta actividad.\n\n"
                 "Si tu amigo no tiene un correo de los permitidos para registrarse, podrá registrarse igualmente y se restará de tus invitaciones directas que tienes disponibles.",
-              style: TextStyle(color: constants.grey, fontSize: 12,),
-              textAlign: TextAlign.center,
+              style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
+              textAlign: TextAlign.left,
             ),
           ], mainAxisSize: MainAxisSize.min,),
         ),
@@ -906,6 +964,9 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         ],
       );
     });
+
+    // Agrega historial del usuario
+    _agregarHistorialUsuario(HistorialUsuario.getCrearActividadBuscadorCodigoInformacion());
   }
 
   Future<void> _crearInvitacionCocreadorExterno(setStateDialog) async {
@@ -1016,7 +1077,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
                 ),
               ),
               SizedBox(width: 8,),
-              Expanded(child: Text("El usuario que quiera unirse, envía una solicitud y alguno de los co-creadores tiene que aceptar para que entre al chat grupal.",
+              Expanded(child: Text("El usuario que quiera unirse, envía una solicitud y alguno de los cocreadores tiene que aceptar para que entre al chat grupal.",
                 style: TextStyle(fontSize: 14, color: constants.grey),
               ),),
             ], crossAxisAlignment: CrossAxisAlignment.start,),
@@ -1298,6 +1359,33 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
     _enviarActividad();
   }
 
+  Future<void> _showDialogConfirmarCrearActividad() async {
+    showDialog(context: context, builder: (context) {
+      return AlertDialog(
+        title: const Text('¿Estás seguro de que deseas crear la actividad sin añadir cocreadores?',
+          style: TextStyle(fontSize: 16,),
+          textAlign: TextAlign.center,
+        ),
+        actions: [
+          TextButton(
+            child: const Text('Cancelar'),
+            onPressed: () => Navigator.pop(context),
+          ),
+          TextButton(
+            child: const Text('Crear actividad'),
+            onPressed: (){
+              _enviarActividad();
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      );
+    });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool(SharedPreferencesKeys.isShowedAyudaCrearActividadCocreadores, true);
+  }
+
   Future<void> _enviarActividad() async {
     setState(() {
       _enviando = true;
@@ -1316,6 +1404,14 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    // Muestra el dialog a los usuarios nuevos (se muestra solo una vez)
+    bool isShowed = prefs.getBool(SharedPreferencesKeys.isShowedAyudaCrearActividadCocreadores) ?? false;
+    if(!isShowed && _creadores.isEmpty){
+      _showDialogConfirmarCrearActividad();
+      setState(() {_enviando = false;});
+      return;
+    }
 
     List<Usuario> creadoresUsuario = [];
     List<String> creadoresId = [];
@@ -1339,7 +1435,10 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         "creadores": creadoresId,
         "creadores_externos_codigo": creadoresExternoCodigo,
         "ubicacion_latitud": _position?.latitude.toString() ?? "",
-        "ubicacion_longitud": _position?.longitude.toString() ?? ""
+        "ubicacion_longitud": _position?.longitude.toString() ?? "",
+
+        // Envia historial del usuario para analizar comportamiento
+        "historiales_usuario_activo": _historialesUsuario,
       },
       usuarioSesion: usuarioSesion,
     );
@@ -1395,6 +1494,51 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
     setState(() {
       _enviando = false;
     });
+  }
+
+  void _agregarHistorialUsuario(Map<String, dynamic> nuevoHistorial){
+    // Agrega historial si tiene menos de 20 items.
+    // Si tiene 20 items o más, solo lo agrega si no existe el evento.
+
+    if(_historialesUsuario.length < 20){
+      _historialesUsuario.add(nuevoHistorial);
+    } else {
+      if(!HistorialUsuario.containsEvento(_historialesUsuario, nuevoHistorial)){
+        _historialesUsuario.add(nuevoHistorial);
+      }
+    }
+  }
+
+  Future<void> _enviarHistorialesUsuario() async {
+    //setState(() {});
+
+    if(_historialesUsuario.isEmpty || _isEnviadoHistorialesUsuario) return;
+
+    // Evita que se envie más de una vez (puede generarse por posible error con WillPopScope en iOS)
+    _isEnviadoHistorialesUsuario = true;
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    var response = await HttpService.httpPost(
+      url: constants.urlCrearHistorialUsuarioActivo,
+      body: {
+        "historiales_usuario_activo": _historialesUsuario,
+      },
+      usuarioSesion: usuarioSesion,
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = await jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+        //
+      } else {
+        //_showSnackBar("Se produjo un error inesperado");
+      }
+    }
+
+    //setState(() {});
   }
 
   void _showSnackBar(String texto){

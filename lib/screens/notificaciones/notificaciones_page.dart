@@ -106,7 +106,7 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
 
     } else if(notificacion.tipo == NotificacionTipo.ACTIVIDAD_CREADOR){
 
-      texto = '${notificacion.autorUsuario!.nombre} te agregó como co-creador de una actividad. Tienes que confirmar para ser parte.';
+      texto = '${notificacion.autorUsuario!.nombre} te agregó como cocreador de una actividad. Tienes que confirmar para ser parte.';
       onTap = (){
         Navigator.push(context,
           MaterialPageRoute(builder: (context) => ActividadPage(actividad: notificacion.actividad!,)),
@@ -116,7 +116,7 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
     } else if(notificacion.tipo == NotificacionTipo.STICKER_ENVIADO){
 
       if(notificacion.chat!.tipo == ChatTipo.GRUPAL){
-        texto = '${notificacion.autorUsuario!.nombre} envió un sticker al chat grupal donde eres co-creador ¡Tú lo recibiste!';
+        texto = '${notificacion.autorUsuario!.nombre} envió un sticker al chat grupal donde eres cocreador ¡Tú lo recibiste!';
       } else {
         texto = '¡${notificacion.autorUsuario!.nombre} te envió un sticker!';
       }

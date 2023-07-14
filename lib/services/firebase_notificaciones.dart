@@ -303,7 +303,7 @@ class FirebaseNotificaciones {
         description = 'Fuiste aceptado en una actividad.';
         break;
       case NotificacionTipo.ACTIVIDAD_CREADOR:
-        description = '${data['notificacion']['autor_usuario']['nombre_completo']} te agregó como co-creador de una actividad. Tienes que confirmar para ser parte.';
+        description = '${data['notificacion']['autor_usuario']['nombre_completo']} te agregó como cocreador de una actividad. Tienes que confirmar para ser parte.';
         break;
       case NotificacionTipo.STICKER_ENVIADO:
         description = '¡${data['notificacion']['autor_usuario']['nombre_completo']} te envió un sticker!';

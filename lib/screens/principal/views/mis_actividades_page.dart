@@ -82,7 +82,7 @@ class MisActividadesPageState extends State<MisActividadesPage> {
         child: _loadingActividades ? CircularProgressIndicator() : Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(children: [
-            const Text("No hay actividades recientes donde eres co-creador. Las actividades duran 48 horas visibles.",
+            const Text("No hay actividades recientes donde eres cocreador. Las actividades duran 48 horas visibles.",
               style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
               textAlign: TextAlign.center,
             ),
@@ -126,7 +126,7 @@ class MisActividadesPageState extends State<MisActividadesPage> {
   Widget _buildTextoCabecera(){
     return const Padding(
       padding: EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 12,),
-      child: Text("Se muestran las actividades donde eres co-creador y que están visibles actualmente.",
+      child: Text("Se muestran las actividades donde eres cocreador y que están visibles actualmente.",
         style: TextStyle(color: constants.grey, fontSize: 12,),
       ),
     );

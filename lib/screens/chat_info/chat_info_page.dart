@@ -700,12 +700,12 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
         content: SingleChildScrollView(
           child: Column(children: [
             Text(Platform.isIOS
-              ? "Envía una propina/regalo como un buen gesto a los co-creadores.\n\n"
-                "El co-creador que lo reciba, tendrá el mismo valor en bitcoin.\n\n"
-                "Cuando se envía una propina, este será enviado aleatoriamente hacia alguno de los co-creadores."
-              : "Envía un sticker como un buen gesto a los co-creadores.\n\n"
-                "Los stickers son micro-regalos que el co-creador que lo reciba podrá canjear por el mismo valor del sticker en bitcoin.\n\n"
-                "Cuando se envía un sticker, este será enviado aleatoriamente hacia alguno de los co-creadores.",
+              ? "Envía una propina/regalo como un buen gesto a los cocreadores.\n\n"
+                "El cocreador que lo reciba, tendrá el mismo valor en bitcoin.\n\n"
+                "Cuando se envía una propina, este será enviado aleatoriamente hacia alguno de los cocreadores."
+              : "Envía un sticker como un buen gesto a los cocreadores.\n\n"
+                "Los stickers son micro-regalos que el cocreador que lo reciba podrá canjear por el mismo valor del sticker en bitcoin.\n\n"
+                "Cuando se envía un sticker, este será enviado aleatoriamente hacia alguno de los cocreadores.",
               style: TextStyle(color: constants.grey, fontSize: 12,),
               textAlign: TextAlign.center,
             ),

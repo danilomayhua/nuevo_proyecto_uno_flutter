@@ -208,7 +208,7 @@ class _ActividadPageState extends State<ActividadPage> {
 
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text("Co-creadores:", style: TextStyle(color: constants.blackGeneral),),
+            child: Text("Cocreadores:", style: TextStyle(color: constants.blackGeneral),),
           ),
           ListView.builder(
             itemCount: widget.actividad.creadores.length,
@@ -242,11 +242,11 @@ class _ActividadPageState extends State<ActividadPage> {
             Column(children: [
               const Padding(
                 padding: EdgeInsets.only(left: 16, top: 12, right: 16, bottom: 0,),
-                child: Text("Co-creadores pendientes:", style: TextStyle(color: constants.blackGeneral),),
+                child: Text("Cocreadores pendientes:", style: TextStyle(color: constants.blackGeneral),),
               ),
               const Padding(
                 padding: EdgeInsets.only(left: 16, top: 8, right: 16, bottom: 12,),
-                child: Text("Estos usuarios tienen que confirmar para ser parte de co-creadores. "
+                child: Text("Estos usuarios tienen que confirmar para ser parte de cocreadores. "
                     "Solo tú puedes ver esta lista.",
                   style: TextStyle(color: constants.grey, fontSize: 12,),
                   //textAlign: TextAlign.center,
@@ -319,7 +319,7 @@ class _ActividadPageState extends State<ActividadPage> {
               margin: EdgeInsets.symmetric(vertical: 16, horizontal: 16,),
               padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
               child: Column(children: [
-                const Text("Fuiste agregado como co-creador de la actividad. "
+                const Text("Fuiste agregado como cocreador de la actividad. "
                     "Tienes que confirmar para ser parte y tener los permisos de admin.",
                   style: TextStyle(color: constants.grey, fontSize: 12,),
                   textAlign: TextAlign.center,
@@ -429,7 +429,7 @@ class _ActividadPageState extends State<ActividadPage> {
                 ),
               ),
               SizedBox(width: 8,),
-              Expanded(child: Text("Al unirse, se envía una solicitud y alguno de los co-creadores te tiene que aceptar para ser parte del chat grupal.",
+              Expanded(child: Text("Al unirse, se envía una solicitud y alguno de los cocreadores te tiene que aceptar para ser parte del chat grupal.",
                 style: TextStyle(fontSize: 14, color: constants.grey),
               ),),
             ], crossAxisAlignment: CrossAxisAlignment.start,),

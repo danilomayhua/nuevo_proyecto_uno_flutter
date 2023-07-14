@@ -130,7 +130,7 @@ class _SignupInvitationPageState extends State<SignupInvitationPage> {
       return AlertDialog(
         content: SingleChildScrollView(
           child: Column(children: [
-            Text("Fuiste invitado como co-creador de la actividad \"$actividadTitulo\"\n\n"
+            Text("Fuiste invitado como cocreador de la actividad \"$actividadTitulo\"\n\n"
                 "¡Primero crea tu perfil!",
               style: const TextStyle(color: constants.blackGeneral, fontSize: 16, height: 1.3,),
               textAlign: TextAlign.center,

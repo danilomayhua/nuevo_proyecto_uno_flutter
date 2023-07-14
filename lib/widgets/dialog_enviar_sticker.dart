@@ -279,9 +279,9 @@ class _DialogEnviarStickerState extends State<DialogEnviarSticker> {
         Navigator.of(context).pop();
 
         if(datosJson['error_tipo'] == 'cocreadores_vacio'){
-          _showSnackBar("No puedes enviar stickers a este chat. Los co-creadores ya no forman parte.");
+          _showSnackBar("No puedes enviar stickers a este chat. Los cocreadores ya no forman parte.");
         } else if(datosJson['error_tipo'] == 'cocreador_unico_autor'){
-          _showSnackBar("No puedes enviar stickers a este chat. Solamente otros integrantes pueden enviarte stickers a ti como co-creador.");
+          _showSnackBar("No puedes enviar stickers a este chat. Solamente otros integrantes pueden enviarte stickers a ti como cocreador.");
         } else{
           _showSnackBar("Se produjo un error inesperado");
         }

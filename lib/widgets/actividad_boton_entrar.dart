@@ -203,7 +203,7 @@ class _ActividadBotonEntrarState extends State<ActividadBotonEntrar> {
               mainAxisSize: MainAxisSize.min,
               children: const <Widget>[
                 Text("Esta es una actividad de tipo Privado.\n\n"
-                    "Tienes que esperar que te acepte alguno de los co-creadores para ser parte del chat grupal.",
+                    "Tienes que esperar que te acepte alguno de los cocreadores para ser parte del chat grupal.",
                   style: TextStyle(color: constants.blackGeneral),),
               ],
             ),
