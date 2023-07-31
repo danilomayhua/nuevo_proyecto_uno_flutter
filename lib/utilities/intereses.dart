@@ -51,7 +51,7 @@ class Intereses {
         return Icon(Icons.emoji_objects_outlined, color: Colors.amber, size: size,);
         break;
       case "2":
-        return Icon(Icons.school_outlined, color: Colors.purple, size: size,);
+        return Icon(Icons.laptop_chromebook_rounded, color: Colors.purple, size: size,);
         break;
       case "3":
         return Icon(Icons.sports_outlined, color: Colors.blueGrey, size: size,);

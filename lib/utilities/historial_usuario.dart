@@ -6,6 +6,9 @@ class HistorialUsuario {
   static const String _crearActividadBuscadorCodigoInformacion = "/crear-actividad/buscador/codigo-informacion";
   static const String _crearActividadBuscadorResultado = "/crear-actividad/buscador/resultado";
 
+  static const String _contactosInvitarAmigo = "/contactos/invitar-amigo";
+
+
   /// En CrearActividad, cuando ingresa a la segunda pantalla
   static Map<String, dynamic> getCrearActividadPasoDos(){
     return {
@@ -47,6 +50,14 @@ class HistorialUsuario {
         "texto": texto,
         "resultado_usuarios_id": resultadoUsuariosId,
       }
+    };
+  }
+
+  /// En Contactos, cuando invita a un amigo
+  static Map<String, dynamic> getContactosInvitarAmigo(){
+    return {
+      "evento": _contactosInvitarAmigo,
+      "datos_adicionales": {}
     };
   }
 

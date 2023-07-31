@@ -7,6 +7,8 @@ import 'package:tenfo/screens/user/user_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tenfo/utilities/historial_usuario.dart';
+import 'package:tenfo/utilities/share_utils.dart';
 
 class ContactosPage extends StatefulWidget {
   const ContactosPage({Key? key}) : super(key: key);
@@ -47,17 +49,26 @@ class _ContactosPageState extends State<ContactosPage> {
       ),
       body: (_contactos.isEmpty) ? Center(
 
-        child: _loadingContactos ? CircularProgressIndicator() : const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Text("No tienes contactos aún.",
-            style: TextStyle(color: constants.grey, fontSize: 14,),
-            textAlign: TextAlign.center,
-          ),
+        child: _loadingContactos ? CircularProgressIndicator() : Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(children: [
+            const Text("No tienes contactos aún.",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8,),
+            const Text("Agrega contactos para descubrir vínculos en común con personas en las actividades.",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 48,),
+            _buildBotonInvitar(),
+          ], mainAxisSize: MainAxisSize.min,),
         ),
 
       ) : ListView.builder(
         controller: _scrollController,
-        itemCount: _contactos.length + 2, // +1 mostrar texto cabecera, +1 mostrar cargando
+        itemCount: _contactos.length + 2, // +1 mostrar texto cabecera, +1 mostrar cargando o boton
         itemBuilder: (context, index){
           if(index == 0){
             return _buildTextoCabecera();
@@ -66,7 +77,15 @@ class _ContactosPageState extends State<ContactosPage> {
           index = index - 1;
 
           if(index == _contactos.length){
-            return _buildLoadingContactos();
+            if(_loadingContactos){
+              return _buildLoadingContactos();
+            } else {
+              return Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.only(top: 24,),
+                child: _buildBotonInvitar(),
+              );
+            }
           }
 
           return _buildUsuario(_contactos[index]);
@@ -75,10 +94,31 @@ class _ContactosPageState extends State<ContactosPage> {
     );
   }
 
+  Widget _buildBotonInvitar(){
+    return Container(
+      constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+      child: ElevatedButton.icon(
+        onPressed: (){
+          ShareUtils.shareProfile();
+
+          // Envia historial del usuario
+          _enviarHistorialUsuario(HistorialUsuario.getContactosInvitarAmigo());
+        },
+        icon: const Icon(Icons.person_add),
+        label: const Text("Invitar facuamigos",
+          style: TextStyle(fontSize: 14,),
+        ),
+        style: ElevatedButton.styleFrom(
+          shape: const StadiumBorder(),
+        ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+      ),
+    );
+  }
+
   Widget _buildTextoCabecera(){
     return const Padding(
       padding: EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 12,),
-      child: Text("Solo tú puedes ver tu lista completa de contactos. Otros usuarios pueden ver únicamente los contactos que tienen en común.",
+      child: Text("Agrega contactos para descubrir vínculos en común con personas en las actividades. Solo tú puedes ver tu lista completa de contactos.",
         style: TextStyle(color: constants.grey, fontSize: 12,),
       ),
     );
@@ -161,6 +201,33 @@ class _ContactosPageState extends State<ContactosPage> {
     setState(() {
       _loadingContactos = false;
     });
+  }
+
+  Future<void> _enviarHistorialUsuario(Map<String, dynamic> historialUsuario) async {
+    //setState(() {});
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    var response = await HttpService.httpPost(
+      url: constants.urlCrearHistorialUsuarioActivo,
+      body: {
+        "historiales_usuario_activo": [historialUsuario],
+      },
+      usuarioSesion: usuarioSesion,
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = await jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+        //
+      } else {
+        //_showSnackBar("Se produjo un error inesperado");
+      }
+    }
+
+    //setState(() {});
   }
 
   void _showSnackBar(String texto){

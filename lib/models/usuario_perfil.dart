@@ -16,6 +16,8 @@ class UsuarioPerfil extends Usuario {
   List<Usuario>? contactosMutuos;
   int? totalContactosMutuos;
   //String? activo;
+  bool isVerificadoUniversidad = false;
+  String? verificadoUniversidadNombre;
 
   UsuarioPerfil({required String id, required String nombre,
     required String username, required String foto,})

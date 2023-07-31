@@ -82,7 +82,21 @@ class _UserPageState extends State<UserPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_usuarioPerfil.username),
+        title: Row(children: [
+          Flexible(
+            child: Text(_usuarioPerfil.username, overflow: TextOverflow.ellipsis,),
+          ),
+          if(_usuarioPerfil.isVerificadoUniversidad)
+            ...[
+              const SizedBox(width: 6,),
+              GestureDetector(
+                onTap: (){
+                  _showDialogUniversidadVerificada();
+                },
+                child: _iconUniversidadVerificada(20),
+              ),
+            ],
+        ],),
         actions: [
 
           if(widget.isFromProfile)
@@ -141,8 +155,66 @@ class _UserPageState extends State<UserPage> {
     );
   }
 
+  Widget _iconUniversidadVerificada(double size){
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Icon(Icons.verified, size: size, color: Colors.blue,),
+        Icon(Icons.circle, size: (size / 100 * 70), color: Colors.blue,),
+        Icon(Icons.school_outlined, size: (size / 2), color: Colors.white,),
+      ],
+    );
+  }
+
+  void _showDialogUniversidadVerificada(){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(children: [
+            RichText(
+              textAlign: TextAlign.left,
+              text: TextSpan(
+                style: const TextStyle(color: constants.blackGeneral, fontSize: 16, fontWeight: FontWeight.bold,),
+                children: [
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8,),
+                      child: _iconUniversidadVerificada(25),
+                    ),
+                  ),
+                  const TextSpan(
+                    text: "Universidad verificada",
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16,),
+            Text("Este perfil cuenta con un correo verificado de la ${_usuarioPerfil.verificadoUniversidadNombre ?? ""}. Los perfiles sin esta insignia "
+                "corresponden a usuarios que no utilizaron un correo de estudiante (por lo general, son invitados de estudiantes con universidad verificada).",
+              style: const TextStyle(color: constants.blackGeneral, fontSize: 14,),
+              textAlign: TextAlign.left,
+            ),
+          ], mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start,),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Entendido"),
+          ),
+        ],
+      );
+    });
+  }
+
   void _actualizarUsuarioPerfilSesion(){
     SharedPreferences.getInstance().then((prefs){
+
+      // Estos datos se pudieron haber cargado desde _cargarUsuario (por ahora no estan guardados en UsuarioSesion)
+      bool isVerificadoUniversidad = _usuarioPerfil.isVerificadoUniversidad;
+      String? verificadoUniversidadNombre = _usuarioPerfil.verificadoUniversidadNombre;
+
+
       _usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
 
       _usuarioPerfil = UsuarioPerfil(
@@ -154,6 +226,10 @@ class _UserPageState extends State<UserPage> {
 
       _usuarioPerfil.descripcion = _usuarioSesion!.descripcion;
       _usuarioPerfil.instagram = _usuarioSesion!.instagram;
+
+      _usuarioPerfil.isVerificadoUniversidad = isVerificadoUniversidad;
+      _usuarioPerfil.verificadoUniversidadNombre = verificadoUniversidadNombre;
+
       setState(() {});
     });
   }
@@ -719,6 +795,9 @@ class _UserPageState extends State<UserPage> {
         _usuarioPerfil.descripcion = datosUsuario['descripcion'];
         _usuarioPerfil.instagram = datosUsuario['instagram'];
         _usuarioPerfil.contactoEstado = UsuarioPerfil.getUsuarioPerfilContactoEstadoFromString(datosUsuario['contacto_estado']);
+
+        _usuarioPerfil.isVerificadoUniversidad = datosUsuario['is_verificado_universidad'];
+        _usuarioPerfil.verificadoUniversidadNombre = datosUsuario['verificado_universidad_nombre'];
 
         List<Usuario> contactosMutuos = [];
         datosJson['data']['contactos_mutuos_vista_previa'].forEach((usuario){

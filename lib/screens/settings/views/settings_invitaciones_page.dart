@@ -55,34 +55,33 @@ class _SettingsInvitacionesPageState extends State<SettingsInvitacionesPage> {
           child: Column(children: [
             const SizedBox(height: 16,),
 
-            const Text("¡Invita a tus amigos que no tienen email académico! Pueden entrar con una invitación directa tuya. Ingresa su email y ya "
-                "podrá registrarse con el mismo.",
-              style: TextStyle(color: constants.grey),
+            const Text("¡Invita a tus amigos que no tienen email universitario! Podrán entrar con una invitación directa tuya. Ingresa un email común de tu invitado "
+                "y ya podrá registrarse con el mismo.",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),
             ),
             const SizedBox(height: 8,),
-            const Text("Debes tener en cuenta:", style: TextStyle(color: constants.grey)),
+            const Text("Aquí hay algunas consideraciones a tener en cuenta:",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),
+            ),
             const Padding(
               padding: EdgeInsets.only(left: 16, top: 16,),
-              child: Text("• Actualmente la app solo está disponible en Buenos Aires.",
-                style: TextStyle(color: constants.grey, fontSize: 12,),
+              child: Text("• Actualmente, la app solo está disponible en Buenos Aires.",
+                style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
               ),
             ),
             const Padding(
               padding: EdgeInsets.only(left: 16, top: 16,),
-              child: Text("• Durante la versión beta, tu cuenta se vera afectada si los usuarios invitados tienen un comportamiento inadecuado "
-                  "o que infrinja los términos y condiciones. Una vez la app esté abierto para todo el público, tu cuenta ya no será responsable "
-                  "de estos usuarios.",
-                style: TextStyle(color: constants.grey, fontSize: 12,),
+              child: Text("• Al no usar un email universitario, los usuarios invitados no tendrán la verificación de universidad en su perfil.",
+                style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
               ),
             ),
             const Padding(
               padding: EdgeInsets.only(left: 16, top: 16,),
-              child: Text("• Debido a estas responsabilidades, elegir bien a quien compartir las invitaciones y que sean personas que conozcas "
-                  "personalmente. Recomendamos que sean conocidos cercanos con quienes co-crearan actividades.",
-                style: TextStyle(color: constants.grey, fontSize: 12,),
+              child: Text("• Elige bien a quiénes compartes las invitaciones. Recomendamos que sean amigos con quienes cocrearan actividades.",
+                style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
               ),
             ),
-            const SizedBox(height: 24,),
+            const SizedBox(height: 32,),
 
             TextField(
               controller: _emailController,
