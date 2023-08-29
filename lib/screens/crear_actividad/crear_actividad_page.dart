@@ -41,6 +41,9 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
   final PageController _pageController = PageController();
   int _pageCurrent = 0;
 
+  final GlobalKey<State<Tooltip>> _keyTooltipSugerencias = GlobalKey();
+  bool _enabledTooltipSugerencias = false;
+
   List<String> _intereses = [];
   final TextEditingController _titleController = TextEditingController();
   final FocusNode _titleFocusNode = FocusNode();
@@ -92,6 +95,19 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
       if(_intereses.isEmpty) _showDialogCambiarIntereses();
       if(_intereses.isNotEmpty) _cargarActividadSugerenciasTitulo(_intereses[0]); // Muestra opciones con el primer interes por defecto
+
+
+      // Muestra tooltip de sugerencias a los usuarios nuevos (se muestra solo una vez)
+      bool isShowed = prefs.getBool(SharedPreferencesKeys.isShowedAyudaCrearActividadSugerencias) ?? false;
+      if(!isShowed){
+        setState(() {
+          _enabledTooltipSugerencias = true;
+        });
+        _showAndCloseTooltipSugerencias();
+
+        prefs.setBool(SharedPreferencesKeys.isShowedAyudaCrearActividadSugerencias, true);
+      }
+
     });
     _titleController.text = '';
     _descriptionController.text = '';
@@ -304,12 +320,36 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
         const SizedBox(height: 24,),
 
-        Container(
-          width: double.infinity,
-          child: const Text("¿A qué interés pertenece?", textAlign: TextAlign.left,
+        Row(children: [
+          const Text("¿A qué interés pertenece?", textAlign: TextAlign.left,
             style: TextStyle(color: constants.blackGeneral,),
           ),
-        ),
+          const SizedBox(width: 4,),
+          if(_enabledTooltipSugerencias)
+            Tooltip(
+              key: _keyTooltipSugerencias,
+              triggerMode: TooltipTriggerMode.manual,
+              message: "Presiona en un interés para\ncambiar las opciones\nmostradas", // Tiene saltos de linea para modificar el ancho
+              preferBelow: false,
+              verticalOffset: 18,
+              padding: const EdgeInsets.all(8),
+              decoration: ShapeDecoration(
+                shape: _CustomShapeBorder(), // Forma personalizada
+                color: Colors.grey[700]?.withOpacity(0.9),
+              ),
+              child: Container(
+                width: 32,
+                height: 32,
+                child: IconButton(
+                  onPressed: (){
+                    _showTooltipSugerencias();
+                  },
+                  icon: const Icon(Icons.help_outline, color: constants.grey,),
+                  padding: const EdgeInsets.all(0),
+                ),
+              ),
+            ),
+        ],),
         const SizedBox(height: 8,),
         Container(
           alignment: Alignment.centerLeft,
@@ -632,6 +672,20 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
     }
 
     return;
+  }
+
+  Future _showAndCloseTooltipSugerencias() async {
+    await Future.delayed(const Duration(milliseconds: 500,));
+    dynamic tooltip = _keyTooltipSugerencias.currentState; // Es dynamic para que tome la funcion ensureTooltipVisible
+    tooltip?.ensureTooltipVisible();
+    await Future.delayed(const Duration(seconds: 4));
+    tooltip?.deactivate();
+  }
+
+  Future _showTooltipSugerencias() async {
+    await Future.delayed(const Duration(milliseconds: 10)); // Necesario para que no se cierre al momento de mostrar
+    dynamic tooltip = _keyTooltipSugerencias.currentState; // Es dynamic para que tome la funcion ensureTooltipVisible
+    tooltip?.ensureTooltipVisible();
   }
 
   void _validarContenidoUno(){
@@ -1547,5 +1601,32 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         behavior: SnackBarBehavior.floating,
         content: Text(texto, textAlign: TextAlign.center,)
     ));
+  }
+}
+
+class _CustomShapeBorder extends ShapeBorder {
+  @override
+  EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) => Path();
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
+    final path = Path()
+      ..addRRect(RRect.fromRectAndRadius(rect, Radius.circular(10)))
+      ..moveTo(rect.left + rect.width / 2 - 10, rect.bottom)
+      ..lineTo(rect.left + rect.width / 2, rect.bottom + 10)
+      ..lineTo(rect.left + rect.width / 2 + 10, rect.bottom);
+
+    return path;
+  }
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {}
+
+  @override
+  ShapeBorder scale(double t) {
+    return _CustomShapeBorder();
   }
 }

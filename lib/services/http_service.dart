@@ -48,21 +48,18 @@ class HttpService {
 
   static Future<http.Response> httpGet({required String url, required Map<String, String> queryParams, UsuarioSesion? usuarioSesion}) async {
 
-    if(usuarioSesion != null){
-      // Agrega campos sobre la app actual (no sobrescribir si ya existen campos con el mismo nombre)
-
-      try {
-        if(queryParams["app_plataforma"] == null){
-          String appPlataforma = Platform.isIOS ? "iOS" : "android";
-          queryParams["app_plataforma"] = appPlataforma;
-        }
-        if(queryParams["app_version"] == null){
-          PackageInfo packageInfo = await PackageInfo.fromPlatform();
-          queryParams["app_version"] = packageInfo.version;
-        }
-      } catch (e){
-        //
+    // Agrega campos sobre la app actual (no sobrescribir si ya existen campos con el mismo nombre)
+    try {
+      if(queryParams["app_plataforma"] == null){
+        String appPlataforma = Platform.isIOS ? "iOS" : "android";
+        queryParams["app_plataforma"] = appPlataforma;
       }
+      if(queryParams["app_version"] == null){
+        PackageInfo packageInfo = await PackageInfo.fromPlatform();
+        queryParams["app_version"] = packageInfo.version;
+      }
+    } catch (e){
+      //
     }
 
     http.Response response = await http.get(
@@ -75,21 +72,18 @@ class HttpService {
 
   static Future<http.Response> httpPost({required String url, required Map<String, dynamic> body, UsuarioSesion? usuarioSesion}) async {
 
-    if(usuarioSesion != null){
-      // Agrega campos sobre la app actual (no sobrescribir si ya existen campos con el mismo nombre)
-
-      try {
-        if(body["app_plataforma"] == null){
-          String appPlataforma = Platform.isIOS ? "iOS" : "android";
-          body["app_plataforma"] = appPlataforma;
-        }
-        if(body["app_version"] == null){
-          PackageInfo packageInfo = await PackageInfo.fromPlatform();
-          body["app_version"] = packageInfo.version;
-        }
-      } catch (e){
-        //
+    // Agrega campos sobre la app actual (no sobrescribir si ya existen campos con el mismo nombre)
+    try {
+      if(body["app_plataforma"] == null){
+        String appPlataforma = Platform.isIOS ? "iOS" : "android";
+        body["app_plataforma"] = appPlataforma;
       }
+      if(body["app_version"] == null){
+        PackageInfo packageInfo = await PackageInfo.fromPlatform();
+        body["app_version"] = packageInfo.version;
+      }
+    } catch (e){
+      //
     }
 
     http.Response response = await http.post(

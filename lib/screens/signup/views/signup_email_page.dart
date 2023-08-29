@@ -202,12 +202,8 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
       return RichText(
         text: TextSpan(
           style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
-          text: Platform.isIOS
-              ? "Recuerda que el registro solo está disponible para correos preseleccionados y estudiantes de algunas "
-              "universidades en Buenos Aires. "
-
-              : "Recuerda que la app está en versión beta. El registro solo está disponible para correos preseleccionados "
-              "y estudiantes de algunas universidades en Buenos Aires. ",
+          text: "Recuerda que el registro solo está disponible para correos preseleccionados y estudiantes de algunas "
+              "universidades en Buenos Aires. ",
           children: [
             TextSpan(
               text: "Más información.",
@@ -227,23 +223,36 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
       return AlertDialog(
         content: SingleChildScrollView(
           child: Column(children: [
+            const Text("Actualmente, la app tiene un registro solo para estudiantes. Queremos dar una buena experiencia, ayudar "
+                "en la veracidad de los perfiles dentro y generar confianza entre los usuarios.",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),
+            ),
+            const SizedBox(height: 16,),
+            const Text("Estos son los correos universitarios disponibles para el registro:",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),
+            ),
+
+            const Padding(
+              padding: EdgeInsets.only(left: 16, top: 24,),
+              child: Text("• nombre@ucema.edu.ar",
+                style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(left: 16, top: 16, bottom: 24,),
+              child: Text("• nombre@comunidad.ub.edu.ar",
+                style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
+              ),
+            ),
+
             RichText(
               text: TextSpan(
-                style: const TextStyle(color: constants.blackGeneral, fontSize: 16, height: 1.3,),
-                text: Platform.isIOS
-                    ? "Actualmente, la app tiene un registro cerrado. Queremos dar una buena experiencia, ayudar "
-                    "en la veracidad de los perfiles dentro y generar confianza entre los usuarios.\n\n"
-                    "Si tienes un correo universitario de los disponibles, puedes registrarte. Puedes revisar nuestro "
-                    "instagram "
-
-                    : "Actualmente, la app está en versión beta y tiene un registro cerrado. Queremos dar una buena experiencia, ayudar "
-                    "en la veracidad de los perfiles dentro y generar confianza entre los usuarios.\n\n"
-                    "Si tienes un correo universitario de los disponibles, puedes registrarte. Puedes revisar nuestro "
-                    "instagram ",
+                style: const TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),
+                text: "Puedes revisar nuestro instagram ",
                 children: [
                   TextSpan(
                     text: "@tenfo.app",
-                    style: TextStyle(color: constants.grey, decoration: TextDecoration.underline,),
+                    style: const TextStyle(color: constants.grey, decoration: TextDecoration.underline,),
                     recognizer: TapGestureRecognizer()..onTap = () async {
                       String urlString = "https://www.instagram.com/tenfo.app";
                       Uri url = Uri.parse(urlString);
@@ -256,14 +265,16 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
                     },
                   ),
                   const TextSpan(
-                    text: " para ver la lista actualizada de universidades disponibles.\n"
-                        "Si fuiste invitado directamente, puedes registrarte con el correo que diste.\n\n"
-                        "Gracias por la comprensión.",
+                    text: " para ver la lista actualizada de universidades disponibles.",
                   ),
                 ],
               ),
             ),
-          ], mainAxisSize: MainAxisSize.min,),
+            const SizedBox(height: 16,),
+            const Text("Si fuiste invitado directamente, puedes registrarte con el correo que diste.",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),
+            ),
+          ], mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start,),
         ),
         actions: [
           TextButton(
@@ -283,7 +294,7 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
             RichText(
               text: TextSpan(
                 style: const TextStyle(color: constants.blackGeneral, fontSize: 16, height: 1.3,),
-                text: "Actualmente, la app está en versión beta y tiene un registro cerrado. Queremos dar una buena experiencia, ayudar "
+                text: "Actualmente, la app tiene un registro cerrado. Queremos dar una buena experiencia, ayudar "
                     "en la veracidad de los perfiles dentro y generar confianza entre los usuarios.\n\n"
                     "Si tienes un correo universitario de los disponibles, puedes registrarte. Puedes revisar nuestro "
                     "instagram ",
