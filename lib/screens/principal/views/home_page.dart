@@ -26,7 +26,7 @@ enum LocationPermissionStatus {
   notPermitted,
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   List<String> _intereses = [];
   List<Widget> _interesesIcons = [];
 
@@ -37,6 +37,8 @@ class _HomePageState extends State<HomePage> {
   bool _loadingActividades = false;
   bool _verMasActividades = false;
   String _ultimoActividades = "false";
+
+  DateTime? _lastTimeCargarActividades;
 
   LocationPermissionStatus _permissionStatus = LocationPermissionStatus.loading;
   Position? _position;
@@ -58,6 +60,29 @@ class _HomePageState extends State<HomePage> {
         }
       }
     });
+
+    WidgetsBinding.instance?.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance?.removeObserver(this);
+
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Se abrió la app desde segundo plano (o cuando vuelve de exterior, por ej. al aceptar ubicacion)
+
+      DateTime timeNow = DateTime.now();
+
+      if(!_loadingActividades && _lastTimeCargarActividades != null && timeNow.difference(_lastTimeCargarActividades!).inMinutes >= 15){
+        // Vuelve a cargar actividades, si al volver de segundo plano, pasaron más de 15 minutos de las ultimas actividades cargadas
+        _recargarActividades();
+      }
+    }
   }
 
   @override
@@ -151,6 +176,8 @@ class _HomePageState extends State<HomePage> {
     _ultimoActividades = "false";
 
     _actividades = [];
+
+    setState(() {});
 
     bool ubicacionPermitida = await _verificarUbicacion();
     if(ubicacionPermitida){
@@ -268,6 +295,8 @@ class _HomePageState extends State<HomePage> {
         }
 
         _isActividadesPermitido = datosJson['is_permitido_ver_actividades'];
+
+        _lastTimeCargarActividades = DateTime.now();
 
       } else {
 
