@@ -239,8 +239,14 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
               ),
             ),
             const Padding(
-              padding: EdgeInsets.only(left: 16, top: 16, bottom: 24,),
+              padding: EdgeInsets.only(left: 16, top: 16,),
               child: Text("• nombre@comunidad.ub.edu.ar",
+                style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(left: 16, top: 16, bottom: 24,),
+              child: Text("• nombre@palermo.edu",
                 style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
               ),
             ),

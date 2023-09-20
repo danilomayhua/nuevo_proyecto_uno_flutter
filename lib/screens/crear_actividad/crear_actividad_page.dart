@@ -94,18 +94,21 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
       setState(() {});
 
       if(_intereses.isEmpty) _showDialogCambiarIntereses();
-      if(_intereses.isNotEmpty) _cargarActividadSugerenciasTitulo(_intereses[0]); // Muestra opciones con el primer interes por defecto
+      if(_intereses.isNotEmpty){
+        _cargarActividadSugerenciasTitulo(_intereses[0]); // Muestra opciones con el primer interes por defecto
+        setState(() {
+          _selectedInteresId = _intereses[0]; // Selecciona el primer interes por defecto
+        });
+      }
 
 
-      // Muestra tooltip de sugerencias a los usuarios nuevos (se muestra solo una vez)
+      // Muestra tooltip de sugerencias a los usuarios nuevos (se muestra hasta que presione en un interes y cargue nuevas sugerencias)
       bool isShowed = prefs.getBool(SharedPreferencesKeys.isShowedAyudaCrearActividadSugerencias) ?? false;
       if(!isShowed){
         setState(() {
           _enabledTooltipSugerencias = true;
         });
         _showAndCloseTooltipSugerencias();
-
-        prefs.setBool(SharedPreferencesKeys.isShowedAyudaCrearActividadSugerencias, true);
       }
 
     });
@@ -362,7 +365,16 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
                   _selectedInteresId = _intereses[index];
                 });
 
-                if(_intereses[index] != _lastSugerenciasTituloInteresId) _cargarActividadSugerenciasTitulo(_intereses[index]);
+                if(_intereses[index] != _lastSugerenciasTituloInteresId){
+                  _cargarActividadSugerenciasTitulo(_intereses[index]);
+
+                  // Si estaba mostrando el tooltip, ya no lo muestra las siguientes veces
+                  if(_enabledTooltipSugerencias){
+                    SharedPreferences.getInstance().then((prefs){
+                      prefs.setBool(SharedPreferencesKeys.isShowedAyudaCrearActividadSugerencias, true);
+                    });
+                  }
+                }
               },
               child: Container(
                 width: 60,
@@ -599,6 +611,9 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         Navigator.of(context).pop();
 
         _cargarActividadSugerenciasTitulo(_intereses[0]); // Muestra opciones con el primer interes por defecto
+        setState(() {
+          _selectedInteresId = _intereses[0]; // Selecciona el primer interes por defecto
+        });
       },);
     });
   }
