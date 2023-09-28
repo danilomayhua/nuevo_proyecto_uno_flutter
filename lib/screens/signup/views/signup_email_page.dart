@@ -222,36 +222,36 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
     showDialog(context: context, builder: (context){
       return AlertDialog(
         content: SingleChildScrollView(
-          child: Column(children: [
-            const Text("Actualmente, la app tiene un registro solo para estudiantes. Queremos dar una buena experiencia, ayudar "
-                "en la veracidad de los perfiles dentro y generar confianza entre los usuarios.",
+          child: Column(children: const [
+            Text("Actualmente, la app tiene un registro solo con correo universitario. Esto se hace para asegurar que cada perfil "
+                "sea un estudiante y aumentar la confianza entre los usuarios.",
               style: TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),
             ),
-            const SizedBox(height: 16,),
-            const Text("Estos son los correos universitarios disponibles para el registro:",
+            SizedBox(height: 16,),
+            Text("Estos son los correos universitarios disponibles para el registro:",
               style: TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),
             ),
 
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(left: 16, top: 24,),
               child: Text("• nombre@ucema.edu.ar",
                 style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
               ),
             ),
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(left: 16, top: 16,),
               child: Text("• nombre@comunidad.ub.edu.ar",
                 style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
               ),
             ),
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(left: 16, top: 16, bottom: 24,),
               child: Text("• nombre@palermo.edu",
                 style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
               ),
             ),
 
-            RichText(
+            /*RichText(
               text: TextSpan(
                 style: const TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),
                 text: "Puedes revisar nuestro instagram ",
@@ -276,8 +276,9 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 16,),
-            const Text("Si fuiste invitado directamente, puedes registrarte con el correo que diste.",
+            const SizedBox(height: 16,),*/
+
+            Text("Si fuiste invitado directamente, puedes registrarte utilizando el correo que diste.",
               style: TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),
             ),
           ], mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start,),
