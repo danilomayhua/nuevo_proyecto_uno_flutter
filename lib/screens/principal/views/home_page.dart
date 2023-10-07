@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -344,6 +345,83 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Widget _buildActividadesNoPermitido(){
+    return Stack(children: [
+
+      Positioned.fill(
+        child: IgnorePointer(
+          child: SingleChildScrollView(child: Column(children: [
+            const SizedBox(height: 12,),
+            for (int i=0; i<5; i++)
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                height: 180,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: constants.grey),
+                  color: Colors.white,
+                ),
+              ),
+          ], crossAxisAlignment: CrossAxisAlignment.stretch,),)
+        ),
+      ),
+
+      BackdropFilter(
+        filter: ImageFilter.blur(
+          sigmaX: 3.0,
+          sigmaY: 3.0,
+        ),
+        child: Center(child: Card(
+          elevation: 20,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            side: const BorderSide(color: Colors.grey, width: 0.5,),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16,),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Column(children: [
+
+              Text("Crea tu actividad para acceder a las actividades disponibles.",
+                style: TextStyle(color: Colors.grey[800], fontSize: 14,),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8,),
+              Text("Tu actividad solo lo podrán ver personas que también crearon en este momento.",
+                style: TextStyle(color: Colors.grey[800], fontSize: 14,),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32,),
+
+              Container(
+                constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+                child: ElevatedButton.icon(
+                  onPressed: (){
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (context) => const CrearActividadPage(),
+                    ));
+                  },
+                  icon: const Icon(Icons.add_rounded, size: 24,),
+                  label: const Text("Comenzar", style: TextStyle(fontSize: 16,),),
+                  style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                  ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+                ),
+              ),
+
+              const SizedBox(height: 32,),
+              const Text('Podés crear algo simple como "¿Qué sale hoy?"',
+                style: TextStyle(color: constants.grey, fontSize: 12,),
+                textAlign: TextAlign.center,
+              ),
+
+            ], mainAxisAlignment: MainAxisAlignment.center, mainAxisSize: MainAxisSize.min,),
+          ),
+        )),
+      ),
+    ]);
+
+    /*
     return Container(
       color: Colors.grey[300],
       padding: const EdgeInsets.symmetric(horizontal: 16,),
@@ -397,6 +475,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         const SizedBox(height: 40,),
       ],),
     );
+    */
   }
 
   Widget _buildActividadesVacio(){

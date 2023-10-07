@@ -313,10 +313,12 @@ class _ActividadBotonEntrarState extends State<ActividadBotonEntrar> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
 
+    /*
     bool isShowed = prefs.getBool(SharedPreferencesKeys.isShowedAyudaActividadIngreso) ?? false;
     if(!isShowed){
       _showDialogAvisoLimite();
     }
+    */
 
 
     var response = await HttpService.httpPost(

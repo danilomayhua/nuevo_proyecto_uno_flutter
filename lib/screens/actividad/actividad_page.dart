@@ -354,7 +354,8 @@ class _ActividadPageState extends State<ActividadPage> {
       return StatefulBuilder(builder: (context, setStateDialog) {
         return AlertDialog(
           title: const Text('¿Eliminar actividad?'),
-          content: const Text('Ya no estará visible públicamente, pero el chat grupal seguirá funcionando con los integrantes actuales.'),
+          // TODO : cambiar texto (si es una actividad archivada, este texto no tiene sentido)
+          content: const Text('Ya no podrás ver las actividades nuevas que publiquen otros usuarios.'),
           actions: [
             TextButton(
               child: const Text('Cancelar'),

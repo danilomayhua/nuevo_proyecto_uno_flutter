@@ -31,6 +31,7 @@ class _CardActividadState extends State<CardActividad> {
             builder: (context) => ActividadPage(
               actividad: widget.actividad,
               onChangeIngreso: (Actividad actividad){
+                // No hace nada si ya no existe la actividad (por ej. si se actualizó Inicio automáticamente)
                 setState(() {
                   widget.actividad = actividad;
                 });

@@ -328,7 +328,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
             style: TextStyle(color: constants.blackGeneral,),
           ),
           const SizedBox(width: 4,),
-          if(_enabledTooltipSugerencias)
+          if(_enabledTooltipSugerencias && _intereses.isNotEmpty)
             Tooltip(
               key: _keyTooltipSugerencias,
               triggerMode: TooltipTriggerMode.manual,
@@ -343,13 +343,13 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
               child: Container(
                 width: 32,
                 height: 32,
-                child: IconButton(
+                /*child: IconButton(
                   onPressed: (){
                     _showTooltipSugerencias();
                   },
                   icon: const Icon(Icons.help_outline, color: constants.grey,),
                   padding: const EdgeInsets.all(0),
-                ),
+                ),*/
               ),
             ),
         ],),
@@ -358,6 +358,18 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
           alignment: Alignment.centerLeft,
           height: 75,
           child: ListView.builder(itemBuilder: (context, index){
+
+            if(index == _intereses.length){
+              return InkWell(
+                onTap: (){
+                  _showDialogCambiarIntereses();
+                },
+                child: Container(
+                    padding: const EdgeInsets.only(left: 8, right: 8, bottom: 14,),
+                    child: const Icon(Icons.settings_suggest_rounded, color: constants.blackGeneral, size: 28,),
+                ),
+              );
+            }
 
             return GestureDetector(
               onTap: (){
@@ -402,7 +414,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
               ),
             );
 
-          }, scrollDirection: Axis.horizontal, itemCount: _intereses.length, shrinkWrap: true,),
+          }, scrollDirection: Axis.horizontal, itemCount: _intereses.length + 1, shrinkWrap: true,),
         ),
 
         const SizedBox(height: 16,),
@@ -705,7 +717,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
   void _validarContenidoUno(){
     if(_intereses.isEmpty){
-      _showSnackBar("Primero debes seleccionar tus intereses en Inicio");
+      _showSnackBar("Primero debes seleccionar tus intereses");
       return;
     }
 

@@ -82,7 +82,7 @@ class MisActividadesPageState extends State<MisActividadesPage> {
         child: _loadingActividades ? CircularProgressIndicator() : Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(children: [
-            const Text("No hay actividades recientes donde eres cocreador. Las actividades duran 48 horas visibles.",
+            const Text("No hay actividades tuyas visibles actualmente. Las actividades duran 48 horas visibles.",
               style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
               textAlign: TextAlign.center,
             ),

@@ -66,7 +66,8 @@ class _PrincipalPageState extends State<PrincipalPage> {
     _cargarNumeroPendientesNotificacionesAvisos();
 
     if(widget.isFromSignup){
-      _cargarInteresesUsuarioNuevo();
+      // Actualmente va a Inicio desde el registro, no hay que mostrar el dialog
+      //_cargarInteresesUsuarioNuevo();
     }
   }
 

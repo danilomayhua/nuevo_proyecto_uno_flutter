@@ -25,6 +25,7 @@ class _DialogCambiarInteresesState extends State<DialogCambiarIntereses> {
   bool _enviandoIntereses = false;
 
   bool _isFirstTime = false;
+  String _nombre = "";
 
   @override
   void initState() {
@@ -38,6 +39,13 @@ class _DialogCambiarInteresesState extends State<DialogCambiarIntereses> {
     });
 
     _isFirstTime = widget.intereses.isEmpty;
+    if(_isFirstTime){
+      SharedPreferences.getInstance().then((prefs){
+        UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+        _nombre = usuarioSesion.nombre;
+        setState(() {});
+      });
+    }
   }
 
   @override
@@ -50,8 +58,8 @@ class _DialogCambiarInteresesState extends State<DialogCambiarIntereses> {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16,),
                 child: Text(_isFirstTime
-                    ? "¡Comencemos! Selecciona qué tipo de actividades te gustaría ver y crear. Elige mínimo uno (1):"
-                    : "Selecciona tus intereses para ver y crear actividades relacionados con estos. Elige mínimo uno (1):",
+                    ? "¡Comencemos $_nombre! Selecciona qué tipo de actividades te gustaría ver y crear. Elige mínimo uno (1):"
+                    : "Modifica tus intereses para ver y crear actividades relacionados con estos. Elige mínimo uno (1):",
                   style: const TextStyle(color: constants.grey, fontSize: 12), textAlign: TextAlign.center,),
               );
             }
