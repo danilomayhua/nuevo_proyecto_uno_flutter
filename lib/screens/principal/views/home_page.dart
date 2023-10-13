@@ -371,7 +371,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           sigmaY: 3.0,
         ),
         child: Center(child: Card(
-          elevation: 20,
+          elevation: 10,
           color: Colors.white,
           shape: RoundedRectangleBorder(
             side: const BorderSide(color: Colors.grey, width: 0.5,),
@@ -402,7 +402,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     ));
                   },
                   icon: const Icon(Icons.add_rounded, size: 24,),
-                  label: const Text("Comenzar", style: TextStyle(fontSize: 16,),),
+                  label: const Text("Crear", style: TextStyle(fontSize: 18,),),
                   style: ElevatedButton.styleFrom(
                     shape: const StadiumBorder(),
                   ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
@@ -410,7 +410,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               ),
 
               const SizedBox(height: 32,),
-              const Text('Podés crear algo simple como "¿Qué sale hoy?"',
+              const Text('Podés crear algo simple, por ejemplo, indicando que estás viendo que hay hoy',
                 style: TextStyle(color: constants.grey, fontSize: 12,),
                 textAlign: TextAlign.center,
               ),

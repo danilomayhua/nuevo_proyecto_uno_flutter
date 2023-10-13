@@ -235,7 +235,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
           focusNode: _titleFocusNode,
           controller: _titleController,
           decoration: const InputDecoration(
-            hintText: "¿Qué actividad vas a realizar?",
+            hintText: "¿Qué actividad tienes en mente?",
             hintStyle: TextStyle(fontWeight: FontWeight.normal,),
             //labelText: "Título",
             //floatingLabelBehavior: FloatingLabelBehavior.always,
