@@ -353,9 +353,12 @@ class _ActividadPageState extends State<ActividadPage> {
     showDialog(context: context, builder: (context) {
       return StatefulBuilder(builder: (context, setStateDialog) {
         return AlertDialog(
-          title: const Text('¿Eliminar actividad?'),
+          title: const Text('¿Eliminar actividad?', style: TextStyle(fontSize: 16),),
           // TODO : cambiar texto (si es una actividad archivada, este texto no tiene sentido)
-          content: const Text('Ya no podrás ver las actividades nuevas que publiquen otros usuarios.'),
+          content: const Text('Al eliminar esta actividad, perderás la capacidad de ver las nuevas actividades que '
+              'otros usuarios creen en el día. ¿Estás seguro de que deseas continuar?',
+            style: TextStyle(fontSize: 14,),
+          ),
           actions: [
             TextButton(
               child: const Text('Cancelar'),
