@@ -24,6 +24,7 @@
 	<array>
 		<string>https</string>
 		<string>lightning</string>
+		<string>mailto</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>

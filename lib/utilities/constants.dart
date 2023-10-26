@@ -116,6 +116,8 @@ const String urlConfiguracionEliminarCuenta = "/api/configuracion-cuenta/elimina
 const String urlInvitacionCantidadDisponible = "/api/invitacion/cantidad-disponible";
 const String urlInvitacionHabilitarEmail = "/api/invitacion/habilitar-email";
 
+const String urlCrearFeedback = "/api/feedback/crear";
+
 const String urlBuscador = "/api/buscador/ver-resultados";
 
 const String urlMisActividades = "/api/actividades-creadas/ver";

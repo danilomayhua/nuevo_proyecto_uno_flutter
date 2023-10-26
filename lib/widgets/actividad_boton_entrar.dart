@@ -42,9 +42,10 @@ class _ActividadBotonEntrarState extends State<ActividadBotonEntrar> {
         icon: const Icon(Icons.north_east, size: 16,),
         label: const Text("En espera", style: TextStyle(fontSize: 12),),
         style: OutlinedButton.styleFrom(
-          primary: Colors.white,
-          backgroundColor: constants.blueGeneral,
+          primary: constants.blueGeneral,
+          backgroundColor: Colors.white,
           //onSurface: constants.grey,
+          side: const BorderSide(color: constants.blueGeneral, width: 0.5,),
           shape: const StadiumBorder(),
         ),
       );
@@ -65,9 +66,10 @@ class _ActividadBotonEntrarState extends State<ActividadBotonEntrar> {
         icon: const Icon(Icons.near_me, size: 16,),
         label: const Text("Ir al chat", style: TextStyle(fontSize: 12),),
         style: OutlinedButton.styleFrom(
-          primary: Colors.white,
-          backgroundColor: constants.blueGeneral,
+          primary: constants.blueGeneral,
+          backgroundColor: Colors.white,
           //onSurface: constants.grey,
+          side: const BorderSide(color: constants.blueGeneral, width: 0.5,),
           shape: const StadiumBorder(),
         ),
       );
@@ -83,10 +85,10 @@ class _ActividadBotonEntrarState extends State<ActividadBotonEntrar> {
         icon: const Icon(Icons.north_east, size: 16,),
         label: const Text("Unirse", style: TextStyle(fontSize: 12),),
         style: OutlinedButton.styleFrom(
-          primary: constants.blueGeneral,
-          backgroundColor: Colors.white,
+          primary: Colors.white,
+          backgroundColor: constants.blueGeneral,
           //onSurface: constants.grey,
-          side: const BorderSide(color: constants.blueGeneral, width: 0.5,),
+          side: const BorderSide(color: Colors.transparent, width: 0.5,),
           shape: const StadiumBorder(),
         ),
       );

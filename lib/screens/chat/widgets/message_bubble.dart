@@ -68,8 +68,8 @@ class _MessageBubbleState extends State<MessageBubble> {
                 TextSpan(
                   text: widget.message.tipo == MensajeTipo.GRUPO_INGRESO
                       ? widget.message.isEntrante
-                        ? ' se unió al grupo'
-                        : 'Te has unido al grupo'
+                        ? ' se unió al grupo.\nEste usuario no puede ver mensajes anteriores.'
+                        : 'Te has unido al grupo.\nNo puedes ver mensajes anteriores a este.'
                     : widget.message.tipo == MensajeTipo.GRUPO_SALIDA
                       ? widget.message.isEntrante
                         ? ' salió del grupo'

@@ -54,6 +54,10 @@
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="lightning" />
         </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="mailto" />
+        </intent>
     </queries>
 
     <uses-permission android:name="android.permission.INTERNET" />

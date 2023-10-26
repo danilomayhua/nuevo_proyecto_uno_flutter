@@ -11,6 +11,7 @@ import 'package:tenfo/screens/settings/views/settings_contrasena_page.dart';
 import 'package:tenfo/screens/settings/views/settings_cuenta_page.dart';
 import 'package:tenfo/screens/settings/views/settings_descripcion_page.dart';
 import 'package:tenfo/screens/settings/views/settings_email_page.dart';
+import 'package:tenfo/screens/settings/views/settings_feedback_page.dart';
 import 'package:tenfo/screens/settings/views/settings_instagram_page.dart';
 import 'package:tenfo/screens/settings/views/settings_invitaciones_page.dart';
 import 'package:tenfo/screens/settings/views/settings_nacimiento_page.dart';
@@ -131,7 +132,33 @@ class _SettingsPageState extends State<SettingsPage> {
             _showDialogCerrarSesion();
           }, color: constants.redAviso,),
 
-          const SizedBox(height: 16,),
+          Container(
+            decoration: const BoxDecoration(border: Border(top: BorderSide(color: constants.grey, width: 0.2,))),
+            height: 1,
+            width: double.infinity,
+          ),
+
+          const SizedBox(height: 23,),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16,),
+            child: OutlinedButton.icon(
+              onPressed: (){
+                Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => const SettingsFeedbackPage()
+                ));
+              },
+              icon: const Icon(Icons.feedback_outlined,),
+              label: const Text("Comentarios y dudas",),
+              style: OutlinedButton.styleFrom(
+                primary: constants.blueGeneral,
+                side: const BorderSide(color: constants.blueGeneral, width: 0.5,),
+                shape: const StadiumBorder(),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 24,),
 
         ],),
       ),
