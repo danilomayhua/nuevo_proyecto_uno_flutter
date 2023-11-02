@@ -21,6 +21,7 @@ import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/shared_preferences_keys.dart';
 import 'package:tenfo/widgets/dialog_enviar_sticker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tenfo/widgets/icon_universidad_verificada.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class UserPage extends StatefulWidget {
@@ -93,7 +94,7 @@ class _UserPageState extends State<UserPage> {
                 onTap: (){
                   _showDialogUniversidadVerificada();
                 },
-                child: _iconUniversidadVerificada(20),
+                child: const IconUniversidadVerificada(size: 20),
               ),
             ],
         ],),
@@ -155,17 +156,6 @@ class _UserPageState extends State<UserPage> {
     );
   }
 
-  Widget _iconUniversidadVerificada(double size){
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Icon(Icons.verified, size: size, color: Colors.blue,),
-        Icon(Icons.circle, size: (size / 100 * 70), color: Colors.blue,),
-        Icon(Icons.school_outlined, size: (size / 2), color: Colors.white,),
-      ],
-    );
-  }
-
   void _showDialogUniversidadVerificada(){
     showDialog(context: context, builder: (context){
       return AlertDialog(
@@ -173,17 +163,17 @@ class _UserPageState extends State<UserPage> {
           child: Column(children: [
             RichText(
               textAlign: TextAlign.left,
-              text: TextSpan(
-                style: const TextStyle(color: constants.blackGeneral, fontSize: 16, fontWeight: FontWeight.bold,),
+              text: const TextSpan(
+                style: TextStyle(color: constants.blackGeneral, fontSize: 16, fontWeight: FontWeight.bold,),
                 children: [
                   WidgetSpan(
                     alignment: PlaceholderAlignment.middle,
                     child: Padding(
-                      padding: const EdgeInsets.only(right: 8,),
-                      child: _iconUniversidadVerificada(25),
+                      padding: EdgeInsets.only(right: 8,),
+                      child: IconUniversidadVerificada(size: 25),
                     ),
                   ),
-                  const TextSpan(
+                  TextSpan(
                     text: "Universidad verificada",
                   ),
                 ],

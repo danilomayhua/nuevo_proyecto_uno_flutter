@@ -8,6 +8,8 @@ class HistorialUsuario {
 
   static const String _contactosInvitarAmigo = "/contactos/invitar-amigo";
 
+  static const String _seleccionarCrearTipo = "/crear/seleccionar-tipo";
+
 
   /// En CrearActividad, cuando ingresa a la segunda pantalla
   static Map<String, dynamic> getCrearActividadPasoDos(){
@@ -57,6 +59,14 @@ class HistorialUsuario {
   static Map<String, dynamic> getContactosInvitarAmigo(){
     return {
       "evento": _contactosInvitarAmigo,
+      "datos_adicionales": {}
+    };
+  }
+
+  /// En SeleccionarCrearTipo, cuando ingresa a la pantalla
+  static Map<String, dynamic> getSeleccionarCrearTipo(){
+    return {
+      "evento": _seleccionarCrearTipo,
       "datos_adicionales": {}
     };
   }

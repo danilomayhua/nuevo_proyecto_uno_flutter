@@ -49,7 +49,7 @@ class _CardActividadState extends State<CardActividad> {
       //height: 200,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: constants.grey),
+        border: Border.all(color: constants.grey, width: 0.5,),
         color: Colors.white,
       ),
       padding: const EdgeInsets.only(left: 8, top: 12, right: 8, bottom: 4,), // bottom es menor, porque el boton inferior tiene un margen agregado

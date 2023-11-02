@@ -46,7 +46,7 @@ const String urlRegistroVerificarInvitacion = "/api/registro/verificar-invitacio
 
 const String urlGuardarFirebaseToken = "/api/firebase/actualizar-token";
 
-const String urlHomeVerActividades = "/api/home/actividades-en-ubicacion";
+const String urlHomeVerActividades = "/api/home/actividades-y-disponibilidades";
 const String urlHomeCambiarIntereses = "/api/home/cambiar-intereses";
 
 const String urlVerActividad = "/api/actividad/ver";
@@ -63,6 +63,11 @@ const String urlActividadCancelarSolicitud = "/api/actividad/cancelar-solicitud-
 const String urlActividadAceptarSolicitud = "/api/actividad/aceptar-solicitud-unirse";
 const String urlActividadConfirmarCocreador = "/api/actividad/confirmar-cocreador";
 const String urlActividadSolicitudes = "/api/actividad/solicitudes";
+
+const String urlCrearDisponibilidad = "/api/disponibilidad/crear";
+const String urlEliminarDisponibilidad = "/api/disponibilidad/eliminar";
+
+const String urlDisponibilidadSugerencias = "/api/disponibilidad/sugerencias-crear-disponibilidad";
 
 const String urlBandejaChats = "/api/bandeja-chats";
 

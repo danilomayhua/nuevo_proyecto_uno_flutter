@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
-import 'package:tenfo/screens/crear_actividad/crear_actividad_page.dart';
 import 'package:tenfo/screens/principal/views/home_page.dart';
 import 'package:tenfo/screens/principal/views/mensajes_page.dart';
 import 'package:tenfo/screens/principal/views/mis_actividades_page.dart';
 import 'package:tenfo/screens/principal/views/perfil_page.dart';
+import 'package:tenfo/screens/seleccionar_crear_tipo/seleccionar_crear_tipo_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -137,7 +137,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
               padding: EdgeInsets.symmetric(vertical: 2, horizontal: 10),
               child: Icon(Icons.add_circle_outline),
             ),
-            label: "Crear",
+            label: "Nuevo",
           ),
           BottomNavigationBarItem(
             icon: Container(
@@ -171,7 +171,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
         onTap: (index){
           if(index == 2){
             Navigator.push(context, MaterialPageRoute(
-              builder: (context) => CrearActividadPage(),
+              builder: (context) => const SeleccionarCrearTipoPage(),
             ));
           } else {
 

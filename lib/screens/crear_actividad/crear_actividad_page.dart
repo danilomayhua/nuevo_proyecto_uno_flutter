@@ -1486,6 +1486,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
 
+    /*
     // Muestra el dialog a los usuarios nuevos (se muestra solo una vez)
     bool isShowed = prefs.getBool(SharedPreferencesKeys.isShowedAyudaCrearActividadCocreadores) ?? false;
     if(!isShowed && _creadores.isEmpty){
@@ -1493,6 +1494,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
       setState(() {_enviando = false;});
       return;
     }
+    */
 
     List<Usuario> creadoresUsuario = [];
     List<String> creadoresId = [];

@@ -5,15 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:tenfo/models/actividad.dart';
 import 'package:tenfo/models/chat.dart';
+import 'package:tenfo/models/publicacion.dart';
 import 'package:tenfo/models/usuario.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
+import 'package:tenfo/models/disponibilidad.dart';
 import 'package:tenfo/screens/buscador/buscador_page.dart';
-import 'package:tenfo/screens/crear_actividad/crear_actividad_page.dart';
+import 'package:tenfo/screens/seleccionar_crear_tipo/seleccionar_crear_tipo_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/intereses.dart';
 import 'package:tenfo/widgets/card_actividad.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tenfo/widgets/card_disponibilidad.dart';
 import 'package:tenfo/widgets/dialog_cambiar_intereses.dart';
 
 class HomePage extends StatefulWidget {
@@ -31,13 +34,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   List<String> _intereses = [];
   List<Widget> _interesesIcons = [];
 
-  List<Actividad> _actividades = [];
+  List<Publicacion> _publicaciones = [];
   bool _isActividadesPermitido = true;
+  bool _isCreadorActividadVisible = false;
 
   ScrollController _scrollController = ScrollController();
   bool _loadingActividades = false;
   bool _verMasActividades = false;
-  String _ultimoActividades = "false";
+  Map<String, dynamic> _ultimosId = {
+    "actividades_ultimo_id": "false",
+    "disponibilidades_ultimo_id": "false"
+  };
+  String _ultimoActividadIdMostrado = "";
 
   DateTime? _lastTimeCargarActividades;
 
@@ -109,13 +117,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
           if (_permissionStatus != LocationPermissionStatus.loading && _permissionStatus == LocationPermissionStatus.permitted)
             ...[
-              if(_actividades.isEmpty && _loadingActividades)
+              if(_publicaciones.isEmpty && _loadingActividades)
                 const SliverFillRemaining(
                   hasScrollBody: false,
                   child: Center(child: CircularProgressIndicator()),
                 ),
 
-              if(_actividades.isNotEmpty || !_loadingActividades)
+              if(_publicaciones.isNotEmpty || !_loadingActividades)
                 ...[
                   if(!_isActividadesPermitido)
                     SliverFillRemaining(
@@ -128,31 +136,109 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       const SliverPadding(
                         padding: EdgeInsets.only(left: 8, top: 16, right: 8, bottom: 8),
                         sliver: SliverToBoxAdapter(
-                          child: Text("Mis intereses: ",
-                            style: TextStyle(color: constants.blackGeneral,),
+                          child: Text("Intereses:",
+                            style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
                           ),
                         ),
                       ),
                       _buildSeccionIntereses(),
 
-                      (_actividades.isEmpty)
+                      (_publicaciones.isEmpty)
                         ? SliverFillRemaining(
                           hasScrollBody: false,
                           child: _buildActividadesVacio(),
                         )
                         : SliverPadding(
-                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 0),
                           sliver: SliverList(delegate: SliverChildBuilderDelegate((context, index){
-
-                            if(index == _actividades.length){
+                            if(index == _publicaciones.length){
                               return _buildLoadingActividades();
                             }
 
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
-                              child: CardActividad(actividad: _actividades[index]),
-                            );
-                          }, childCount: _actividades.length + 1)),
+                            if(_publicaciones[index].tipo == PublicacionTipo.ACTIVIDAD){
+
+                              if(_publicaciones[index].actividad!.id == _ultimoActividadIdMostrado
+                                  && _ultimosId['actividades_ultimo_id'] == null){
+                                return Column(children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                                    child: CardActividad(actividad: _publicaciones[index].actividad!),
+                                  ),
+                                  const SizedBox(height: 40,),
+                                  Container(
+                                    alignment: Alignment.center,
+                                    padding: const EdgeInsets.symmetric(horizontal: 16,),
+                                    child: const Text("No hay más actividades cerca disponibles según tus intereses.",
+                                      style: TextStyle(color: constants.blackGeneral, fontSize: 14,
+                                        height: 1.3, fontWeight: FontWeight.bold,),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 40,),
+                                  const Divider(color: constants.greyLight, height: 0.5,),
+                                  const SizedBox(height: 24,),
+                                ],);
+                              }
+
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                                child: CardActividad(actividad: _publicaciones[index].actividad!),
+                              );
+
+                            } else {
+
+                              if(_ultimosId['actividades_ultimo_id'] == null){
+                                if((index == 0 && _ultimoActividadIdMostrado == "") ||
+                                    (index != 0 && _ultimoActividadIdMostrado != "" && (_publicaciones[index-1].actividad?.id ?? "") == _ultimoActividadIdMostrado)){
+                                  return Column(children: [
+                                    if(index == 0)
+                                      ...[
+                                        const SizedBox(height: 40,),
+                                        Container(
+                                          alignment: Alignment.center,
+                                          padding: const EdgeInsets.symmetric(horizontal: 16,),
+                                          child: const Text("No hay actividades cerca disponibles según tus intereses.",
+                                            style: TextStyle(color: constants.blackGeneral, fontSize: 14,
+                                              height: 1.3, fontWeight: FontWeight.bold,),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 48,),
+                                        const Divider(color: constants.greyLight, height: 0.5,),
+                                        const SizedBox(height: 24,),
+                                      ],
+
+                                    const Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Padding(
+                                        padding: EdgeInsets.only(left: 8, right: 8, bottom: 16,),
+                                        child: Text("Buscando actividades:",
+                                          style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                                      child: CardDisponibilidad(
+                                        disponibilidad: _publicaciones[index].disponibilidad!,
+                                        isCreadorActividadVisible: _isCreadorActividadVisible,
+                                      ),
+                                    ),
+                                  ],);
+                                }
+                              }
+
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                                child: CardDisponibilidad(
+                                  disponibilidad: _publicaciones[index].disponibilidad!,
+                                  isCreadorActividadVisible: _isCreadorActividadVisible,
+                                ),
+                              );
+
+                            }
+
+                          }, childCount: _publicaciones.length + 1)),
                         ),
                     ],
                 ],
@@ -174,9 +260,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Future<void> _recargarActividades() async {
     _loadingActividades = true;
     _verMasActividades = false;
-    _ultimoActividades = "false";
+    _ultimosId = {
+      "actividades_ultimo_id": "false",
+      "disponibilidades_ultimo_id": "false"
+    };
+    _ultimoActividadIdMostrado = "";
 
-    _actividades = [];
+    _publicaciones = [];
 
     setState(() {});
 
@@ -239,7 +329,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     var response = await HttpService.httpPost(
       url: constants.urlHomeVerActividades,
       body: {
-        "ultimo_id": _ultimoActividades,
+        "ultimos_id": _ultimosId,
         "intereses": interesesIdString,
         "ubicacion_latitud": _position?.latitude.toString() ?? "",
         "ubicacion_longitud": _position?.longitude.toString() ?? ""
@@ -254,48 +344,79 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
         datosJson = datosJson['data'];
 
-        _ultimoActividades = datosJson['ultimo_id'];
+        _ultimosId = datosJson['ultimos_id'];
         _verMasActividades = datosJson['ver_mas'];
 
-        List<dynamic> actividades = datosJson['actividades'];
-        for (var element in actividades) {
+        List<dynamic> publicaciones = datosJson['publicaciones'];
+        for (var element in publicaciones) {
 
-          List<Usuario> creadores = [];
-          element['creadores'].forEach((usuario) {
-            creadores.add(Usuario(
-              id: usuario['id'],
-              nombre: usuario['nombre_completo'],
-              username: usuario['username'],
-              foto: constants.urlBase + usuario['foto_url'],
-            ));
-          });
+          Actividad? actividad;
+          if(element['actividad'] != null){
+            var actividadDatos = element['actividad'];
 
-          Actividad actividad = Actividad(
-            id: element['id'],
-            titulo: element['titulo'],
-            descripcion: element['descripcion'],
-            fecha: element['fecha_texto'],
-            privacidadTipo: Actividad.getActividadPrivacidadTipoFromString(element['privacidad_tipo']),
-            interes: element['interes_id'].toString(),
-            creadores: creadores,
-            ingresoEstado: Actividad.getActividadIngresoEstadoFromString(element['ingreso_estado']),
-            isAutor: element['autor_usuario_id'] == usuarioSesion.id,
-          );
+            List<Usuario> creadores = [];
+            actividadDatos['creadores'].forEach((usuario) {
+              creadores.add(Usuario(
+                id: usuario['id'],
+                nombre: usuario['nombre_completo'],
+                username: usuario['username'],
+                foto: constants.urlBase + usuario['foto_url'],
+              ));
+            });
 
-          if(element['chat'] != null){
-            Chat chat = Chat(
-              id: element['chat']['id'].toString(),
-              tipo: ChatTipo.GRUPAL,
-              numMensajesPendientes: null,
-              actividadChat: actividad,
+            actividad = Actividad(
+              id: actividadDatos['id'],
+              titulo: actividadDatos['titulo'],
+              descripcion: actividadDatos['descripcion'],
+              fecha: actividadDatos['fecha_texto'],
+              privacidadTipo: Actividad.getActividadPrivacidadTipoFromString(actividadDatos['privacidad_tipo']),
+              interes: actividadDatos['interes_id'].toString(),
+              creadores: creadores,
+              ingresoEstado: Actividad.getActividadIngresoEstadoFromString(actividadDatos['ingreso_estado']),
+              isAutor: actividadDatos['autor_usuario_id'] == usuarioSesion.id,
             );
-            actividad.chat = chat;
+
+            if(actividadDatos['chat'] != null){
+              Chat chat = Chat(
+                id: actividadDatos['chat']['id'].toString(),
+                tipo: ChatTipo.GRUPAL,
+                numMensajesPendientes: null,
+                actividadChat: actividad,
+              );
+              actividad.chat = chat;
+            }
+
+            _ultimoActividadIdMostrado = actividad.id;
           }
 
-          _actividades.add(actividad);
+          Disponibilidad? disponibilidad;
+          if(element['disponibilidad'] != null){
+            var disponibilidadDatos = element['disponibilidad'];
+
+            disponibilidad = Disponibilidad(
+              id: disponibilidadDatos['id'],
+              creador: DisponibilidadCreador(
+                id: disponibilidadDatos['creador']['id'],
+                foto: constants.urlBase + disponibilidadDatos['creador']['foto_url'],
+                nombre: disponibilidadDatos['creador']['nombre'],
+                isVerificadoUniversidad: disponibilidadDatos['creador']['is_verificado_universidad'],
+                verificadoUniversidadNombre: disponibilidadDatos['creador']['verificado_universidad_nombre'],
+              ),
+              texto: disponibilidadDatos['texto'],
+              fecha: disponibilidadDatos['fecha_texto'],
+              isAutor: disponibilidadDatos['creador']['id'] == usuarioSesion.id,
+            );
+          }
+
+          _publicaciones.add(Publicacion(
+            tipo: Publicacion.getPublicacionTipoFromString(element['tipo']),
+            actividad: actividad,
+            disponibilidad: disponibilidad,
+          ));
         }
 
         _isActividadesPermitido = datosJson['is_permitido_ver_actividades'];
+        _isCreadorActividadVisible = datosJson['is_creador_actividad_visible'];
 
         _lastTimeCargarActividades = DateTime.now();
 
@@ -379,15 +500,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           ),
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16,),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
             child: Column(children: [
 
-              Text("Crea tu actividad para acceder a las actividades disponibles.",
+              Text("Crea tu actividad o visualización para acceder a las actividades disponibles.",
                 style: TextStyle(color: Colors.grey[800], fontSize: 14,),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8,),
-              Text("Tu actividad solo lo podrán ver personas que también crearon en este momento.",
+              Text("Esto solo lo podrán ver personas que también crearon en este momento.",
                 style: TextStyle(color: Colors.grey[800], fontSize: 14,),
                 textAlign: TextAlign.center,
               ),
@@ -398,21 +519,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 child: ElevatedButton.icon(
                   onPressed: (){
                     Navigator.push(context, MaterialPageRoute(
-                      builder: (context) => const CrearActividadPage(),
+                      builder: (context) => const SeleccionarCrearTipoPage(),
                     ));
                   },
                   icon: const Icon(Icons.add_rounded, size: 24,),
-                  label: const Text("Crear", style: TextStyle(fontSize: 18,),),
+                  label: const Text("Comenzar", style: TextStyle(fontSize: 18,),),
                   style: ElevatedButton.styleFrom(
                     shape: const StadiumBorder(),
                   ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
                 ),
-              ),
-
-              const SizedBox(height: 32,),
-              const Text('Podés crear algo simple, por ejemplo, indicando que estás viendo que hay hoy',
-                style: TextStyle(color: constants.grey, fontSize: 12,),
-                textAlign: TextAlign.center,
               ),
 
             ], mainAxisAlignment: MainAxisAlignment.center, mainAxisSize: MainAxisSize.min,),
@@ -520,7 +635,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     List<String> listIntereses = Intereses.getListaIntereses();
     listIntereses.forEach((element) {
       if(_intereses.contains(element)){
-        _interesesIcons.add(_buildInteres(Intereses.getNombre(element), Intereses.getIcon(element)));
+        _interesesIcons.add(_buildInteres(Intereses.getNombre(element), Intereses.getIcon(element, size: 18,)));
       }
     });
     _interesesIcons.add(_buildInteresCambiar());
@@ -530,15 +645,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Widget _buildInteres(String texto, Icon icon){
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      width: 36,
+      height: 36,
       decoration: BoxDecoration(
-        border: Border.all(color: constants.blackGeneral, width: 0.5,),
-        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: constants.grey, width: 0.5,),
+        shape: BoxShape.circle,
+        color: Colors.white,
       ),
-      child: Row(children: [
-        Text(texto, style: TextStyle(color: constants.blackGeneral, fontSize: 12,),),
-        icon,
-      ], mainAxisSize: MainAxisSize.min,),
+      child: icon,
     );
   }
 
@@ -546,7 +660,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return Container(
       width: 36,
       height: 36,
-      margin: const EdgeInsets.only(left: 4),
+      //margin: const EdgeInsets.only(left: 4),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(color: constants.blueGeneral),
