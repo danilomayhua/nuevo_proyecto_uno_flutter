@@ -14,6 +14,7 @@ import 'package:tenfo/screens/seleccionar_crear_tipo/seleccionar_crear_tipo_page
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/intereses.dart';
+import 'package:tenfo/utilities/shared_preferences_keys.dart';
 import 'package:tenfo/widgets/card_actividad.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/widgets/card_disponibilidad.dart';
@@ -52,6 +53,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   LocationPermissionStatus _permissionStatus = LocationPermissionStatus.loading;
   Position? _position;
   bool _isCiudadDisponible = true;
+
+  bool _isAvailableTooltipUnirse = false;
 
   @override
   void initState() {
@@ -162,7 +165,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                 return Column(children: [
                                   Padding(
                                     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                                    child: CardActividad(actividad: _publicaciones[index].actividad!),
+                                    child: CardActividad(actividad: _publicaciones[index].actividad!, showTooltipUnirse: index == 0 && _isAvailableTooltipUnirse,),
                                   ),
                                   const SizedBox(height: 40,),
                                   Container(
@@ -182,7 +185,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
                               return Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                                child: CardActividad(actividad: _publicaciones[index].actividad!),
+                                child: CardActividad(actividad: _publicaciones[index].actividad!, showTooltipUnirse: index == 0 && _isAvailableTooltipUnirse,),
                               );
 
                             } else {
@@ -341,6 +344,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       var datosJson = await jsonDecode(response.body);
 
       if(datosJson['error'] == false){
+
+        // Tooltip de ayuda a los usuarios nuevos para unirse a una actividad. Se muestra en la primera carga.
+        bool isShowedUnirse = prefs.getBool(SharedPreferencesKeys.isShowedAyudaActividadUnirse) ?? false;
+        if(!isShowedUnirse && _publicaciones.isEmpty){
+          _showTooltipUnirse();
+        }
+
 
         datosJson = datosJson['data'];
 
@@ -774,6 +784,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     } else {
       return Container();
     }
+  }
+
+  Future<void> _showTooltipUnirse() async {
+    await Future.delayed(const Duration(milliseconds: 500,));
+    _isAvailableTooltipUnirse = true;
+    setState(() {});
+    await Future.delayed(const Duration(seconds: 5,));
+    _isAvailableTooltipUnirse = false;
+    setState(() {});
   }
 
   void _showSnackBar(String texto){

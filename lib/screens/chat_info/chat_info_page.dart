@@ -17,6 +17,7 @@ import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/screens/user/user_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
+import 'package:tenfo/utilities/shared_preferences_keys.dart';
 import 'package:tenfo/widgets/dialog_enviar_sticker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -57,6 +58,8 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
   bool _enviandoSalirGrupo = false;
 
   bool _enviandoEliminarIntegrante = false;
+
+  bool _isAvailableTooltipGrupoFecha = false;
 
   UsuarioSesion? _usuarioSesion;
 
@@ -145,6 +148,71 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
                 ], crossAxisAlignment: CrossAxisAlignment.start),
               ),
             ),
+
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Text("Hora estimada de encuentro:", style: TextStyle(color: constants.blackGeneral),),
+          ),
+          const SizedBox(height: 8,),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(children: [
+              Expanded(child: InputDecorator(
+                isEmpty: _encuentroFechaString == "" ? true : false,
+                decoration: InputDecoration(
+                  enabled: false,
+                  isDense: true,
+                  hintText: _isCreador
+                      ? "Ingresa una hora"
+                      : "Indefinido", //"DD/MM/AAAA hh:mm",
+                  hintStyle: TextStyle(fontSize: 12,),
+                  //counterText: '',
+                  border: OutlineInputBorder(),
+                ),
+                child: Text(_encuentroFechaString,
+                  style: const TextStyle(fontSize: 12,),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),),
+
+              if(_isCreador)
+                Stack(children: [
+                  IconButton(
+                    onPressed: _enviandoEncuentroFecha ? null : () => _showDialogEditarFecha(),
+                    icon: _enviandoEncuentroFecha ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(),
+                    ) : const Icon(Icons.edit_outlined,
+                      size: 24,
+                      color: constants.blackGeneral,
+                    ),
+                    padding: const EdgeInsets.all(8),
+                    constraints: const BoxConstraints(maxWidth: 40,),
+                  ),
+                  if(_encuentroFechaString == "" && _isAvailableTooltipGrupoFecha)
+                    Positioned(
+                      child: Container(
+                        decoration: ShapeDecoration(
+                          shape: _CustomShapeBorder(),
+                          color: Colors.grey[700]?.withOpacity(0.9),
+                        ),
+                        constraints: const BoxConstraints(maxWidth: 200,),
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8,),
+                        child: const Text("¡Elige una hora para hacer que el encuentro sea más probable!",
+                          style: TextStyle(color: Colors.white,),
+                        ),
+                      ),
+                      bottom: 56,
+                      right: 0,
+                    ),
+                ], clipBehavior: Clip.none,),
+            ],),
+          ),
+
+          const SizedBox(height: 16,),
+
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: Text("Link de encuentro:", style: TextStyle(color: constants.blackGeneral),),
@@ -192,52 +260,8 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
                 ),
             ],),
           ),
-          const SizedBox(height: 16,),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text("Se realizará:", style: TextStyle(color: constants.blackGeneral),),
-          ),
-          const SizedBox(height: 8,),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(children: [
-              Expanded(child: InputDecorator(
-                isEmpty: _encuentroFechaString == "" ? true : false,
-                decoration: InputDecoration(
-                  enabled: false,
-                  isDense: true,
-                  hintText: _isCreador
-                      ? "Ingresa un horario"
-                      : "Horario indefinido", //"DD/MM/AAAA hh:mm",
-                  hintStyle: TextStyle(fontSize: 12,),
-                  //counterText: '',
-                  border: OutlineInputBorder(),
-                ),
-                child: Text(_encuentroFechaString,
-                  style: const TextStyle(fontSize: 12,),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),),
 
-              if(_isCreador)
-                IconButton(
-                  onPressed: _enviandoEncuentroFecha ? null : () => _showDialogEditarFecha(),
-                  icon: _enviandoEncuentroFecha ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(),
-                  ) : const Icon(Icons.edit_outlined,
-                    size: 24,
-                    color: constants.blackGeneral,
-                  ),
-                  padding: const EdgeInsets.all(8),
-                  constraints: const BoxConstraints(maxWidth: 40,),
-                ),
-            ],),
-          ),
-
-          const SizedBox(height: 24,),
+          /*const SizedBox(height: 24,),
           Align(
             alignment: Alignment.center,
             child: OutlinedButton.icon(
@@ -272,7 +296,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
                   },
                 ),
               ),
-            ],
+            ],*/
 
           const SizedBox(height: 24,),
           const Padding(
@@ -416,6 +440,13 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
 
         if(datosJson['data']['encuentro_link'] != null){
           _encuentroLink = datosJson['data']['encuentro_link'];
+        }
+
+
+        // Tooltip de ayuda a los usuarios nuevos para editar una fecha de encuentro
+        bool isShowedGrupoFecha = prefs.getBool(SharedPreferencesKeys.isShowedAyudaGrupoEditarFecha) ?? false;
+        if(!isShowedGrupoFecha){
+          _showTooltipGrupoFecha();
         }
 
       } else {
@@ -656,6 +687,14 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
 
+
+    // Tooltip de ayuda a los usuarios nuevos para editar una fecha de encuentro. Actualiza valor para no volver a mostrar.
+    bool isShowedGrupoFecha = prefs.getBool(SharedPreferencesKeys.isShowedAyudaGrupoEditarFecha) ?? false;
+    if(!isShowedGrupoFecha){
+      prefs.setBool(SharedPreferencesKeys.isShowedAyudaGrupoEditarFecha, true);
+    }
+
+
     var response = await HttpService.httpPost(
       url: constants.urlChatGrupalCambiarFecha,
       body: {
@@ -818,11 +857,47 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
     });
   }
 
+  Future<void> _showTooltipGrupoFecha() async {
+    await Future.delayed(const Duration(milliseconds: 500,));
+    _isAvailableTooltipGrupoFecha = true;
+    setState(() {});
+    await Future.delayed(const Duration(seconds: 5,));
+    _isAvailableTooltipGrupoFecha = false;
+    setState(() {});
+  }
+
   void _showSnackBar(String texto){
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         behavior: SnackBarBehavior.floating,
         content: Text(texto, textAlign: TextAlign.center,)
     ));
+  }
+}
+
+class _CustomShapeBorder extends ShapeBorder {
+  @override
+  EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) => Path();
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
+    final path = Path()
+      ..addRRect(RRect.fromRectAndRadius(rect, Radius.circular(10)))
+      ..moveTo(rect.left + rect.width - 25 - 10, rect.bottom)
+      ..lineTo(rect.left + rect.width - 25, rect.bottom + 10)
+      ..lineTo(rect.left + rect.width - 25 + 10, rect.bottom);
+
+    return path;
+  }
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {}
+
+  @override
+  ShapeBorder scale(double t) {
+    return _CustomShapeBorder();
   }
 }

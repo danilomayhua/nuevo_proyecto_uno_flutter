@@ -136,7 +136,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         key: _keyChatAppBar,
         isGroup: _isChatGroup,
         title: _chatTitle,
-        subtitle: _chatSubtitle,
+        subtitle: _chatSubtitle ?? "Toca para ver Info. del grupo",
         profilePictureUrl: _profilePictureUrl,
         onChatInfoRequested: (){
           if(_isChatGroup){
@@ -159,7 +159,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           }
         },
       ),
-      body: Column(children: [
+      body: SafeArea(child: Column(children: [
         Expanded(
           child: ListView.builder(
             controller: _scrollController,
@@ -192,7 +192,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           key: _keyMessageEntry,
           onSendMessageRequested: _handleSendMessageRequest,
         ),
-      ]),
+      ]),),
     );
   }
 

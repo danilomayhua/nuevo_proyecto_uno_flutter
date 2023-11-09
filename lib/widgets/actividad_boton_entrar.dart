@@ -321,6 +321,11 @@ class _ActividadBotonEntrarState extends State<ActividadBotonEntrar> {
       _showDialogAvisoLimite();
     }
     */
+    // Tooltip de ayuda a los usuarios nuevos para unirse a una actividad. Actualiza valor para no volver a mostrar.
+    bool isShowedUnirse = prefs.getBool(SharedPreferencesKeys.isShowedAyudaActividadUnirse) ?? false;
+    if(!isShowedUnirse){
+      prefs.setBool(SharedPreferencesKeys.isShowedAyudaActividadUnirse, true);
+    }
 
 
     var response = await HttpService.httpPost(
@@ -349,6 +354,10 @@ class _ActividadBotonEntrarState extends State<ActividadBotonEntrar> {
                 numMensajesPendientes: null,
                 actividadChat: widget.actividad
             );
+
+            Navigator.push(context, MaterialPageRoute(
+              builder: (context) => ChatPage(chat: widget.actividad.chat),
+            ));
           }
 
         } else if(widget.actividad.privacidadTipo == ActividadPrivacidadTipo.PRIVADO){

@@ -5,9 +5,10 @@ import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/widgets/actividad_boton_entrar.dart';
 
 class CardActividad extends StatefulWidget {
-  CardActividad({Key? key, required this.actividad}) : super(key: key);
+  CardActividad({Key? key, required this.actividad, this.showTooltipUnirse = false}) : super(key: key);
 
   Actividad actividad;
+  bool showTooltipUnirse;
 
   @override
   _CardActividadState createState() => _CardActividadState();
@@ -53,8 +54,8 @@ class _CardActividadState extends State<CardActividad> {
         color: Colors.white,
       ),
       padding: const EdgeInsets.only(left: 8, top: 12, right: 8, bottom: 4,), // bottom es menor, porque el boton inferior tiene un margen agregado
-      child: Column(
-        children: [
+      child: Stack(children: [
+        Column(children: [
           Row(
             children: [
               Text(widget.actividad.getPrivacidadTipoString(),
@@ -104,7 +105,7 @@ class _CardActividadState extends State<CardActividad> {
                         child: Container(
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            border: Border.all(color: constants.grey),
+                            border: Border.all(color: constants.greyLight, width: 0.5,),
                           ),
                           height: 20,
                           width: 20,
@@ -130,8 +131,26 @@ class _CardActividadState extends State<CardActividad> {
             child: ActividadBotonEntrar(actividad: widget.actividad),
           ),
         ],
-        crossAxisAlignment: CrossAxisAlignment.start,
-      ),
+        crossAxisAlignment: CrossAxisAlignment.start,),
+
+        if(widget.showTooltipUnirse && widget.actividad.ingresoEstado == ActividadIngresoEstado.NO_INTEGRANTE && !widget.actividad.isAutor)
+          Positioned(
+            child: Container(
+              decoration: ShapeDecoration(
+                shape: _CustomShapeBorder(),
+                color: Colors.grey[700]?.withOpacity(0.9),
+              ),
+              constraints: const BoxConstraints(maxWidth: 200,),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8,),
+              child: const Text("Únete a la actividad para ver los integrantes y organizar el encuentro.",
+                style: TextStyle(color: Colors.white,),
+              ),
+            ),
+            bottom: 56,
+            right: 0,
+          ),
+
+      ]),
     );
   }
 
@@ -153,5 +172,32 @@ class _CardActividadState extends State<CardActividad> {
     }
 
     return creadoresNombre;
+  }
+}
+
+class _CustomShapeBorder extends ShapeBorder {
+  @override
+  EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) => Path();
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
+    final path = Path()
+      ..addRRect(RRect.fromRectAndRadius(rect, Radius.circular(10)))
+      ..moveTo(rect.left + rect.width - 30 - 10, rect.bottom)
+      ..lineTo(rect.left + rect.width - 30, rect.bottom + 10)
+      ..lineTo(rect.left + rect.width - 30 + 10, rect.bottom);
+
+    return path;
+  }
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {}
+
+  @override
+  ShapeBorder scale(double t) {
+    return _CustomShapeBorder();
   }
 }
