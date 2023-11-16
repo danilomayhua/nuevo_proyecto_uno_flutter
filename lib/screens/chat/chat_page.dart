@@ -608,6 +608,12 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
             }
           }
 
+          if(datosJson['data']['is_habilitado_sugerencias'] != null && datosJson['data']['is_habilitado_sugerencias'] == true){
+            if(_keyMessageEntry.currentState != null){
+              _keyMessageEntry.currentState!.setShowSugerencias(true, chatId);
+            }
+          }
+
         }
 
         List<dynamic> mensajes = datosJson['data']['mensajes'];

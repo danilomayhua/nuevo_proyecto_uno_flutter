@@ -142,7 +142,7 @@ class _CardActividadState extends State<CardActividad> {
               ),
               constraints: const BoxConstraints(maxWidth: 200,),
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8,),
-              child: const Text("Únete a la actividad para ver los integrantes y organizar el encuentro.",
+              child: const Text("Únete y forma parte del chat grupal para conocer a los demás asistentes.",
                 style: TextStyle(color: Colors.white,),
               ),
             ),

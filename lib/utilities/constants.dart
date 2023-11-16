@@ -75,6 +75,8 @@ const String urlChatMensajes = "/api/chat/ver-mensajes";
 const String urlChatIndividualVaciar = "/api/chat/vaciar-chat-individual";
 const String urlChatGrupalEliminar = "/api/chat/eliminar-chat-grupal";
 
+const String urlChatSugerencias = "/api/chat/sugerencias-enviar-mensaje";
+
 const String urlChatGrupalInformacion = "/api/chat/ver-informacion";
 const String urlChatGrupalCambiarLink = "/api/chat/cambiar-encuentro-link";
 const String urlChatGrupalCambiarFecha = "/api/chat/cambiar-encuentro-fecha";

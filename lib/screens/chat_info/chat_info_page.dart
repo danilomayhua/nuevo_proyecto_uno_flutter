@@ -473,7 +473,9 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
           title: const Text('¿Salir del grupo?'),
           content: Text(_actividad!.isAutor
               ? 'Ya no podrás volver acceder al chat grupal. Como eres el autor de la actividad vinculada, la actividad será eliminada automáticamente.'
-              : 'No podrás volver a entrar a menos que la actividad siga visible.'
+              : 'Al salir del grupo, te perderás los nuevos mensajes y los nuevos integrantes que se unan.'
+                + (_integrantes.length <= 2 ? ' También podés esperar un poco más, ¡podrían unirse más personas pronto!' : '')
+              // TODO : el mensaje no tiene sentido si la actividad ya no está visible
           ),
           actions: [
             TextButton(
