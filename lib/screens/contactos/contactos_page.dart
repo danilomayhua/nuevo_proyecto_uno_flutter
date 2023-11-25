@@ -45,19 +45,19 @@ class _ContactosPageState extends State<ContactosPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Contactos"),
+        title: const Text("Amigos"),
       ),
       body: (_contactos.isEmpty) ? Center(
 
         child: _loadingContactos ? CircularProgressIndicator() : Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(children: [
-            const Text("No tienes contactos aún.",
+            const Text("No tienes amigos agregados aún.",
               style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8,),
-            const Text("Agrega contactos para descubrir vínculos en común con personas en las actividades.",
+            const Text("Agrega amigos para descubrir vínculos en común con personas en las actividades.",
               style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
               textAlign: TextAlign.center,
             ),
@@ -118,7 +118,7 @@ class _ContactosPageState extends State<ContactosPage> {
   Widget _buildTextoCabecera(){
     return const Padding(
       padding: EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 12,),
-      child: Text("Agrega contactos para descubrir vínculos en común con personas en las actividades. Solo tú puedes ver tu lista completa de contactos.",
+      child: Text("Agrega amigos para descubrir vínculos en común con personas en las actividades. Solo tú puedes ver tu lista completa de amigos.",
         style: TextStyle(color: constants.grey, fontSize: 12,),
       ),
     );

@@ -309,10 +309,10 @@ class FirebaseNotificaciones {
         description = '¡${data['notificacion']['autor_usuario']['nombre_completo']} te envió un sticker!';
         break;
       case NotificacionTipo.CONTACTO_SOLICITUD:
-        description = '${data['notificacion']['autor_usuario']['nombre_completo']} te envió una solicitud para agregarte a contactos.';
+        description = '${data['notificacion']['autor_usuario']['nombre_completo']} te envió una solicitud de amigos.';
         break;
       case NotificacionTipo.CONTACTO_NUEVO:
-        description = '${data['notificacion']['autor_usuario']['nombre_completo']} aceptó tu solicitud de contactos.';
+        description = '${data['notificacion']['autor_usuario']['nombre_completo']} aceptó tu solicitud de amigos.';
         break;
       default:
         description = '';

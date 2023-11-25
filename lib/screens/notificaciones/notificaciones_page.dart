@@ -129,7 +129,7 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
 
     } else if(notificacion.tipo == NotificacionTipo.CONTACTO_SOLICITUD){
 
-      texto = '${notificacion.autorUsuario!.nombre} te envió una solicitud para agregarte a contactos.';
+      texto = '${notificacion.autorUsuario!.nombre} te envió una solicitud de amigos.';
       onTap = (){
         Navigator.push(context,
           MaterialPageRoute(builder: (context) => UserPage(usuario: notificacion.autorUsuario!,)),
@@ -138,7 +138,7 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
 
     } else if(notificacion.tipo == NotificacionTipo.CONTACTO_NUEVO){
 
-      texto = '${notificacion.autorUsuario!.nombre} aceptó tu solicitud de contactos.';
+      texto = '${notificacion.autorUsuario!.nombre} aceptó tu solicitud de amigos.';
       onTap = (){
         Navigator.push(context,
           MaterialPageRoute(builder: (context) => UserPage(usuario: notificacion.autorUsuario!,)),

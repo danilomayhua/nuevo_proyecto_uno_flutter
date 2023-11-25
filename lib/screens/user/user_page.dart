@@ -364,7 +364,7 @@ class _UserPageState extends State<UserPage> {
                       ));
                     },
                     icon: const Icon(Icons.people_alt_outlined, size: 18,),
-                    label: const Text("Ver lista de contactos",
+                    label: const Text("Lista de amigos",
                         style: TextStyle(fontSize: 12,),
                     ),
                     style: TextButton.styleFrom(
@@ -385,7 +385,7 @@ class _UserPageState extends State<UserPage> {
                 if(!widget.isFromProfile && !_isUsuarioSesion() && !_isUsuarioBloqueado() && _usuarioPerfil.contactosMutuos != null)
                   ...[
                     if(_usuarioPerfil.contactosMutuos!.isEmpty)
-                      const Text("No hay contactos en común", style: TextStyle(color: constants.grey, fontSize: 12),),
+                      const Text("No hay amigos en común", style: TextStyle(color: constants.grey, fontSize: 12),),
 
                     if(_usuarioPerfil.contactosMutuos!.isNotEmpty)
                       GestureDetector(
@@ -422,7 +422,7 @@ class _UserPageState extends State<UserPage> {
                                 ],
                               ),
                             ),
-                            Text("${_usuarioPerfil.totalContactosMutuos} contactos en común",
+                            Text("${_usuarioPerfil.totalContactosMutuos} amigos en común",
                               style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
                               maxLines: 1,
                             ),
@@ -503,7 +503,7 @@ class _UserPageState extends State<UserPage> {
         return TextButton.icon(
           onPressed: _enviandoBotonContacto ? null : () => _showDialogEliminarContacto(),
           icon: const Icon(Icons.people_alt_outlined, size: 18,),
-          label: const Text("Está en tus contactos",
+          label: const Text("Son amigos",
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal,),
           ),
           style: TextButton.styleFrom(
@@ -516,7 +516,7 @@ class _UserPageState extends State<UserPage> {
         return TextButton.icon(
           onPressed: _enviandoBotonContacto ? null : () => _agregarContacto(),
           icon: const Icon(Icons.person_add, size: 18,),
-          label: const Text("Agregar a contactos", style: TextStyle(fontSize: 12,)),
+          label: const Text("Agregar a amigos", style: TextStyle(fontSize: 12,)),
           style: TextButton.styleFrom(
             primary: constants.blackGeneral,
             padding: EdgeInsets.all(0),
@@ -527,7 +527,7 @@ class _UserPageState extends State<UserPage> {
         return TextButton.icon(
           onPressed: _enviandoBotonContacto ? null : () => _showDialogCancelarSolicitudContacto(),
           icon: const Icon(Icons.people_alt_outlined, size: 18,),
-          label: const Text("Solicitud de contacto enviada",
+          label: const Text("Solicitud de amigos enviada",
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal,),
           ),
           style: TextButton.styleFrom(
@@ -540,7 +540,7 @@ class _UserPageState extends State<UserPage> {
         return TextButton.icon(
           onPressed: _enviandoBotonContacto ? null : () => _aceptarSolicitudContacto(),
           icon: const Icon(Icons.person_add, size: 18,),
-          label: const Text("Aceptar solicitud de contacto", style: TextStyle(fontSize: 12,)),
+          label: const Text("Aceptar solicitud de amigos", style: TextStyle(fontSize: 12,)),
           style: TextButton.styleFrom(
             primary: constants.blackGeneral,
             padding: EdgeInsets.all(0),
@@ -610,8 +610,8 @@ class _UserPageState extends State<UserPage> {
     showDialog(context: context, builder: (context) {
       return StatefulBuilder(builder: (context, setState) {
         return AlertDialog(
-          title: const Text('¿Quieres eliminar a esta persona de tus contactos?'),
-          content: const Text('También serás eliminado de sus contactos.'),
+          title: const Text('¿Quieres eliminar a esta persona de tus amigos?'),
+          content: const Text('También serás eliminado de su lista de amigos.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -634,7 +634,7 @@ class _UserPageState extends State<UserPage> {
     showDialog(context: context, builder: (context) {
       return StatefulBuilder(builder: (context, setState) {
         return AlertDialog(
-          title: const Text('¿Quieres eliminar la solicitud para ser contactos?'),
+          title: const Text('¿Quieres eliminar la solicitud de amigos?'),
           //content: const Text(''),
           actions: [
             TextButton(

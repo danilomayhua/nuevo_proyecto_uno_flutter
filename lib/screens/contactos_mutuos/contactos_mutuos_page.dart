@@ -46,7 +46,7 @@ class _ContactosMutuosPageState extends State<ContactosMutuosPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Contactos en común"),
+        title: const Text("Amigos en común"),
       ),
       body: ListView.builder(
         controller: _scrollController,
@@ -71,7 +71,7 @@ class _ContactosMutuosPageState extends State<ContactosMutuosPage> {
   Widget _buildTextoCabecera(){
     return const Padding(
       padding: EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 12,),
-      child: Text("Solo puedes ver los contactos que tienen en común.",
+      child: Text("Solo puedes ver los amigos que tienen en común.",
         style: TextStyle(color: constants.grey, fontSize: 12,),
       ),
     );
