@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
-import 'package:tenfo/screens/principal/principal_page.dart';
+import 'package:tenfo/screens/signup/views/signup_picture_page.dart';
 import 'package:tenfo/screens/welcome/welcome_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
@@ -478,7 +478,7 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
         prefs.setBool(SharedPreferencesKeys.isLoggedIn, true);
 
         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-            builder: (context) => const PrincipalPage(principalPageView: PrincipalPageView.home, isFromSignup: true,)
+            builder: (context) => const SignupPicturePage(isFromSignup: true,)
         ), (root) => false);
 
       } else {

@@ -11,4 +11,6 @@ class SharedPreferencesKeys {
   static const String isShowedAyudaActividadUnirse = "isShowedAyudaActividadUnirse";
   static const String isShowedAyudaGrupoEditarFecha = "isShowedAyudaGrupoEditarFecha";
 
+  static const String totalIntentosAgregarFoto = "totalIntentosAgregarFoto";
+
 }

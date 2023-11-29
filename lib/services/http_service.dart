@@ -95,14 +95,13 @@ class HttpService {
     return response;
   }
 
-  static Future<http.Response> httpMultipart({required String url, required String field, required File file, UsuarioSesion? usuarioSesion}) async {
+  static Future<http.Response> httpMultipart({required String url, required String field, required File file, UsuarioSesion? usuarioSesion, Map<String, String>? additionalFields}) async {
 
     http.MultipartRequest request = http.MultipartRequest('POST', Uri.parse(_urlBase + url));
 
     request.headers.addAll(_getHeadersMultipart(usuarioSesion: usuarioSesion));
 
     String? mimeType = lookupMimeType(file.path);
-
     if(mimeType != null && ['image/jpeg','image/jpg','image/png'].contains(mimeType)){
       http.MultipartFile multipartFile = await http.MultipartFile.fromPath(
         field,
@@ -111,6 +110,24 @@ class HttpService {
       );
 
       request.files.add(multipartFile);
+    }
+
+    if(additionalFields != null){
+      request.fields.addAll(additionalFields);
+    }
+
+    // Agrega campos sobre la app actual (no sobrescribir si ya existen campos con el mismo nombre)
+    try {
+      if(request.fields["app_plataforma"] == null){
+        String appPlataforma = Platform.isIOS ? "iOS" : "android";
+        request.fields["app_plataforma"] = appPlataforma;
+      }
+      if(request.fields["app_version"] == null){
+        PackageInfo packageInfo = await PackageInfo.fromPlatform();
+        request.fields["app_version"] = packageInfo.version;
+      }
+    } catch (e){
+      //
     }
 
     var response = await request.send();

@@ -21,11 +21,12 @@ class UsuarioSesion {
   String? instagram;
   List<String> interesesId;
   bool isAdmin;
+  bool isUsuarioSinFoto;
 
   UsuarioSesion({required this.authToken, required this.id, required this.nombre_completo,
     required this.username, required this.foto, required this.nombre, required this.apellido,
     required this.email, required this.nacimiento_fecha, required this.descripcion, required this.instagram,
-    required this.interesesId, required this.isAdmin});
+    required this.interesesId, required this.isAdmin, required this.isUsuarioSinFoto});
 
   factory UsuarioSesion.fromJson(Map<String, dynamic> json){
 
@@ -49,6 +50,8 @@ class UsuarioSesion {
       instagram: json['usuario']['instagram'],
       interesesId: intereses,
       isAdmin: json['usuario']['is_admin'],
+      // isUsuarioSinFoto no existia antes, asi que en usuarios viejos puede ser null la primera vez
+      isUsuarioSinFoto: json['usuario']['is_usuario_sin_foto'] ?? false,
     );
   }
 
@@ -71,6 +74,7 @@ class UsuarioSesion {
       'instagram': instagram,
       'intereses': interesesId,
       'is_admin': isAdmin,
+      'is_usuario_sin_foto': isUsuarioSinFoto,
     },
   };
 }

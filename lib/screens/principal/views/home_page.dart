@@ -631,7 +631,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       padding: const EdgeInsets.only(left: 8, right: 8,),
       sliver: SliverToBoxAdapter(
         child: Wrap(
-          spacing: 4,
+          spacing: 6,
           runSpacing: 4,
           children: _interesesIcons,
         ),
@@ -660,7 +660,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       decoration: BoxDecoration(
         border: Border.all(color: constants.grey, width: 0.5,),
         shape: BoxShape.circle,
-        color: Colors.white,
       ),
       child: icon,
     );
@@ -670,7 +669,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return Container(
       width: 36,
       height: 36,
-      //margin: const EdgeInsets.only(left: 4),
+      margin: const EdgeInsets.only(left: 4),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(color: constants.blueGeneral),

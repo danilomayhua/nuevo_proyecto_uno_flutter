@@ -263,8 +263,13 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
 
   void _validarContenido(){
     if(_titleController.text.trim() == ''){
+      // Si el contenido esta vacio, crea esto por defecto
+      _titleController.text = "👋";
+
+      /*
       _showSnackBar("El contenido está vacío");
       return;
+      */
     }
 
     if(_permissionStatus != LocationPermissionStatus.permitted){

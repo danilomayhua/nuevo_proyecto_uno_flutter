@@ -3,7 +3,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:tenfo/firebase_options.dart';
+import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
+import 'package:tenfo/screens/signup/views/signup_picture_page.dart';
 import 'package:tenfo/screens/welcome/welcome_page.dart';
 import 'package:tenfo/services/firebase_notificaciones.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
@@ -23,22 +25,29 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool isLoggedIn = prefs.getBool(SharedPreferencesKeys.isLoggedIn) ?? false;
+  UsuarioSesion? usuarioSesion;
 
   try {
     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     await FirebaseNotificaciones().setupFlutterNotifications();
+
+
+    if(isLoggedIn){
+      usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+    }
   } catch (e) {
     //
   }
 
-  runApp(MyApp(isLoggedIn: isLoggedIn));
+  runApp(MyApp(isLoggedIn: isLoggedIn, usuarioSesion: usuarioSesion,));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key, required this.isLoggedIn}) : super(key: key);
+  const MyApp({Key? key, required this.isLoggedIn, required this.usuarioSesion}) : super(key: key);
 
   final bool isLoggedIn;
+  final UsuarioSesion? usuarioSesion;
 
   @override
   Widget build(BuildContext context) {
@@ -68,9 +77,23 @@ class MyApp extends StatelessWidget {
         Locale('es')
       ],
       home: isLoggedIn
-          ? const PrincipalPage()
+          ? (_isUsuarioSinFoto())
+            ? const SignupPicturePage(isFromSignup: false,)
+            : const PrincipalPage()
           : const WelcomePage(),
     );
+  }
+
+  bool _isUsuarioSinFoto(){
+    if(!isLoggedIn) return false;
+    if(usuarioSesion == null) return false;
+
+    // Comprueba 'usuario_foto_default.png' para los usuarios que actualizan la app y aun no cargaron el valor en isUsuarioSinFoto
+    if(usuarioSesion!.isUsuarioSinFoto || usuarioSesion!.foto == (constants.urlBase + '/images/usuario_foto_default.png')){
+      return true;
+    } else {
+      return false;
+    }
   }
 }
 

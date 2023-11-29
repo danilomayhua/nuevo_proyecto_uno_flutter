@@ -809,6 +809,13 @@ class _UserPageState extends State<UserPage> {
           ));
         });
 
+
+        if(widget.isFromProfile){
+          // Actualiza el valor para los usuarios viejos que no tenian este valor
+          _usuarioSesion!.isUsuarioSinFoto = datosUsuario['is_usuario_sin_foto'];
+          prefs.setString(SharedPreferencesKeys.usuarioSesion, jsonEncode(_usuarioSesion!));
+        }
+
       } else {
 
         if(datosJson['error_tipo'] == 'deshabilitado'){

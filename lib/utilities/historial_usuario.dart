@@ -10,6 +10,8 @@ class HistorialUsuario {
 
   static const String _seleccionarCrearTipo = "/crear/seleccionar-tipo";
 
+  static const String _agregarFotoOmitir = "/agregar-foto/omitir";
+
 
   /// En CrearActividad, cuando ingresa a la segunda pantalla
   static Map<String, dynamic> getCrearActividadPasoDos(){
@@ -67,6 +69,14 @@ class HistorialUsuario {
   static Map<String, dynamic> getSeleccionarCrearTipo(){
     return {
       "evento": _seleccionarCrearTipo,
+      "datos_adicionales": {}
+    };
+  }
+
+  /// En SignupPicture, cuando omite el agregar una foto de perfil
+  static Map<String, dynamic> getAgregarFotoOmitir(){
+    return {
+      "evento": _agregarFotoOmitir,
       "datos_adicionales": {}
     };
   }
