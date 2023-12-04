@@ -262,15 +262,6 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
   }
 
   void _validarContenido(){
-    if(_titleController.text.trim() == ''){
-      // Si el contenido esta vacio, crea esto por defecto
-      _titleController.text = "👋";
-
-      /*
-      _showSnackBar("El contenido está vacío");
-      return;
-      */
-    }
 
     if(_permissionStatus != LocationPermissionStatus.permitted){
       if(_permissionStatus == LocationPermissionStatus.loading){
@@ -289,10 +280,18 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
       return;
     }
 
-    _crearDisponibilidad();
+    bool isValorPredeterminado = false;
+
+    if(_titleController.text.trim() == ''){
+      // Si el contenido esta vacio, crea esto por defecto
+      _titleController.text = "👋";
+      isValorPredeterminado = true;
+    }
+
+    _crearDisponibilidad(isValorPredeterminado);
   }
 
-  Future<void> _crearDisponibilidad() async {
+  Future<void> _crearDisponibilidad(bool isValorPredeterminado) async {
     setState(() {
       _enviando = true;
     });
@@ -300,12 +299,18 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
 
+    String textoPredeterminadoEnviado = "NO";
+    if(isValorPredeterminado){
+      textoPredeterminadoEnviado = "SI";
+    }
+
     var response = await HttpService.httpPost(
       url: constants.urlCrearDisponibilidad,
       body: {
         "disponibilidad_texto": _titleController.text.trim(),
         "ubicacion_latitud": _position?.latitude.toString() ?? "",
         "ubicacion_longitud": _position?.longitude.toString() ?? "",
+        "texto_predeterminado_enviado": textoPredeterminadoEnviado,
       },
       usuarioSesion: usuarioSesion,
     );

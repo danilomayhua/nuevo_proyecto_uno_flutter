@@ -49,7 +49,6 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
   final FocusNode _titleFocusNode = FocusNode();
   bool _loadingActividadSugerenciasTitulo = false;
   List<ActividadSugerenciaTitulo> _actividadSugerenciasTitulo = [];
-  String _lastSugerenciasTituloInteresId = "";
   final TextEditingController _descriptionController = TextEditingController();
   String? _selectedInteresId;
 
@@ -95,10 +94,10 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
       if(_intereses.isEmpty) _showDialogCambiarIntereses();
       if(_intereses.isNotEmpty){
-        _cargarActividadSugerenciasTitulo(_intereses[0]); // Muestra opciones con el primer interes por defecto
         setState(() {
           _selectedInteresId = _intereses[0]; // Selecciona el primer interes por defecto
         });
+        _cargarActividadSugerenciasTitulo(_intereses[0]); // Muestra opciones con el primer interes por defecto
       }
 
 
@@ -252,12 +251,20 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
         const SizedBox(height: 16,),
 
-        Container(
-          width: double.infinity,
-          child: const Text("Opciones:", textAlign: TextAlign.left,
+        Row(children: [
+          InkWell(
+            child: const Icon(Icons.cached),
+            onTap: (){
+              if(_selectedInteresId != null && !_loadingActividadSugerenciasTitulo){
+                _cargarActividadSugerenciasTitulo(_selectedInteresId!, isFromReload : true,);
+              }
+            },
+          ),
+          const SizedBox(width: 4,),
+          const Text("Opciones:", textAlign: TextAlign.left,
             style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
           ),
-        ),
+        ],),
         const SizedBox(height: 8,),
         Container(
           alignment: Alignment.centerLeft,
@@ -373,11 +380,13 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
             return GestureDetector(
               onTap: (){
+                String? actualInteresId = _selectedInteresId;
+
                 setState(() {
                   _selectedInteresId = _intereses[index];
                 });
 
-                if(_intereses[index] != _lastSugerenciasTituloInteresId){
+                if(_intereses[index] != actualInteresId){
                   _cargarActividadSugerenciasTitulo(_intereses[index]);
 
                   // Si estaba mostrando el tooltip, ya no lo muestra las siguientes veces
@@ -622,15 +631,15 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
         Navigator.of(context).pop();
 
-        _cargarActividadSugerenciasTitulo(_intereses[0]); // Muestra opciones con el primer interes por defecto
         setState(() {
           _selectedInteresId = _intereses[0]; // Selecciona el primer interes por defecto
         });
+        _cargarActividadSugerenciasTitulo(_intereses[0]); // Muestra opciones con el primer interes por defecto
       },);
     });
   }
 
-  Future<void> _cargarActividadSugerenciasTitulo(String interesId) async {
+  Future<void> _cargarActividadSugerenciasTitulo(String interesId, { bool isFromReload = false }) async {
     setState(() {
       _loadingActividadSugerenciasTitulo = true;
     });
@@ -638,10 +647,14 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
 
+    String enviadoDesde = "seleccionar_interes";
+    if(isFromReload) enviadoDesde = "recargar";
+
     var response = await HttpService.httpGet(
       url: constants.urlActividadSugerenciasTitulo,
       queryParams: {
-        "interes_id": interesId
+        "interes_id": interesId,
+        "enviado_desde": enviadoDesde
       },
       usuarioSesion: usuarioSesion,
     );
@@ -650,6 +663,11 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
       var datosJson = await jsonDecode(response.body);
 
       if(datosJson['error'] == false){
+
+        if(interesId != _selectedInteresId){
+          // Cambio de interes mientras cargaba sugerencias (se mostraran las sugerencias del nuevo interes)
+          return;
+        }
 
         _actividadSugerenciasTitulo.clear();
 
@@ -660,8 +678,6 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
             requiereCompletar: element['requiere_completar'],
           ));
         }
-
-        _lastSugerenciasTituloInteresId = interesId;
 
       } else {
         _showSnackBar("Se produjo un error inesperado");
@@ -1567,6 +1583,8 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
         if(datosJson['error_tipo'] == 'ubicacion_no_disponible'){
           _showSnackBar("Lo sentimos, actualmente Tenfo no está disponible en tu ciudad.");
+        } if(datosJson['error_tipo'] == 'titulo'){
+          _showSnackBar("El contenido de la actividad no es válido.");
         } else{
           _showSnackBar("Se produjo un error inesperado");
         }

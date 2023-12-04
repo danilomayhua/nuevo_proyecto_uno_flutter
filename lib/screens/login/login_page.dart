@@ -5,6 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
+import 'package:tenfo/screens/signup/views/signup_picture_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/shared_preferences_keys.dart';
@@ -162,9 +163,19 @@ class _LoginPageState extends State<LoginPage> {
         prefs.setString(SharedPreferencesKeys.usuarioSesion, jsonEncode(usuarioSesion));
         prefs.setBool(SharedPreferencesKeys.isLoggedIn, true);
 
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-            builder: (context) => const PrincipalPage()
-        ), (root) => false);
+        if(usuarioSesion.isUsuarioSinFoto){
+
+          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+              builder: (context) => const SignupPicturePage(isFromSignup: false,)
+          ), (root) => false);
+
+        } else {
+
+          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+              builder: (context) => const PrincipalPage()
+          ), (root) => false);
+
+        }
 
       } else {
 
