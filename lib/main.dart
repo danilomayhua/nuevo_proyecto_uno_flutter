@@ -89,7 +89,10 @@ class MyApp extends StatelessWidget {
     if(usuarioSesion == null) return false;
 
     // Comprueba 'usuario_foto_default.png' para los usuarios que actualizan la app y aun no cargaron el valor en isUsuarioSinFoto
-    if(usuarioSesion!.isUsuarioSinFoto || usuarioSesion!.foto == (constants.urlBase + '/images/usuario_foto_default.png')){
+    //if(usuarioSesion!.isUsuarioSinFoto || usuarioSesion!.foto == (constants.urlBase + '/images/usuario_foto_default.png'))
+
+    // TODO : Hubo un error, al registrarse usuarios nuevos y elegir foto no cambiaba isUsuarioSinFoto. Cambiar esta linea cuando la mayoria haya actualizado la app.
+    if(usuarioSesion!.foto == (constants.urlBase + '/images/usuario_foto_default.png')){
       return true;
     } else {
       return false;

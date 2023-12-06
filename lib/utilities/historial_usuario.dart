@@ -10,7 +10,10 @@ class HistorialUsuario {
 
   static const String _seleccionarCrearTipo = "/crear/seleccionar-tipo";
 
+  static const String _agregarFoto = "/agregar-foto";
   static const String _agregarFotoOmitir = "/agregar-foto/omitir";
+
+  static const String _actividadInvitarAmigo = "/actividad/invitar-amigo";
 
 
   /// En CrearActividad, cuando ingresa a la segunda pantalla
@@ -73,11 +76,29 @@ class HistorialUsuario {
     };
   }
 
+  /// En SignupPicture, cuando ingresa a la pantalla
+  static Map<String, dynamic> getAgregarFoto(){
+    return {
+      "evento": _agregarFoto,
+      "datos_adicionales": {}
+    };
+  }
+
   /// En SignupPicture, cuando omite el agregar una foto de perfil
   static Map<String, dynamic> getAgregarFotoOmitir(){
     return {
       "evento": _agregarFotoOmitir,
       "datos_adicionales": {}
+    };
+  }
+
+  /// En Actividad, cuando invita a un amigo
+  static Map<String, dynamic> getActividadInvitarAmigo(String actividadId){
+    return {
+      "evento": _actividadInvitarAmigo,
+      "datos_adicionales": {
+        "actividad_id": actividadId,
+      }
     };
   }
 

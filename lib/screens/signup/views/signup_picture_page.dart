@@ -32,6 +32,9 @@ class _SignupPicturePageState extends State<SignupPicturePage> {
     super.initState();
 
     _checkShowBotonOmitir();
+
+    // Envia historial del usuario
+    _enviarHistorialUsuario(HistorialUsuario.getAgregarFoto());
   }
 
   @override
@@ -206,8 +209,10 @@ class _SignupPicturePageState extends State<SignupPicturePage> {
 
         String fotoUrl = constants.urlBase + datosJson['data']['foto_url_nuevo'];
 
+        // Al cambiar la logica aqui, cambiar tambien en UserPage
         usuarioSesion.foto = fotoUrl;
-        prefs.setString(SharedPreferencesKeys.usuarioSesion, jsonEncode(usuarioSesion));
+        usuarioSesion.isUsuarioSinFoto = false;
+        await prefs.setString(SharedPreferencesKeys.usuarioSesion, jsonEncode(usuarioSesion));
 
         _continuarRegistro();
 

@@ -811,8 +811,14 @@ class _UserPageState extends State<UserPage> {
 
 
         if(widget.isFromProfile){
+          // Por si hubo un error en almacenar en sesion local al cambiar foto
+          if(_usuarioSesion!.foto != _usuarioPerfil.foto){
+            _usuarioSesion!.foto = _usuarioPerfil.foto;
+          }
+
           // Actualiza el valor para los usuarios viejos que no tenian este valor
           _usuarioSesion!.isUsuarioSinFoto = datosUsuario['is_usuario_sin_foto'];
+
           prefs.setString(SharedPreferencesKeys.usuarioSesion, jsonEncode(_usuarioSesion!));
         }
 
@@ -1261,8 +1267,10 @@ class _UserPageState extends State<UserPage> {
         _usuarioPerfil.foto = fotoUrl;
         setState(() {});
 
+        // Al cambiar la logica aqui, cambiar tambien en SignupPicturePage
         usuarioSesion.foto = fotoUrl;
-        prefs.setString(SharedPreferencesKeys.usuarioSesion, jsonEncode(usuarioSesion));
+        usuarioSesion.isUsuarioSinFoto = false;
+        await prefs.setString(SharedPreferencesKeys.usuarioSesion, jsonEncode(usuarioSesion));
 
       } else {
         _showSnackBar("Se produjo un error inesperado");

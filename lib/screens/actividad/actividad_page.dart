@@ -11,6 +11,7 @@ import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/screens/user/user_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
+import 'package:tenfo/utilities/historial_usuario.dart';
 import 'package:tenfo/utilities/intereses.dart';
 import 'package:tenfo/utilities/share_utils.dart';
 import 'package:tenfo/widgets/actividad_boton_entrar.dart';
@@ -337,6 +338,30 @@ class _ActividadPageState extends State<ActividadPage> {
                   ),
                 ),
               ],),
+            ),
+
+          if(!widget.actividad.isAutor)
+            Align(
+              alignment: Alignment.center,
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 32,),
+                constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+                child: OutlinedButton.icon(
+                  onPressed: (){
+                    ShareUtils.shareActivity(widget.actividad.titulo);
+
+                    // Envia historial del usuario
+                    _enviarHistorialUsuario(HistorialUsuario.getActividadInvitarAmigo(widget.actividad.id));
+                  },
+                  icon: const Icon(Icons.ios_share),
+                  label: const Text("Enviar a facuamigos",
+                    style: TextStyle(fontSize: 14,),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                  ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+                ),
+              ),
             ),
 
         ], crossAxisAlignment: CrossAxisAlignment.start),
@@ -670,6 +695,33 @@ class _ActividadPageState extends State<ActividadPage> {
     setState(() {
       _enviandoConfirmarCocreador = false;
     });
+  }
+
+  Future<void> _enviarHistorialUsuario(Map<String, dynamic> historialUsuario) async {
+    //setState(() {});
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    var response = await HttpService.httpPost(
+      url: constants.urlCrearHistorialUsuarioActivo,
+      body: {
+        "historiales_usuario_activo": [historialUsuario],
+      },
+      usuarioSesion: usuarioSesion,
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = await jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+        //
+      } else {
+        //_showSnackBar("Se produjo un error inesperado");
+      }
+    }
+
+    //setState(() {});
   }
 
   void _showSnackBar(String texto){

@@ -24,4 +24,13 @@ class ShareUtils {
 
     Share.share(textoCompartir);
   }
+
+  static void shareActivity(String activityTitle) async {
+    String textoCompartir = "Ingresá a esta actividad en Tenfo:\n\n"
+        "$activityTitle\n\n\n"
+        "Link en App Store: https://apps.apple.com/ar/app/tenfo/id6443714838\n\n"
+        "Link en Google Play: https://play.google.com/store/apps/details?id=app.tenfo.mobile";
+
+    Share.share(textoCompartir);
+  }
 }
