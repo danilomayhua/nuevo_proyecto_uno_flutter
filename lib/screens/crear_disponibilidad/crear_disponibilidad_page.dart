@@ -31,6 +31,7 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
   List<ActividadSugerenciaTitulo> _actividadSugerenciasTitulo = [];
 
   bool _enviando = false;
+  bool _isValorPredeterminadoUsado = false;
 
   LocationPermissionStatus _permissionStatus = LocationPermissionStatus.loading;
   Position? _position;
@@ -262,10 +263,22 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
   }
 
   void _validarContenido(){
+    bool isValorPredeterminado = false;
+
+    if(_titleController.text.trim() == '' || (_titleController.text.trim() == "👋" && _isValorPredeterminadoUsado)){
+      // Si el contenido esta vacio, crea esto por defecto
+      _titleController.text = "👋";
+      isValorPredeterminado = true;
+    }
 
     if(_permissionStatus != LocationPermissionStatus.permitted){
       if(_permissionStatus == LocationPermissionStatus.loading){
         _showSnackBar("Obteniendo ubicación. Espere...");
+
+        if(isValorPredeterminado){
+          // Debe volver a presionar cuando ya se cargó la ubicación. Con esto saber que el contenido ya era un valorPredeterminado.
+          _isValorPredeterminadoUsado = true;
+        }
       }
 
       if(_permissionStatus == LocationPermissionStatus.serviceDisabled){
@@ -278,14 +291,6 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
       }
 
       return;
-    }
-
-    bool isValorPredeterminado = false;
-
-    if(_titleController.text.trim() == ''){
-      // Si el contenido esta vacio, crea esto por defecto
-      _titleController.text = "👋";
-      isValorPredeterminado = true;
     }
 
     _crearDisponibilidad(isValorPredeterminado);

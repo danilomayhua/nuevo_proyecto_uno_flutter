@@ -46,9 +46,13 @@ class _SignupPicturePageState extends State<SignupPicturePage> {
         actions: [
           if(_isAvailableBotonOmitir)
             TextButton(
-              onPressed: (){
+              onPressed: () async {
                 // Envia historial del usuario
                 _enviarHistorialUsuario(HistorialUsuario.getAgregarFotoOmitir());
+
+                // Si usa el boton Omitir, no lo muestra la proxima vez
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                await prefs.setInt(SharedPreferencesKeys.totalIntentosAgregarFoto, 0);
 
                 _continuarRegistro();
               },
