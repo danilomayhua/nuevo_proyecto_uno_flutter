@@ -1583,9 +1583,9 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
         if(datosJson['error_tipo'] == 'ubicacion_no_disponible'){
           _showSnackBar("Lo sentimos, actualmente Tenfo no está disponible en tu ciudad.");
-        } if(datosJson['error_tipo'] == 'titulo'){
+        } else if(datosJson['error_tipo'] == 'titulo'){
           _showSnackBar("El contenido de la actividad no es válido.");
-        } else{
+        } else {
           _showSnackBar("Se produjo un error inesperado");
         }
 

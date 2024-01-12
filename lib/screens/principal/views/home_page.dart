@@ -435,10 +435,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         if(datosJson['error_tipo'] == 'ubicacion_no_disponible'){
           _isActividadesPermitido = true;
           _isCiudadDisponible = false;
-          _showDialogCiudadNoDisponible();
+          //_showDialogCiudadNoDisponible();
         } else if(datosJson['error_tipo'] == 'intereses_vacio'){
           _showDialogCambiarIntereses();
-        } else{
+        } else {
           _showSnackBar("Se produjo un error inesperado");
         }
 
@@ -457,8 +457,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: const <Widget>[
-              Text("Lo sentimos, actualmente Tenfo no está disponible en tu ciudad. Puedes revisar nuestro instagram @tenfo.app para "
-                  "ver las ciudades disponibles actualmente.",
+              Text("Lo sentimos, actualmente Tenfo no está disponible en tu ciudad.",
                 style: TextStyle(color: constants.blackGeneral),),
             ],
           ),
@@ -608,8 +607,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if(!_isCiudadDisponible){
       return Container(
         alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: const Text("Lo sentimos, actualmente Tenfo no está disponible en tu ciudad.",
+        // Lo hace ver más centrado (bottom es una altura aproximada de la seccion "Intereses")
+        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 64,),
+        margin: const EdgeInsets.symmetric(vertical: 24,),
+        child: const Text("Lo sentimos, Tenfo no está disponible en tu ciudad o zona. 🙁\n\n"
+            "Actualmente, estamos en CABA (Buenos Aires) y alrededores. Pronto estaremos en más lugares.\n\n"
+            "¡Síguenos en redes para las novedades!",
           style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
           textAlign: TextAlign.center,
         ),
