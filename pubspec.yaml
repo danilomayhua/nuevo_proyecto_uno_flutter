@@ -69,11 +69,10 @@ dev_dependencies:
 flutter_icons:
   image_path: "assets/logo_tenfo.png"
   image_path_ios: "assets/logo_tenfo_fondo_blanco.png"
-  android: true
+  #android: true
   ios: true
-  adaptive_icon_background: "#ffffff"
-  adaptive_icon_foreground: "assets/logo_tenfo.png"
-  # Cambie manualmente el archivo generado por el paquete en android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+  #adaptive_icon_background: "#ffffff"
+  #adaptive_icon_foreground: "assets/logo_tenfo.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
