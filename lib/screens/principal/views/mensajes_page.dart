@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/models/actividad.dart';
 import 'package:tenfo/models/chat.dart';
@@ -29,6 +30,8 @@ class _MensajesPageState extends State<MensajesPage> {
   
   bool _isOnRefresh = false;
 
+  bool _isNotificacionesPushHabilitado = true;
+
   @override
   void initState() {
     super.initState();
@@ -49,6 +52,8 @@ class _MensajesPageState extends State<MensajesPage> {
     });
 
     FirebaseNotificaciones().limpiarLocalNotificationChats();
+
+    _verificarNotificacionesPush();
   }
 
   @override
@@ -59,13 +64,21 @@ class _MensajesPageState extends State<MensajesPage> {
         title: Text("Mensajes"),
       ),
       body: (_chats.isEmpty) ? Center(
-        child: _loadingChats ? const CircularProgressIndicator() : const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Text("Aquí aparecerán los chats de las actividades donde te unas.",
-            style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
-            textAlign: TextAlign.center,
+        child: _loadingChats ? const CircularProgressIndicator() : Column(children: [
+
+          if(!_isNotificacionesPushHabilitado)
+            _buildEnableNotifications(),
+          const Spacer(),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Text("Aquí aparecerán los chats de las actividades donde te unas.",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
+              textAlign: TextAlign.center,
+            ),
           ),
-        ),
+          const Spacer(),
+
+        ], mainAxisAlignment: MainAxisAlignment.center,),
       ) : RefreshIndicator(
         backgroundColor: Colors.white,
         onRefresh: (){
@@ -83,8 +96,17 @@ class _MensajesPageState extends State<MensajesPage> {
         child: ListView.builder(
           controller: _scrollController,
           physics: const AlwaysScrollableScrollPhysics(), // Necesario para RefreshIndicator cuando hay pocos items
-          itemCount: _chats.length + 1,
+          itemCount: _chats.length + 2, // +1 mostrar boton notificaciones, +1 mostrar cargando
           itemBuilder: (context, index){
+            if(index == 0){
+              if(!_isNotificacionesPushHabilitado){
+                return _buildEnableNotifications();
+              } else {
+                return Container();
+              }
+            }
+            index = index - 1;
+
             if(index == _chats.length){
               return _buildLoadingChats();
             }
@@ -279,6 +301,79 @@ class _MensajesPageState extends State<MensajesPage> {
       _loadingChats = false;
     });
   }
+
+
+  Future<void> _verificarNotificacionesPush() async {
+    try {
+      NotificationSettings settings = await FirebaseMessaging.instance.getNotificationSettings();
+      if(settings.authorizationStatus != AuthorizationStatus.authorized){
+        _isNotificacionesPushHabilitado = false;
+      }
+    } catch(e){
+      // Captura error, por si surge algun posible error con FirebaseMessaging
+    }
+
+    setState(() {});
+  }
+
+  Widget _buildEnableNotifications(){
+    return Column(children: [
+      const SizedBox(height: 16,),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16,),
+        child: Row(children: [
+          const Icon(Icons.notifications, size: 24, color: constants.grey,),
+          const SizedBox(width: 12,),
+          Expanded(child: Text(
+            'Permite las notificaciones para enterarte cuando ingreses a una actividad, '
+                'cuando alguien ingrese a tus actividades o cuando te agregan nuevos amigos.',
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[700],
+              height: 1.2,
+            ),
+          ),),
+        ], crossAxisAlignment: CrossAxisAlignment.start,),
+      ),
+      const SizedBox(height: 8,),
+      Container(
+        //constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+        //width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16,),
+        child: ElevatedButton(
+          onPressed: () {
+            _habilitarNotificacionesPush();
+          },
+          child: const Text('Activar'),
+          style: ElevatedButton.styleFrom(
+            shape: const StadiumBorder(),
+          ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+        ),
+      ),
+      const SizedBox(height: 16,),
+      const Divider(color: constants.greyLight, height: 0.5,),
+      const SizedBox(height: 16,),
+    ], mainAxisSize: MainAxisSize.min,);
+  }
+
+  Future<void> _habilitarNotificacionesPush() async {
+    try {
+      // Permisos para iOS y para Android 13+
+      NotificationSettings settings = await FirebaseMessaging.instance.requestPermission();
+
+      if(settings.authorizationStatus != AuthorizationStatus.authorized){
+        _showSnackBar("Los permisos están denegados. Permite las notificaciones desde Ajustes en la app.");
+        return;
+      }
+    } catch(e){
+      // Captura error, por si surge algun posible error con FirebaseMessaging
+    }
+
+    _isNotificacionesPushHabilitado = true;
+    setState(() {});
+  }
+
 
   void _showSnackBar(String texto){
     ScaffoldMessenger.of(context).removeCurrentSnackBar();

@@ -80,21 +80,33 @@ class FirebaseNotificaciones {
     _isFlutterLocalNotificationsInitialized = true;
   }
 
-  Future<void> requerirPermisosYForegroundListen() async {
+  Future<void> configurarNotificacionAbiertaYForegroundListen() async {
     // String? token = await FirebaseMessaging.instance.getToken(); // Sin esto, no recibia los datos en foreground (ahora no es necesario)
 
-    NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(); // Permisos para iOS
+    // Se abre la app desde una notificacion de fcm, cuando estaba finalizada
+    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    if(initialMessage != null){
+      if(initialMessage.notification != null) _abrirPantalla(jsonEncode(initialMessage.data));
+    }
 
-    // Esto solo debe llamarse una vez a nivel global
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      showFlutterNotification(message);
+    // Se abre la app desde una notificacion de fcm, cuando estaba en segundo plano
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      if(message.notification != null) _abrirPantalla(jsonEncode(message.data));
     });
+
+    // La app está en primer plano, fcm no muestra una notificación (esto solo debe llamarse una vez a nivel global)
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      // TODO : probar que no muestre dos veces en iOS
+      if(message.notification != null) _showNotificactionForeground(message);
+    });
+
 
     FirebaseMessaging.instance.onTokenRefresh
         .listen((fcmToken) { _guardarTokenFirebase(fcmToken); })
         .onError((err) {});
 
 
+    /*
     // Permisos para iOS (para ser necesario llamarlo desde FlutterLocalNotificationsPlugin tambien)
     await _flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
@@ -102,7 +114,7 @@ class FirebaseNotificaciones {
       badge: true,
       sound: true,
     );
-
+    */
 
     // Esto solo debe llamarse una vez a nivel global
     final NotificationAppLaunchDetails? notificationAppLaunchDetails = await _flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
@@ -141,6 +153,30 @@ class FirebaseNotificaciones {
     }
   }
 
+  void _showNotificactionForeground(RemoteMessage message){
+    if(message.data['screen'] == null) return;
+
+    // Las notificaciones manejan distintos id que FCM, asi que no sobrescribira la notificacion
+    // actual de FCM (si existe). Pero si sobrescribira las notificaciones de foreground.
+
+    if(message.data['screen'] == 'notificaciones_page'){
+      _showNotificationWithSound(
+        _localNotificationIdGenerales,
+        message.notification?.title ?? "",
+        message.notification?.body ?? "",
+        jsonEncode(message.data),
+      );
+    } else if(message.data['screen'] == 'mensajes_page'){
+      _showNotificationWithSound(
+        _localNotificationIdChats,
+        message.notification?.title ?? "",
+        message.notification?.body ?? "",
+        jsonEncode(message.data),
+      );
+    }
+  }
+
+  /*
   Future<void> showFlutterNotification(RemoteMessage message) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.reload(); // Necesario para consistencia en foreground y background
@@ -165,6 +201,7 @@ class FirebaseNotificaciones {
 
     }
   }
+  */
 
   Future<void> _showNotificationWithSound(int id, String title, String body, String payload) async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
@@ -246,6 +283,7 @@ class FirebaseNotificaciones {
 
 
 
+  /*
   Future<void> _crearNotificacionesGuardadas(SharedPreferences prefs) async {
     if(!prefs.containsKey(SharedPreferencesKeys.notificacionesPush)){
       String notificacionesActuales = jsonEncode({
@@ -264,6 +302,7 @@ class FirebaseNotificaciones {
 
     await prefs.setString(SharedPreferencesKeys.notificacionesPush, jsonEncode(notificacionesActuales));
   }
+  */
 
   Future<void> limpiarLocalNotificationGenerales() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -277,6 +316,7 @@ class FirebaseNotificaciones {
     _flutterLocalNotificationsPlugin.cancel(_localNotificationIdGenerales);
   }
 
+  /*
   Future<void> _showNotificationGenerales(SharedPreferences prefs, Map<String, dynamic> data) async {
 
     var notificacionesActuales = jsonDecode(prefs.getString(SharedPreferencesKeys.notificacionesPush)!);
@@ -332,8 +372,10 @@ class FirebaseNotificaciones {
       await _showNotificationWithSound(_localNotificationIdGenerales, title, description, payload);
     }
   }
+  */
 
 
+  /*
   Future<void> _sumarLocalNotificationChats(SharedPreferences prefs, Map<String, dynamic> data) async {
     var notificacionesActuales = jsonDecode(prefs.getString(SharedPreferencesKeys.notificacionesPush)!);
 
@@ -359,6 +401,7 @@ class FirebaseNotificaciones {
 
     await prefs.setString(SharedPreferencesKeys.notificacionesPush, jsonEncode(notificacionesActuales));
   }
+  */
 
   Future<void> limpiarLocalNotificationChats() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -372,6 +415,7 @@ class FirebaseNotificaciones {
     _flutterLocalNotificationsPlugin.cancel(_localNotificationIdChats);
   }
 
+  /*
   Future<void> _showNotificationChats(SharedPreferences prefs, Map<String, dynamic> data, bool isChatGrupal) async {
     if(chatAbiertoAhora != null && chatAbiertoAhora!.id == data['chat']['id'].toString()){
       return;
@@ -477,4 +521,5 @@ class FirebaseNotificaciones {
       await _showNotificationWithoutSound(_localNotificationIdChats, title, description, payload);
     }
   }
+  */
 }

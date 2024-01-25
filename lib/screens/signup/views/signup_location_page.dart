@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:tenfo/screens/signup/views/signup_profile_page.dart';
@@ -17,6 +18,21 @@ class SignupLocationPage extends StatefulWidget {
 }
 
 class _SignupLocationPageState extends State<SignupLocationPage> {
+
+  bool _isNotificacionesPushHabilitado = false;
+  bool _loadingNotificacionesPushHabilitado = false;
+
+  bool _isAvailableBotonOmitir = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _isNotificacionesPushHabilitado = false;
+    _loadingNotificacionesPushHabilitado = true;
+    _showContenido();
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget child = Scaffold(
@@ -29,7 +45,7 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
         ),
       ),
       backgroundColor: Colors.white,
-      body: Padding(
+      body: _loadingNotificacionesPushHabilitado ? const Center(child: CircularProgressIndicator(),) : Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16,),
         child: Column(children: [
 
@@ -37,43 +53,13 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
             style: TextStyle(color: constants.blackGeneral, fontSize: 24,),
           ),
 
-          Expanded(child: Column(children: [
-            const Icon(Icons.location_on, size: 50.0, color: constants.grey,),
-            const SizedBox(height: 15.0,),
-            Text(
-              'Es necesario permitir ubicación para ver actividades de tu ciudad y al crear tus actividades. '
-                  'Tu ubicación siempre será privada y nunca será compartida con otros usuarios.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14.0,
-                color: Colors.grey[700],
-              ),
-            ),
-            const SizedBox(height: 15.0,),
-            Container(
-              constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  _habilitarUbicacion();
-                },
-                child: const Text('Permitir ubicación'),
-                style: ElevatedButton.styleFrom(
-                  shape: const StadiumBorder(),
-                ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
-              ),
-            ),
-            const SizedBox(height: 16,),
-            TextButton(
-              onPressed: (){
-                _continuarRegistro();
-              },
-              child: const Text("Omitir este paso"),
-              style: TextButton.styleFrom(
-                textStyle: const TextStyle(fontSize: 12,),
-              ),
-            ),
-          ], mainAxisAlignment: MainAxisAlignment.center,),),
+          Expanded(
+            child: Center(child: SingleChildScrollView(
+              child: _isNotificacionesPushHabilitado
+                  ? _contenidoSinSolicitarNotificacionesPush()
+                  : _contenidoConSolicitarNotificacionesPush(),
+            ),),
+          ),
 
           // height es la suma del appBar y el primer texto. Lo hace ver más centrado al Expanded.
           const SizedBox(height: (24 + kToolbarHeight),),
@@ -119,10 +105,129 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
     });
   }
 
+
+  Future<void> _showContenido() async {
+    try {
+      NotificationSettings settings = await FirebaseMessaging.instance.getNotificationSettings();
+      if(settings.authorizationStatus == AuthorizationStatus.authorized){
+        _isNotificacionesPushHabilitado = true;
+      }
+    } catch(e){
+      // Captura error, por si surge algun posible error con FirebaseMessaging
+    }
+
+    _loadingNotificacionesPushHabilitado = false;
+    setState(() {});
+  }
+
+  Widget _contenidoConSolicitarNotificacionesPush(){
+    return Column(children: [
+      Row(children: [
+        const Icon(Icons.location_on, size: 40, color: constants.blackGeneral,),
+        const SizedBox(width: 16,),
+        Expanded(child: Text(
+          'Es necesario permitir ubicación para ver actividades de tu ciudad y al crear tus actividades. '
+              'Tu ubicación siempre será privada y nunca será compartida con otros usuarios.',
+          textAlign: TextAlign.left,
+          style: TextStyle(
+            fontSize: 14.0,
+            color: Colors.grey[700],
+            height: 1.2,
+          ),
+        ),),
+      ], crossAxisAlignment: CrossAxisAlignment.start,),
+      const SizedBox(height: 24,),
+      Row(children: [
+        const Icon(Icons.notifications, size: 40, color: constants.blackGeneral,),
+        const SizedBox(width: 16,),
+        Expanded(child: Text(
+          'Permite las notificaciones para enterarte cuando ingreses a una actividad, '
+              'cuando alguien ingrese a tus actividades o cuando te agregan nuevos amigos.',
+          textAlign: TextAlign.left,
+          style: TextStyle(
+            fontSize: 14.0,
+            color: Colors.grey[700],
+            height: 1.2,
+          ),
+        ),),
+      ], crossAxisAlignment: CrossAxisAlignment.start,),
+      const SizedBox(height: 24,),
+      Container(
+        constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: () {
+            _habilitarUbicacion();
+          },
+          child: const Text('Continuar'),
+          style: ElevatedButton.styleFrom(
+            shape: const StadiumBorder(),
+          ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+        ),
+      ),
+
+      if(_isAvailableBotonOmitir)
+        ...[
+          const SizedBox(height: 16,),
+          TextButton(
+            onPressed: (){
+              _continuarRegistro();
+            },
+            child: const Text("Omitir este paso"),
+            style: TextButton.styleFrom(
+              textStyle: const TextStyle(fontSize: 12,),
+            ),
+          ),
+        ],
+    ], mainAxisAlignment: MainAxisAlignment.center,);
+  }
+
+  Widget _contenidoSinSolicitarNotificacionesPush(){
+    return Column(children: [
+      const Icon(Icons.location_on, size: 50.0, color: constants.grey,),
+      const SizedBox(height: 15.0,),
+      Text(
+        'Es necesario permitir ubicación para ver actividades de tu ciudad y al crear tus actividades. '
+            'Tu ubicación siempre será privada y nunca será compartida con otros usuarios.',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 14.0,
+          color: Colors.grey[700],
+        ),
+      ),
+      const SizedBox(height: 15.0,),
+      Container(
+        constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: () {
+            _habilitarUbicacion();
+          },
+          child: const Text('Permitir ubicación'),
+          style: ElevatedButton.styleFrom(
+            shape: const StadiumBorder(),
+          ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+        ),
+      ),
+      const SizedBox(height: 16,),
+      TextButton(
+        onPressed: (){
+          _continuarRegistro();
+        },
+        child: const Text("Omitir este paso"),
+        style: TextButton.styleFrom(
+          textStyle: const TextStyle(fontSize: 12,),
+        ),
+      ),
+    ], mainAxisAlignment: MainAxisAlignment.center,);
+  }
+
+
   Future<void> _habilitarUbicacion() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       _showSnackBar("Tienes los servicios de ubicación deshabilitados. Actívalo desde Ajustes.");
+      _habilitarNotificacionesPush(false);
       return;
     }
 
@@ -130,23 +235,41 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
+        _habilitarNotificacionesPush(false);
         return;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
       _showSnackBar("Los permisos están denegados. Permite la ubicación desde Ajustes en la app.");
+      _habilitarNotificacionesPush(false);
       return;
     }
 
+    _habilitarNotificacionesPush(true);
+  }
+
+  Future<void> _habilitarNotificacionesPush(bool isUbicacionHabilitado) async {
     try {
+      // Permisos para iOS y para Android 13+
+      NotificationSettings settings = await FirebaseMessaging.instance.requestPermission();
 
-      // Position position = await Geolocator.getCurrentPosition();
-      _continuarRegistro();
-
-    } catch (e){
-      //
+      if(settings.authorizationStatus != AuthorizationStatus.authorized || !isUbicacionHabilitado){
+        _isAvailableBotonOmitir = true;
+        setState(() {});
+        return;
+      }
+    } catch(e){
+      // Captura error, por si surge algun posible error con FirebaseMessaging
     }
+
+    if(!isUbicacionHabilitado){
+      _isAvailableBotonOmitir = true;
+      setState(() {});
+      return;
+    }
+
+    _continuarRegistro();
   }
 
   void _continuarRegistro(){

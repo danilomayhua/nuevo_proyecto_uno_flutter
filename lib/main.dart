@@ -12,6 +12,7 @@ import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/shared_preferences_keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/*
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // No comparte la misma instancia de FirebaseNotificaciones() con foreground (¿Tal vez esto no pase en iOS?)
   // Por lo tanto, las variables no están inicializadas
@@ -20,6 +21,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await FirebaseNotificaciones().setupFlutterNotifications();
   FirebaseNotificaciones().showFlutterNotification(message);
 }
+*/
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +31,7 @@ void main() async {
 
   try {
     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     await FirebaseNotificaciones().setupFlutterNotifications();
 
 
@@ -52,7 +54,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     try {
-      FirebaseNotificaciones().requerirPermisosYForegroundListen();
+      FirebaseNotificaciones().configurarNotificacionAbiertaYForegroundListen();
     } catch (e) {
       //
     }
