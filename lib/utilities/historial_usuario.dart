@@ -1,3 +1,5 @@
+import 'package:tenfo/models/signup_permisos_estado.dart';
+
 class HistorialUsuario {
 
   static const String _crearActividadPasoDos = "/crear-actividad/paso-dos";
@@ -77,11 +79,25 @@ class HistorialUsuario {
   }
 
   /// En SignupPicture, cuando ingresa a la pantalla
-  static Map<String, dynamic> getAgregarFoto(){
-    return {
-      "evento": _agregarFoto,
-      "datos_adicionales": {}
-    };
+  static Map<String, dynamic> getAgregarFoto(SignupPermisosEstado? signupPermisosEstado){
+
+    if(signupPermisosEstado != null){
+      // Envia estos datos cuando ingresa la primera vez en el registro
+      return {
+        "evento": _agregarFoto,
+        "datos_adicionales": {
+          "permiso_ubicacion_aceptado": signupPermisosEstado.isPermisoUbicacionAceptado ? "SI" : "NO",
+          "permiso_notificaciones_aceptado": signupPermisosEstado.isPermisoNotificacionesAceptado ? "SI" : "NO",
+          "requiere_permiso_notificaciones": signupPermisosEstado.isRequierePermisoNotificaciones ? "SI" : "NO",
+        }
+      };
+    } else {
+      return {
+        "evento": _agregarFoto,
+        "datos_adicionales": {}
+      };
+    }
+
   }
 
   /// En SignupPicture, cuando omite el agregar una foto de perfil

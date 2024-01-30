@@ -60,8 +60,8 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
   bool _enviandoCrearInvitacion = false;
 
   final List<String> _stringActividadTipo = ["Público","Privado","Requisitos"];
-  ActividadTipo? _actividadTipo = ActividadTipo.publico;
-  String _actividadTipoSelected = "Público";
+  ActividadTipo? _actividadTipo = ActividadTipo.privado;
+  String _actividadTipoSelected = "Privado";
   List<ActividadRequisito> _requisitoPreguntas = [];
   bool _preguntaNueva = false;
   final TextEditingController _preguntaNuevaController = TextEditingController();

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tenfo/models/signup_permisos_estado.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/services/http_service.dart';
@@ -13,9 +14,10 @@ import 'package:tenfo/utilities/historial_usuario.dart';
 import 'package:tenfo/utilities/shared_preferences_keys.dart';
 
 class SignupPicturePage extends StatefulWidget {
-  const SignupPicturePage({Key? key, required this.isFromSignup}) : super(key: key);
+  const SignupPicturePage({Key? key, required this.isFromSignup, this.signupPermisosEstado}) : super(key: key);
 
   final bool isFromSignup;
+  final SignupPermisosEstado? signupPermisosEstado;
 
   @override
   State<SignupPicturePage> createState() => _SignupPicturePageState();
@@ -33,8 +35,15 @@ class _SignupPicturePageState extends State<SignupPicturePage> {
 
     _checkShowBotonOmitir();
 
-    // Envia historial del usuario
-    _enviarHistorialUsuario(HistorialUsuario.getAgregarFoto());
+    if(widget.isFromSignup){
+
+      // Envia historial del usuario
+      _enviarHistorialUsuario(HistorialUsuario.getAgregarFoto(widget.signupPermisosEstado));
+
+    } else {
+      // Envia historial del usuario
+      _enviarHistorialUsuario(HistorialUsuario.getAgregarFoto(null));
+    }
   }
 
   @override

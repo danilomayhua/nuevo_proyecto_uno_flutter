@@ -7,6 +7,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:tenfo/models/signup_permisos_estado.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/signup/views/signup_picture_page.dart';
 import 'package:tenfo/screens/welcome/welcome_page.dart';
@@ -16,11 +17,13 @@ import 'package:tenfo/utilities/shared_preferences_keys.dart';
 
 class SignupProfilePage extends StatefulWidget {
   const SignupProfilePage({Key? key, required this.email,
-    required this.codigo, required this.registroActivadoToken}) : super(key: key);
+    required this.codigo, required this.registroActivadoToken,
+    required this.signupPermisosEstado}) : super(key: key);
 
   final String email;
   final String codigo;
   final String registroActivadoToken;
+  final SignupPermisosEstado signupPermisosEstado;
 
   @override
   State<SignupProfilePage> createState() => _SignupProfilePageState();
@@ -478,7 +481,7 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
         prefs.setBool(SharedPreferencesKeys.isLoggedIn, true);
 
         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-            builder: (context) => const SignupPicturePage(isFromSignup: true,)
+            builder: (context) => SignupPicturePage(isFromSignup: true, signupPermisosEstado: widget.signupPermisosEstado,)
         ), (root) => false);
 
       } else {

@@ -1,6 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:tenfo/models/signup_permisos_estado.dart';
 import 'package:tenfo/screens/signup/views/signup_profile_page.dart';
 import 'package:tenfo/screens/welcome/welcome_page.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
@@ -23,6 +24,12 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
   bool _loadingNotificacionesPushHabilitado = false;
 
   bool _isAvailableBotonOmitir = false;
+
+  SignupPermisosEstado _signupPermisosEstado = SignupPermisosEstado(
+    isPermisoUbicacionAceptado: false,
+    isPermisoNotificacionesAceptado: false,
+    isRequierePermisoNotificaciones: false,
+  );
 
   @override
   void initState() {
@@ -114,6 +121,16 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
       }
     } catch(e){
       // Captura error, por si surge algun posible error con FirebaseMessaging
+    }
+
+    if(_isNotificacionesPushHabilitado){
+      _signupPermisosEstado.isPermisoUbicacionAceptado = false;
+      _signupPermisosEstado.isPermisoNotificacionesAceptado = true;
+      _signupPermisosEstado.isRequierePermisoNotificaciones = false;
+    } else {
+      _signupPermisosEstado.isPermisoUbicacionAceptado = false;
+      _signupPermisosEstado.isPermisoNotificacionesAceptado = false;
+      _signupPermisosEstado.isRequierePermisoNotificaciones = true;
     }
 
     _loadingNotificacionesPushHabilitado = false;
@@ -255,6 +272,9 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
       NotificationSettings settings = await FirebaseMessaging.instance.requestPermission();
 
       if(settings.authorizationStatus != AuthorizationStatus.authorized || !isUbicacionHabilitado){
+        _signupPermisosEstado.isPermisoUbicacionAceptado = isUbicacionHabilitado;
+        _signupPermisosEstado.isPermisoNotificacionesAceptado = settings.authorizationStatus == AuthorizationStatus.authorized;
+
         _isAvailableBotonOmitir = true;
         setState(() {});
         return;
@@ -264,11 +284,16 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
     }
 
     if(!isUbicacionHabilitado){
+      _signupPermisosEstado.isPermisoUbicacionAceptado = false;
+      _signupPermisosEstado.isPermisoNotificacionesAceptado = true;
+
       _isAvailableBotonOmitir = true;
       setState(() {});
       return;
     }
 
+    _signupPermisosEstado.isPermisoUbicacionAceptado = true;
+    _signupPermisosEstado.isPermisoNotificacionesAceptado = true;
     _continuarRegistro();
   }
 
@@ -278,6 +303,7 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
           email: widget.email,
           codigo: widget.codigo,
           registroActivadoToken: widget.registroActivadoToken,
+          signupPermisosEstado: _signupPermisosEstado,
         )
     ));
   }
