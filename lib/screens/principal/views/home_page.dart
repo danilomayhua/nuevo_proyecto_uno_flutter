@@ -12,6 +12,7 @@ import 'package:tenfo/models/disponibilidad.dart';
 import 'package:tenfo/screens/buscador/buscador_page.dart';
 import 'package:tenfo/screens/seleccionar_crear_tipo/seleccionar_crear_tipo_page.dart';
 import 'package:tenfo/services/http_service.dart';
+import 'package:tenfo/services/location_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/intereses.dart';
 import 'package:tenfo/utilities/shared_preferences_keys.dart';
@@ -23,12 +24,6 @@ import 'package:tenfo/widgets/dialog_cambiar_intereses.dart';
 class HomePage extends StatefulWidget {
   @override
   State<HomePage> createState() => _HomePageState();
-}
-
-enum LocationPermissionStatus {
-  loading,
-  permitted,
-  notPermitted,
 }
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
@@ -50,8 +45,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   DateTime? _lastTimeCargarActividades;
 
-  LocationPermissionStatus _permissionStatus = LocationPermissionStatus.loading;
-  Position? _position;
+  final LocationService _locationService = LocationService();
+  LocationServicePermissionStatus _permissionStatus = LocationServicePermissionStatus.loading;
+  LocationServicePosition? _locationServicePosition;
   bool _isCiudadDisponible = true;
 
   bool _isAvailableTooltipUnirse = false;
@@ -115,10 +111,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       body: CustomScrollView(
         controller: _scrollController,
         slivers: [
-          if(_permissionStatus != LocationPermissionStatus.loading && _permissionStatus == LocationPermissionStatus.notPermitted)
+          if(_permissionStatus != LocationServicePermissionStatus.loading && _permissionStatus != LocationServicePermissionStatus.permitted)
             _buildSeccionSolicitarUbicacion(),
 
-          if (_permissionStatus != LocationPermissionStatus.loading && _permissionStatus == LocationPermissionStatus.permitted)
+          if(_permissionStatus != LocationServicePermissionStatus.loading && _permissionStatus == LocationServicePermissionStatus.permitted)
             ...[
               if(_publicaciones.isEmpty && _loadingActividades)
                 const SliverFillRemaining(
@@ -273,43 +269,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     setState(() {});
 
-    bool ubicacionPermitida = await _verificarUbicacion();
-    if(ubicacionPermitida){
+    _permissionStatus = await _locationService.verificarUbicacion();
+    if(_permissionStatus == LocationServicePermissionStatus.permitted){
 
-      _position = await Geolocator.getCurrentPosition();
+      _locationServicePosition = await _locationService.obtenerUbicacion();
       _cargarActividades();
 
     } else {
       _loadingActividades = false;
       setState(() {});
     }
-  }
-
-  Future<bool> _verificarUbicacion() async {
-    _position = null;
-
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      _permissionStatus = LocationPermissionStatus.notPermitted;
-      return false;
-    }
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-      _permissionStatus = LocationPermissionStatus.notPermitted;
-      return false;
-    }
-
-    try {
-
-      _permissionStatus = LocationPermissionStatus.permitted;
-
-    } catch (e){
-      _permissionStatus = LocationPermissionStatus.notPermitted;
-      return false;
-    }
-
-    return true;
   }
 
   Future<void> _cargarActividades() async {
@@ -334,8 +303,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       body: {
         "ultimos_id": _ultimosId,
         "intereses": interesesIdString,
-        "ubicacion_latitud": _position?.latitude.toString() ?? "",
-        "ubicacion_longitud": _position?.longitude.toString() ?? ""
+        "ubicacion_latitud": _locationServicePosition?.latitude.toString() ?? "",
+        "ubicacion_longitud": _locationServicePosition?.longitude.toString() ?? ""
       },
       usuarioSesion: usuarioSesion,
     );
@@ -760,16 +729,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       return;
     }
 
-    try {
+    _permissionStatus = LocationServicePermissionStatus.permitted;
+    setState(() {});
 
-      _permissionStatus = LocationPermissionStatus.permitted;
-      setState(() {});
-
-      _recargarActividades();
-
-    } catch (e){
-      //
-    }
+    _recargarActividades();
   }
 
   Widget _buildLoadingActividades(){

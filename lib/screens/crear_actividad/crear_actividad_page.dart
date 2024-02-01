@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:tenfo/models/actividad.dart';
 import 'package:tenfo/models/actividad_requisito.dart';
 import 'package:tenfo/models/actividad_sugerencia_titulo.dart';
@@ -13,6 +12,7 @@ import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/actividad/actividad_page.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/services/http_service.dart';
+import 'package:tenfo/services/location_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/historial_usuario.dart';
 import 'package:tenfo/utilities/intereses.dart';
@@ -29,13 +29,6 @@ class CrearActividadPage extends StatefulWidget {
 }
 
 enum ActividadTipo { publico, privado, requisitos }
-
-enum LocationPermissionStatus {
-  loading,
-  permitted,
-  notPermitted,
-  serviceDisabled,
-}
 
 class _CrearActividadPageState extends State<CrearActividadPage> {
   final PageController _pageController = PageController();
@@ -69,8 +62,9 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
   bool _enviando = false;
 
-  LocationPermissionStatus _permissionStatus = LocationPermissionStatus.loading;
-  Position? _position;
+  final LocationService _locationService = LocationService();
+  LocationServicePermissionStatus _permissionStatus = LocationServicePermissionStatus.loading;
+  LocationServicePosition? _locationServicePosition;
 
   List<Map<String, dynamic>> _historialesUsuario = [];
   bool _isEnviadoHistorialesUsuario = false;
@@ -690,31 +684,21 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
   }
 
   Future<void> _obtenerUbicacion() async {
-    _position = null;
+    LocationServicePermissionStatus status = await _locationService.verificarUbicacion();
 
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      _permissionStatus = LocationPermissionStatus.serviceDisabled;
-      return;
+    if(status == LocationServicePermissionStatus.permitted){
+      // Actualiza el valor a "permitted" cuando obtiene la ubicacion
+      try {
+
+        _locationServicePosition = await _locationService.obtenerUbicacion();
+        _permissionStatus = LocationServicePermissionStatus.permitted;
+
+      } catch (e){
+        _permissionStatus = LocationServicePermissionStatus.notPermitted;
+      }
+    } else {
+      _permissionStatus = status;
     }
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-      _permissionStatus = LocationPermissionStatus.notPermitted;
-      return;
-    }
-
-    try {
-
-      _position = await Geolocator.getCurrentPosition();
-      _permissionStatus = LocationPermissionStatus.permitted;
-
-    } catch (e){
-      _permissionStatus = LocationPermissionStatus.notPermitted;
-      return;
-    }
-
-    return;
   }
 
   Future _showAndCloseTooltipSugerencias() async {
@@ -747,17 +731,17 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
       return;
     }
 
-    if(_permissionStatus != LocationPermissionStatus.permitted){
-      if(_permissionStatus == LocationPermissionStatus.loading){
+    if(_permissionStatus != LocationServicePermissionStatus.permitted){
+      if(_permissionStatus == LocationServicePermissionStatus.loading){
         _showSnackBar("Obteniendo ubicación. Espere...");
       }
 
-      if(_permissionStatus == LocationPermissionStatus.serviceDisabled){
+      if(_permissionStatus == LocationServicePermissionStatus.serviceDisabled){
         // TODO : Deberia volver a comprobar por si los activo después de recibir el aviso
         _showSnackBar("Tienes los servicios de ubicación deshabilitados. Actívalo desde Ajustes.");
       }
 
-      if(_permissionStatus == LocationPermissionStatus.notPermitted){
+      if(_permissionStatus == LocationServicePermissionStatus.notPermitted){
         _showSnackBar("Debes habilitar la ubicación en Inicio para poder crear actividades.");
       }
 
@@ -1533,8 +1517,8 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         "privacidad_tipo": Actividad.getActividadPrivacidadTipoToString(actividadPrivacidadTipo),
         "creadores": creadoresId,
         "creadores_externos_codigo": creadoresExternoCodigo,
-        "ubicacion_latitud": _position?.latitude.toString() ?? "",
-        "ubicacion_longitud": _position?.longitude.toString() ?? "",
+        "ubicacion_latitud": _locationServicePosition?.latitude.toString() ?? "",
+        "ubicacion_longitud": _locationServicePosition?.longitude.toString() ?? "",
 
         // Envia historial del usuario para analizar comportamiento
         "historiales_usuario_activo": _historialesUsuario,

@@ -5,6 +5,10 @@ class SharedPreferencesKeys {
 
   static const String notificacionesPush = "notificacionesPush";
 
+  static const String locationLatitude = "locationLatitude";
+  static const String locationLongitude = "locationLongitude";
+  static const String locationLastDateTime = "locationLastDateTime";
+
   static const String isShowedAyudaActividadIngreso = "isShowedAyudaActividadIngreso";
   static const String isShowedAyudaCrearActividadCocreadores = "isShowedAyudaCrearActividadCocreadores";
   static const String isShowedAyudaCrearActividadSugerencias = "isShowedAyudaCrearActividadSugerencias";

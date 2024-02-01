@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/models/actividad_sugerencia_titulo.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/services/http_service.dart';
+import 'package:tenfo/services/location_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 
 class CrearDisponibilidadPage extends StatefulWidget {
@@ -14,13 +14,6 @@ class CrearDisponibilidadPage extends StatefulWidget {
 
   @override
   State<CrearDisponibilidadPage> createState() => _CrearDisponibilidadPageState();
-}
-
-enum LocationPermissionStatus {
-  loading,
-  permitted,
-  notPermitted,
-  serviceDisabled,
 }
 
 class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
@@ -33,8 +26,9 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
   bool _enviando = false;
   bool _isValorPredeterminadoUsado = false;
 
-  LocationPermissionStatus _permissionStatus = LocationPermissionStatus.loading;
-  Position? _position;
+  final LocationService _locationService = LocationService();
+  LocationServicePermissionStatus _permissionStatus = LocationServicePermissionStatus.loading;
+  LocationServicePosition? _locationServicePosition;
 
   @override
   void initState() {
@@ -235,31 +229,21 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
   }
 
   Future<void> _obtenerUbicacion() async {
-    _position = null;
+    LocationServicePermissionStatus status = await _locationService.verificarUbicacion();
 
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      _permissionStatus = LocationPermissionStatus.serviceDisabled;
-      return;
+    if(status == LocationServicePermissionStatus.permitted){
+      // Actualiza el valor a "permitted" cuando obtiene la ubicacion
+      try {
+
+        _locationServicePosition = await _locationService.obtenerUbicacion();
+        _permissionStatus = LocationServicePermissionStatus.permitted;
+
+      } catch (e){
+        _permissionStatus = LocationServicePermissionStatus.notPermitted;
+      }
+    } else {
+      _permissionStatus = status;
     }
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-      _permissionStatus = LocationPermissionStatus.notPermitted;
-      return;
-    }
-
-    try {
-
-      _position = await Geolocator.getCurrentPosition();
-      _permissionStatus = LocationPermissionStatus.permitted;
-
-    } catch (e){
-      _permissionStatus = LocationPermissionStatus.notPermitted;
-      return;
-    }
-
-    return;
   }
 
   void _validarContenido(){
@@ -271,8 +255,8 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
       isValorPredeterminado = true;
     }
 
-    if(_permissionStatus != LocationPermissionStatus.permitted){
-      if(_permissionStatus == LocationPermissionStatus.loading){
+    if(_permissionStatus != LocationServicePermissionStatus.permitted){
+      if(_permissionStatus == LocationServicePermissionStatus.loading){
         _showSnackBar("Obteniendo ubicación. Espere...");
 
         if(isValorPredeterminado){
@@ -281,12 +265,12 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
         }
       }
 
-      if(_permissionStatus == LocationPermissionStatus.serviceDisabled){
+      if(_permissionStatus == LocationServicePermissionStatus.serviceDisabled){
         // TODO : Deberia volver a comprobar por si los activo después de recibir el aviso
         _showSnackBar("Tienes los servicios de ubicación deshabilitados. Actívalo desde Ajustes.");
       }
 
-      if(_permissionStatus == LocationPermissionStatus.notPermitted){
+      if(_permissionStatus == LocationServicePermissionStatus.notPermitted){
         _showSnackBar("Debes habilitar la ubicación en Inicio para poder continuar.");
       }
 
@@ -313,8 +297,8 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
       url: constants.urlCrearDisponibilidad,
       body: {
         "disponibilidad_texto": _titleController.text.trim(),
-        "ubicacion_latitud": _position?.latitude.toString() ?? "",
-        "ubicacion_longitud": _position?.longitude.toString() ?? "",
+        "ubicacion_latitud": _locationServicePosition?.latitude.toString() ?? "",
+        "ubicacion_longitud": _locationServicePosition?.longitude.toString() ?? "",
         "texto_predeterminado_enviado": textoPredeterminadoEnviado,
       },
       usuarioSesion: usuarioSesion,
