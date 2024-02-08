@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tenfo/models/sticker.dart';
@@ -1193,7 +1194,18 @@ class _UserPageState extends State<UserPage> {
 
 
   Future<void> _galleryPhoto() async {
-    XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
+    XFile? image;
+
+    try {
+      image = await ImagePicker().pickImage(source: ImageSource.gallery);
+    } catch(e) {
+      if(e is PlatformException && e.code == 'photo_access_denied'){
+        _showSnackBar("Los permisos están denegados. Permite el acceso a la galería desde Ajustes en la app.");
+        return;
+      } else {
+        //
+      }
+    }
 
     if (image != null) {
       _enviandoFotoPerfil = true;

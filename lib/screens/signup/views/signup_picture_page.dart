@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -148,7 +149,19 @@ class _SignupPicturePageState extends State<SignupPicturePage> {
     prefs.setInt(SharedPreferencesKeys.totalIntentosAgregarFoto, totalIntentosFoto + 1);
 
 
-    XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
+    XFile? image;
+    
+    try {
+      image = await ImagePicker().pickImage(source: ImageSource.gallery);
+    } catch(e) {
+      if(e is PlatformException && e.code == 'photo_access_denied'){
+        _showSnackBar("Los permisos están denegados. Permite el acceso a la galería desde Ajustes en la app.");
+        return;
+      } else {
+        //
+      }
+    }
+
     if (image != null) {
       _enviandoFotoPerfil = true;
       setState(() {});
