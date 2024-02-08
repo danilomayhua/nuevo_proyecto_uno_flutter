@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -252,14 +253,14 @@ class _UserPageState extends State<UserPage> {
                 onTap: _enviandoFotoPerfil ? null : () => _showDialogCambiarFoto(),
                 child: CircleAvatar(
                   radius: 80,
-                  backgroundImage: NetworkImage(_usuarioPerfil.foto),
+                  backgroundImage: CachedNetworkImageProvider(_usuarioPerfil.foto),
                   backgroundColor: Colors.transparent,
                   child: _enviandoFotoPerfil ? const CircularProgressIndicator() : null,
                 ),
               )
               : CircleAvatar(
                 radius: 80,
-                backgroundImage: NetworkImage(_usuarioPerfil.foto),
+                backgroundImage: CachedNetworkImageProvider(_usuarioPerfil.foto),
                 backgroundColor: Colors.transparent,
               ),
           ),
@@ -414,7 +415,7 @@ class _UserPageState extends State<UserPage> {
                                         width: 20,
                                         child: CircleAvatar(
                                           backgroundColor: constants.greyBackgroundImage,
-                                          backgroundImage: NetworkImage(_usuarioPerfil.contactosMutuos![i].foto),
+                                          backgroundImage: CachedNetworkImageProvider(_usuarioPerfil.contactosMutuos![i].foto),
                                           //radius: 10,
                                         ),
                                       ),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/models/disponibilidad.dart';
@@ -51,8 +52,9 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
           height: 20,
           width: 20,
           child: CircleAvatar(
-            backgroundColor: constants.greyBackgroundImage,
-            backgroundImage: NetworkImage(widget.disponibilidad.creador.foto),
+            //backgroundColor: constants.greyBackgroundImage,
+            backgroundColor: const Color(0xFFFAFAFA),
+            backgroundImage: CachedNetworkImageProvider(widget.disponibilidad.creador.foto),
           ),
         ),
 
@@ -118,8 +120,9 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
                 height: 25,
                 width: 25,
                 child: CircleAvatar(
-                  backgroundColor: constants.greyBackgroundImage,
-                  backgroundImage: NetworkImage(widget.disponibilidad.creador.foto),
+                  //backgroundColor: constants.greyBackgroundImage,
+                  backgroundColor: const Color(0xFFFAFAFA),
+                  backgroundImage: CachedNetworkImageProvider(widget.disponibilidad.creador.foto),
                 ),
               ),
 

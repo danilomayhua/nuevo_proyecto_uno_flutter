@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
@@ -73,7 +74,7 @@ class ChatAppBarState extends State<ChatAppBar> {
                           CircleAvatar(
                             backgroundColor: Colors.black12,
                             backgroundImage:
-                            widget.profilePictureUrl == null ? null : NetworkImage("${widget.profilePictureUrl}"),
+                            widget.profilePictureUrl == null ? null : CachedNetworkImageProvider("${widget.profilePictureUrl}"),
                           ),
                           Visibility(
                             visible: widget.isGroup,

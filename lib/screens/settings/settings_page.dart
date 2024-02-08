@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -56,7 +57,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             leading: CircleAvatar(
               backgroundColor: constants.greyBackgroundImage,
-              backgroundImage: NetworkImage(widget.usuario.foto),
+              backgroundImage: CachedNetworkImageProvider(widget.usuario.foto),
             ),
           ),
           const SizedBox(height: 24,),

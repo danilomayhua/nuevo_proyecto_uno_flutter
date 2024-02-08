@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/models/actividad.dart';
 import 'package:tenfo/screens/actividad/actividad_page.dart';
@@ -110,8 +111,10 @@ class _CardActividadState extends State<CardActividad> {
                           height: 20,
                           width: 20,
                           child: CircleAvatar(
-                            backgroundColor: constants.greyBackgroundImage,
-                            backgroundImage: NetworkImage(widget.actividad.creadores[i].foto),
+                            // TODO : cambiar valor de greyBackgroundImage para cambiar en todos
+                            //backgroundColor: constants.greyBackgroundImage,
+                            backgroundColor: const Color(0xFFFAFAFA),
+                            backgroundImage: CachedNetworkImageProvider(widget.actividad.creadores[i].foto),
                             //radius: 10,
                           ),
                         ),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/models/actividad.dart';
@@ -172,7 +173,7 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
         ),
         leading: CircleAvatar(
           backgroundColor: constants.greyBackgroundImage,
-          backgroundImage: iconFoto == null ? NetworkImage(notificacion.autorUsuario!.foto) : null,
+          backgroundImage: iconFoto == null ? CachedNetworkImageProvider(notificacion.autorUsuario!.foto) : null,
           child: iconFoto == null ? null : iconFoto,
         ),
         trailing: Column(

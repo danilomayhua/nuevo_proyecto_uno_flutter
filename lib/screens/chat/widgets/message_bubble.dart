@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/models/mensaje.dart';
@@ -131,7 +132,7 @@ class _MessageBubbleState extends State<MessageBubble> {
                     ? InkWell(
                       child: CircleAvatar(
                         backgroundColor: Colors.black12,
-                        backgroundImage: NetworkImage(widget.message.autorUsuario.foto),
+                        backgroundImage: CachedNetworkImageProvider(widget.message.autorUsuario.foto),
                       maxRadius: 16,
                       ),
                       onTap: () => widget.onProfileRequested(widget.message.autorUsuario),

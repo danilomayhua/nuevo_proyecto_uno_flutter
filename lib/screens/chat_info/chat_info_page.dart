@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -335,7 +336,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
       ),
       leading: CircleAvatar(
         backgroundColor: constants.greyBackgroundImage,
-        backgroundImage: NetworkImage(integrante.usuario.foto),
+        backgroundImage: CachedNetworkImageProvider(integrante.usuario.foto),
       ),
       trailing: (integrante.rol == UsuarioChatIntegranteRol.ADMINISTRADOR) ? Container(
         child: const Text("Creador",

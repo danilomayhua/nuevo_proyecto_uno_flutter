@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/models/usuario.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
@@ -136,7 +137,7 @@ class _ContactosPageState extends State<ContactosPage> {
       ),
       leading: CircleAvatar(
         backgroundColor: constants.greyBackgroundImage,
-        backgroundImage: NetworkImage(usuario.foto),
+        backgroundImage: CachedNetworkImageProvider(usuario.foto),
       ),
       onTap: (){
         Navigator.push(context,

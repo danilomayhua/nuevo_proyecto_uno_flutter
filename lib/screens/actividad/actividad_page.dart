@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/models/actividad.dart';
@@ -227,7 +228,7 @@ class _ActividadPageState extends State<ActividadPage> {
               ),
               leading: CircleAvatar(
                 backgroundColor: constants.greyBackgroundImage,
-                backgroundImage: NetworkImage(widget.actividad.creadores[index].foto),
+                backgroundImage: CachedNetworkImageProvider(widget.actividad.creadores[index].foto),
               ),
               onTap: (){
                 Navigator.push(context,
@@ -270,7 +271,7 @@ class _ActividadPageState extends State<ActividadPage> {
                     ),
                     leading: CircleAvatar(
                       backgroundColor: constants.greyBackgroundImage,
-                      backgroundImage: NetworkImage(_creadoresPendientes[index].foto),
+                      backgroundImage: CachedNetworkImageProvider(_creadoresPendientes[index].foto),
                     ),
                     onTap: (){
                       Navigator.push(context,

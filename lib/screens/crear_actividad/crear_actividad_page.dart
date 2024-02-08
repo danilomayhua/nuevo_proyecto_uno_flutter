@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/models/actividad.dart';
@@ -589,7 +590,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
       leading: CircleAvatar(
         backgroundColor: constants.greyBackgroundImage,
         backgroundImage: cocreador.tipo == UsuarioCocreadorPendienteTipo.CREADOR_PENDIENTE
-            ? NetworkImage(cocreador.usuario!.foto) : null,
+            ? CachedNetworkImageProvider(cocreador.usuario!.foto) : null,
         child: cocreador.tipo == UsuarioCocreadorPendienteTipo.CREADOR_PENDIENTE
             ? null : const Icon(Icons.group, color: constants.blackGeneral,),
       ),
@@ -930,7 +931,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
                           ),
                           leading: CircleAvatar(
                             backgroundColor: constants.greyBackgroundImage,
-                            backgroundImage: NetworkImage(_creadoresBusqueda[index].foto),
+                            backgroundImage: CachedNetworkImageProvider(_creadoresBusqueda[index].foto),
                           ),
                           onTap: (){
                             for(var creador in _creadores){
