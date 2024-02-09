@@ -68,12 +68,14 @@ class _SettingsPageState extends State<SettingsPage> {
             ));
           }, color: constants.blueGeneral,),
 
+          /*
           if(!Platform.isIOS)
             _buildFila(titulo: "Canjear stickers", onTap: () async {
               Navigator.push(context, MaterialPageRoute(
                   builder: (context) => const CanjearStickersPage()
               ));
             }, color: constants.blueGeneral,),
+          */
 
           _buildFila(titulo: "Descripción", onTap: () async {
             Navigator.push(context, MaterialPageRoute(
@@ -150,7 +152,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ));
               },
               icon: const Icon(Icons.feedback_outlined,),
-              label: const Text("Comentarios y dudas",),
+              label: const Text("Ayuda y comentarios",),
               style: OutlinedButton.styleFrom(
                 primary: constants.blueGeneral,
                 side: const BorderSide(color: constants.blueGeneral, width: 0.5,),

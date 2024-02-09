@@ -4,6 +4,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/models/usuario.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
+import 'package:tenfo/screens/buscador/buscador_page.dart';
+import 'package:tenfo/screens/crear_actividad/crear_actividad_page.dart';
 import 'package:tenfo/screens/user/user_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
@@ -46,7 +48,16 @@ class _ContactosPageState extends State<ContactosPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text("Amigos"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person_search_outlined),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const BuscadorPage()));
+            },
+          ),
+        ],
       ),
       body: (_contactos.isEmpty) ? Center(
 
@@ -98,7 +109,7 @@ class _ContactosPageState extends State<ContactosPage> {
   Widget _buildBotonInvitar(){
     return Container(
       constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
-      child: ElevatedButton.icon(
+      child: OutlinedButton.icon(
         onPressed: (){
           ShareUtils.shareProfile();
 
@@ -109,9 +120,9 @@ class _ContactosPageState extends State<ContactosPage> {
         label: const Text("Invitar facuamigos",
           style: TextStyle(fontSize: 14,),
         ),
-        style: ElevatedButton.styleFrom(
+        style: OutlinedButton.styleFrom(
           shape: const StadiumBorder(),
-        ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+        ),
       ),
     );
   }
@@ -144,6 +155,14 @@ class _ContactosPageState extends State<ContactosPage> {
           MaterialPageRoute(builder: (context) => UserPage(usuario: usuario,)),
         );
       },
+      trailing: IconButton(
+        icon: const Icon(Icons.groups_outlined, color: constants.blackGeneral,),
+        onPressed: (){
+          Navigator.push(context, MaterialPageRoute(
+            builder: (context) => CrearActividadPage(cocreadorUsuario: usuario,),
+          ));
+        },
+      ),
     );
   }
 

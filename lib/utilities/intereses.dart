@@ -29,7 +29,8 @@ class Intereses {
         return "Deportes";
         break;
       case "4":
-        return "Videojuegos";
+        //return "Videojuegos";
+        return "Juegos";
         break;
       case "5":
         return "Fiesta";

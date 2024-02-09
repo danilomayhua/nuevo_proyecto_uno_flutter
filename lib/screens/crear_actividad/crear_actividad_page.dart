@@ -23,7 +23,9 @@ import 'package:tenfo/utilities/shared_preferences_keys.dart';
 import 'package:tenfo/widgets/dialog_cambiar_intereses.dart';
 
 class CrearActividadPage extends StatefulWidget {
-  const CrearActividadPage({Key? key}) : super(key: key);
+  const CrearActividadPage({Key? key, this.cocreadorUsuario}) : super(key: key);
+
+  final Usuario? cocreadorUsuario;
 
   @override
   State<CrearActividadPage> createState() => _CrearActividadPageState();
@@ -117,6 +119,13 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
     });
 
     _obtenerUbicacion();
+
+    if(widget.cocreadorUsuario != null){
+      _creadores.add(UsuarioCocreadorPendiente(
+        tipo: UsuarioCocreadorPendienteTipo.CREADOR_PENDIENTE,
+        usuario: widget.cocreadorUsuario,
+      ));
+    }
   }
 
   @override
@@ -130,7 +139,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
   Widget build(BuildContext context) {
     Widget child = Scaffold(
       appBar: AppBar(
-        title: const Text("Crear actividad"),
+        title: Text(widget.cocreadorUsuario != null ? "Cocrear actividad" : "Crear actividad"),
         leading: IconButton(
           icon: _pageCurrent == 0 ? const Icon(Icons.clear) : const BackButtonIcon(),
           onPressed: (){

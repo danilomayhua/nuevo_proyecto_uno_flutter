@@ -13,8 +13,6 @@ import 'package:tenfo/models/usuario_perfil.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/canjear_stickers/canjear_stickers_page.dart';
 import 'package:tenfo/screens/chat/chat_page.dart';
-import 'package:tenfo/screens/comprar_stickers/comprar_stickers_page.dart';
-import 'package:tenfo/screens/contactos/contactos_page.dart';
 import 'package:tenfo/screens/contactos_mutuos/contactos_mutuos_page.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/screens/settings/settings_page.dart';
@@ -104,13 +102,6 @@ class _UserPageState extends State<UserPage> {
 
           if(widget.isFromProfile)
             ...[
-              if(!Platform.isIOS)
-                IconButton(
-                  icon: const Icon(CupertinoIcons.bitcoin_circle),
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => ComprarStickersPage()));
-                  },
-                ),
               IconButton(
                 icon: const Icon(Icons.manage_accounts_outlined),
                 onPressed: () async {
@@ -324,10 +315,9 @@ class _UserPageState extends State<UserPage> {
                         },
                         child: Row(children: [
                           Container(
-                            decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.purple),),
-                            height: 20,
-                            width: 20,
-                            child: Icon(Icons.camera_alt, size: 10, color: Colors.purple,),
+                            height: 18,
+                            width: 18,
+                            child: Image.asset("assets/instagram_logo.png"),
                           ),
                           const SizedBox(width: 4,),
                           Text(_usuarioPerfil.instagram!,
@@ -343,10 +333,9 @@ class _UserPageState extends State<UserPage> {
                         },
                         child: Row(children: [
                           Container(
-                            decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.purple),),
-                            height: 20,
-                            width: 20,
-                            child: Icon(Icons.camera_alt, size: 10, color: Colors.purple,),
+                            height: 18,
+                            width: 18,
+                            child: Image.asset("assets/instagram_logo.png"),
                           ),
                           const SizedBox(width: 4,),
                           const Text("Agregar instagram",
@@ -357,23 +346,6 @@ class _UserPageState extends State<UserPage> {
 
                     const SizedBox(height: 24,),
                   ],
-
-                if(widget.isFromProfile)
-                  TextButton.icon(
-                    onPressed: (){
-                      Navigator.push(context, MaterialPageRoute(
-                        builder: (context) => ContactosPage(),
-                      ));
-                    },
-                    icon: const Icon(Icons.people_alt_outlined, size: 18,),
-                    label: const Text("Lista de amigos",
-                        style: TextStyle(fontSize: 12,),
-                    ),
-                    style: TextButton.styleFrom(
-                      primary: constants.blackGeneral,
-                      padding: EdgeInsets.all(0),
-                    ),
-                  ),
 
                 if(_loadingPerfil)
                   const Padding(
@@ -563,8 +535,7 @@ class _UserPageState extends State<UserPage> {
   Widget _buildSeccionBotones(){
     return SliverToBoxAdapter(
       child: Container(
-        //padding: EdgeInsets.only(left: 16, top: 48, right: 16, bottom: 24,),
-        padding: EdgeInsets.only(left: 16, top: 24, right: 16, bottom: 24,),
+        padding: const EdgeInsets.only(left: 16, top: 24, right: 16, bottom: 24,),
         alignment: Alignment.bottomCenter,
         child: Row(children: [
           OutlinedButton.icon(
@@ -574,6 +545,15 @@ class _UserPageState extends State<UserPage> {
               ));
             },
             icon: const Icon(Icons.near_me),
+            label: const Text('Enviar mensaje', style: TextStyle(fontSize: 16),),
+            style: OutlinedButton.styleFrom(
+              primary: constants.blueGeneral,
+              backgroundColor: Colors.white,
+              side: const BorderSide(color: constants.blueGeneral, width: 0.5,),
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16,),
+            ),
+            /*
             label: Text('Mensaje', style: TextStyle(fontSize: 18)),
             style: OutlinedButton.styleFrom(
               //primary: constants.blueGeneral,
@@ -583,7 +563,9 @@ class _UserPageState extends State<UserPage> {
               //Restar a Width = (48{tres margenes de 16} / 2) + 4{margen agregado} = 28
               fixedSize: Size.fromWidth((MediaQuery.of(context).size.width * 0.50) - 28),
             ),
+            */
           ),
+          /*
           SizedBox(width: 16),
           OutlinedButton.icon(
             onPressed: (){
@@ -603,6 +585,7 @@ class _UserPageState extends State<UserPage> {
               fixedSize: Size.fromWidth((MediaQuery.of(context).size.width * 0.50) - 28),
             ),
           ),
+          */
         ], mainAxisAlignment: MainAxisAlignment.center,),
       ),
     );

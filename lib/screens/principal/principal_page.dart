@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
+import 'package:tenfo/screens/contactos/contactos_page.dart';
 import 'package:tenfo/screens/principal/views/home_page.dart';
 import 'package:tenfo/screens/principal/views/mensajes_page.dart';
-import 'package:tenfo/screens/principal/views/mis_actividades_page.dart';
 import 'package:tenfo/screens/principal/views/perfil_page.dart';
 import 'package:tenfo/screens/seleccionar_crear_tipo/seleccionar_crear_tipo_page.dart';
 import 'package:tenfo/services/http_service.dart';
@@ -25,7 +25,7 @@ class PrincipalPage extends StatefulWidget {
 
 enum PrincipalPageView {
   home,
-  misActividades,
+  contactos,
   mensajes,
   perfil
 }
@@ -34,9 +34,10 @@ class _PrincipalPageState extends State<PrincipalPage> {
   int _currentIndex = 0;
   final PageStorageBucket _bucket = PageStorageBucket();
 
-  bool _showBadgeMisActividades = false;
   bool _showBadgeMensajes = false;
-  final GlobalKey<MisActividadesPageState> _keyMisActividadesPage = GlobalKey();
+
+  final GlobalKey<HomePageState> _keyHomePage = GlobalKey();
+  bool _showBadgeHome = false;
   bool _showBadgeNotificaciones = false;
 
   void _cargarPantalla() {
@@ -44,7 +45,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
       case PrincipalPageView.home:
         _currentIndex = 0;
         break;
-      case PrincipalPageView.misActividades:
+      case PrincipalPageView.contactos:
         _currentIndex = 1;
         break;
       case PrincipalPageView.mensajes:
@@ -75,16 +76,16 @@ class _PrincipalPageState extends State<PrincipalPage> {
   Widget build(BuildContext context) {
     List<Widget> getPages(){
       return [
-        HomePage(),
-        MisActividadesPage(
-          key: _keyMisActividadesPage,
+        HomePage(
+          key: _keyHomePage,
           showBadgeNotificaciones: _showBadgeNotificaciones,
           setShowBadge: (value){
-            _showBadgeMisActividades = value;
+            _showBadgeHome = value;
             _showBadgeNotificaciones = value;
             setState(() {});
           },
         ),
+        ContactosPage(),
         Container(),
         MensajesPage(),
         PerfilPage(),
@@ -105,8 +106,14 @@ class _PrincipalPageState extends State<PrincipalPage> {
                 color: _currentIndex == 0 ? Colors.black12 : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
               ),
-              padding: EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-              child: Icon(Icons.home),
+              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+              child: Badge(
+                child: const Icon(Icons.home),
+                showBadge: _showBadgeHome,
+                badgeColor: constants.blueGeneral,
+                padding: const EdgeInsets.all(6),
+                position: BadgePosition.topEnd(end: -8,),
+              ),
             ),
             label: "Inicio",
           ),
@@ -116,17 +123,10 @@ class _PrincipalPageState extends State<PrincipalPage> {
                 color: _currentIndex == 1 ? Colors.black12 : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
               ),
-              padding: EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-              child: Badge(
-                child: Icon(Icons.library_books),
-                showBadge: _showBadgeMisActividades,
-                badgeColor: constants.blueGeneral,
-                padding: EdgeInsets.all(6),
-                position: BadgePosition.topEnd(end: -8,),
-              ),
-              //child: Icon(Icons.library_books),
+              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+              child: const Icon(Icons.people_alt_outlined),
             ),
-            label: "Mis activ.",
+            label: "Amigos",
           ),
           BottomNavigationBarItem(
             icon: Container(
@@ -134,8 +134,8 @@ class _PrincipalPageState extends State<PrincipalPage> {
                 color: _currentIndex == 2 ? Colors.black12 : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
               ),
-              padding: EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-              child: Icon(Icons.add_circle_outline),
+              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+              child: const Icon(Icons.add_circle_outline),
             ),
             label: "Nuevo",
           ),
@@ -145,12 +145,12 @@ class _PrincipalPageState extends State<PrincipalPage> {
                 color: _currentIndex == 3 ? Colors.black12 : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
               ),
-              padding: EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
               child: Badge(
-                child: Icon(Icons.near_me),
+                child: const Icon(Icons.near_me),
                 showBadge: _showBadgeMensajes,
                 badgeColor: constants.blueGeneral,
-                padding: EdgeInsets.all(6),
+                padding: const EdgeInsets.all(6),
                 position: BadgePosition.topEnd(end: -8,),
               ),
             ),
@@ -162,8 +162,8 @@ class _PrincipalPageState extends State<PrincipalPage> {
                 color: _currentIndex == 4 ? Colors.black12 : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
               ),
-              padding: EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-              child: Icon(Icons.person),
+              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+              child: const Icon(Icons.person),
             ),
             label: "Perfil",
           ),
@@ -175,8 +175,8 @@ class _PrincipalPageState extends State<PrincipalPage> {
             ));
           } else {
 
-            if(index == 1){
-              _showBadgeMisActividades = false;
+            if(index == 0){
+              _showBadgeHome = false;
             } else if(index == 3){
               _showBadgeMensajes = false;
             }
@@ -231,11 +231,11 @@ class _PrincipalPageState extends State<PrincipalPage> {
         int numeroChats = datosJson['data']['numero_chats'];
 
         if(numeroNotificaciones > 0){
-          _showBadgeMisActividades = true;
+          _showBadgeHome = true;
 
           _showBadgeNotificaciones = true;
-          if(_keyMisActividadesPage.currentState != null){
-            _keyMisActividadesPage.currentState!.setShowBadgeNotificaciones(true);
+          if(_keyHomePage.currentState != null){
+            _keyHomePage.currentState!.setShowBadgeNotificaciones(true);
           }
         }
 

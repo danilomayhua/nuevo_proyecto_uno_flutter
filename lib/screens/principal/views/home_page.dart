@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:badges/badges.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:tenfo/models/actividad.dart';
@@ -9,7 +11,8 @@ import 'package:tenfo/models/publicacion.dart';
 import 'package:tenfo/models/usuario.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/models/disponibilidad.dart';
-import 'package:tenfo/screens/buscador/buscador_page.dart';
+import 'package:tenfo/screens/notificaciones/notificaciones_page.dart';
+import 'package:tenfo/screens/principal/views/mis_actividades_page.dart';
 import 'package:tenfo/screens/seleccionar_crear_tipo/seleccionar_crear_tipo_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/services/location_service.dart';
@@ -22,13 +25,22 @@ import 'package:tenfo/widgets/card_disponibilidad.dart';
 import 'package:tenfo/widgets/dialog_cambiar_intereses.dart';
 
 class HomePage extends StatefulWidget {
+  const HomePage({Key? key, required this.showBadgeNotificaciones, required this.setShowBadge}) : super(key: key);
+
+  final bool showBadgeNotificaciones;
+  final void Function(bool) setShowBadge;
+
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePage> createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+class HomePageState extends State<HomePage> with WidgetsBindingObserver {
+
+  String? _usuarioSesionFoto;
+
+  bool _showBadgeNotificaciones = false;
+
   List<String> _intereses = [];
-  List<Widget> _interesesIcons = [];
 
   List<Publicacion> _publicaciones = [];
   bool _isActividadesPermitido = true;
@@ -55,6 +67,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+
+    _showBadgeNotificaciones = widget.showBadgeNotificaciones;
 
     _mostrarIntereses();
 
@@ -101,10 +115,39 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         title: const Text("Actividades"),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search),
+            icon: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: constants.blackGeneral, width: 1,),
+              ),
+              height: 28,
+              width: 28,
+              child: CircleAvatar(
+                backgroundColor: constants.greyBackgroundImage,
+                backgroundImage: _usuarioSesionFoto != null ? CachedNetworkImageProvider(_usuarioSesionFoto!) : null,
+              ),
+            ),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => BuscadorPage()));
+              Navigator.push(context, MaterialPageRoute(
+                builder: (context) => const MisActividadesPage(),
+              ));
             },
+          ),
+          Badge(
+            child: IconButton(
+              icon: const Icon(Icons.notifications),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const NotificacionesPage()));
+                setState(() {
+                  _showBadgeNotificaciones = false;
+                });
+                widget.setShowBadge(false);
+              },
+            ),
+            showBadge: _showBadgeNotificaciones,
+            badgeColor: constants.blueGeneral,
+            padding: const EdgeInsets.all(6),
+            position: BadgePosition.topEnd(top: 12, end: 12,),
           ),
         ],
       ),
@@ -132,14 +175,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
                   if(_isActividadesPermitido)
                     ...[
-                      const SliverPadding(
-                        padding: EdgeInsets.only(left: 8, top: 16, right: 8, bottom: 8),
-                        sliver: SliverToBoxAdapter(
-                          child: Text("Intereses:",
-                            style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
-                          ),
-                        ),
-                      ),
                       _buildSeccionIntereses(),
 
                       (_publicaciones.isEmpty)
@@ -252,8 +287,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
 
-    _intereses = usuarioSesion.interesesId;
-    _buildInteresesIcons();
+    _usuarioSesionFoto = usuarioSesion.foto;
+
+    // Muestra los intereses en orden
+    List<String> listIntereses = Intereses.getListaIntereses();
+    listIntereses.forEach((element) {
+      if(usuarioSesion.interesesId.contains(element)){
+        _intereses.add(element);
+      }
+    });
+
+    setState(() {});
   }
 
   Future<void> _recargarActividades() async {
@@ -590,7 +634,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     return Container(
       alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      // Lo hace ver más centrado (bottom es una altura aproximada de la seccion "Intereses")
+      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 64,),
       child: const Text("No hay actividades cerca disponibles según tus intereses.",
         style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
         textAlign: TextAlign.center,
@@ -600,58 +645,57 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Widget _buildSeccionIntereses(){
     return SliverPadding(
-      padding: const EdgeInsets.only(left: 8, right: 8,),
+      padding: const EdgeInsets.only(left: 8, right: 8, top: 16,),
       sliver: SliverToBoxAdapter(
-        child: Wrap(
-          spacing: 6,
-          runSpacing: 4,
-          children: _interesesIcons,
+        child: Container(
+          alignment: Alignment.centerLeft,
+          height: 75,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: _intereses.length + 1,
+            shrinkWrap: true,
+            itemBuilder: (context, index){
+              if(index == _intereses.length){
+                return _buildInteresCambiar();
+              }
+
+              return _buildInteres(Intereses.getNombre(_intereses[index]), Intereses.getIcon(_intereses[index], size: 18,));
+            },
+          ),
         ),
       ),
     );
   }
 
-  void _buildInteresesIcons(){
-    _interesesIcons = [];
-
-    List<String> listIntereses = Intereses.getListaIntereses();
-    listIntereses.forEach((element) {
-      if(_intereses.contains(element)){
-        _interesesIcons.add(_buildInteres(Intereses.getNombre(element), Intereses.getIcon(element, size: 18,)));
-      }
-    });
-    _interesesIcons.add(_buildInteresCambiar());
-
-    setState(() {});
-  }
-
   Widget _buildInteres(String texto, Icon icon){
     return Container(
-      width: 36,
-      height: 36,
-      decoration: BoxDecoration(
-        border: Border.all(color: constants.grey, width: 0.5,),
-        shape: BoxShape.circle,
+      width: 56,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              border: Border.all(color: constants.grey),
+              shape: BoxShape.circle,
+            ),
+            child: icon,
+          ),
+          const SizedBox(height: 4,),
+          Text(texto, style: const TextStyle(fontSize: 10),)
+        ],
+        mainAxisAlignment: MainAxisAlignment.center,
       ),
-      child: icon,
     );
   }
 
   Widget _buildInteresCambiar(){
     return Container(
-      width: 36,
-      height: 36,
-      margin: const EdgeInsets.only(left: 4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: constants.blueGeneral),
-        shape: BoxShape.circle,
-      ),
+      padding: const EdgeInsets.only(bottom: 14,),
       child: IconButton(
         onPressed: (){
           _showDialogCambiarIntereses();
         },
-        icon: const Icon(Icons.edit, color: constants.blueGeneral,),
+        icon: const Icon(Icons.settings_suggest_rounded, color: constants.blackGeneral, size: 28,),
         padding: const EdgeInsets.all(0),
       ),
     );
@@ -661,7 +705,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     showDialog(context: context, builder: (context) {
       return DialogCambiarIntereses(intereses: _intereses, onChanged: (nuevosIntereses){
         _intereses = nuevosIntereses;
-        _buildInteresesIcons();
+        setState(() {});
 
         Navigator.of(context).pop();
 
@@ -758,6 +802,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     await Future.delayed(const Duration(seconds: 5,));
     _isAvailableTooltipUnirse = false;
     setState(() {});
+  }
+
+  void setShowBadgeNotificaciones(bool value){
+    setState(() {
+      _showBadgeNotificaciones = value;
+    });
   }
 
   void _showSnackBar(String texto){

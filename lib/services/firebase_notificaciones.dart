@@ -138,7 +138,7 @@ class FirebaseNotificaciones {
     if(object['screen'] == 'notificaciones_page'){
 
       navigationKey.currentState?.pushAndRemoveUntil(MaterialPageRoute(
-          builder: (context) => const PrincipalPage(principalPageView: PrincipalPageView.misActividades)
+          builder: (context) => const PrincipalPage(principalPageView: PrincipalPageView.home)
       ), (route) => false);
       navigationKey.currentState?.push(MaterialPageRoute(
           builder: (context) => const NotificacionesPage()

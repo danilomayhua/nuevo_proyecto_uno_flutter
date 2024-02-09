@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/models/actividad.dart';
 import 'package:tenfo/models/chat.dart';
@@ -9,7 +8,6 @@ import 'package:tenfo/models/publicacion.dart';
 import 'package:tenfo/models/usuario.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/mis_actividades_antiguas/mis_actividades_antiguas_page.dart';
-import 'package:tenfo/screens/notificaciones/notificaciones_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/widgets/card_actividad.dart';
@@ -17,17 +15,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/widgets/card_disponibilidad.dart';
 
 class MisActividadesPage extends StatefulWidget {
-  const MisActividadesPage({Key? key, required this.showBadgeNotificaciones,
-    required this.setShowBadge}) : super(key: key);
-
-  final bool showBadgeNotificaciones;
-  final void Function(bool) setShowBadge;
+  const MisActividadesPage({Key? key}) : super(key: key);
 
   @override
-  State<MisActividadesPage> createState() => MisActividadesPageState();
+  State<MisActividadesPage> createState() => _MisActividadesPageState();
 }
 
-class MisActividadesPageState extends State<MisActividadesPage> {
+class _MisActividadesPageState extends State<MisActividadesPage> {
 
   List<Publicacion> _publicaciones = [];
 
@@ -36,13 +30,9 @@ class MisActividadesPageState extends State<MisActividadesPage> {
   bool _verMasActividades = false;
   String _ultimoActividades = "false";
 
-  bool _showBadgeNotificaciones = false;
-
   @override
   void initState() {
     super.initState();
-
-    _showBadgeNotificaciones = widget.showBadgeNotificaciones;
 
     _cargarMisActividades();
 
@@ -59,26 +49,7 @@ class MisActividadesPageState extends State<MisActividadesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         title: const Text("Mis actividades"),
-        actions: [
-          Badge(
-            child: IconButton(
-              icon: Icon(Icons.notifications),
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => NotificacionesPage()));
-                setState(() {
-                  _showBadgeNotificaciones = false;
-                });
-                widget.setShowBadge(false);
-              },
-            ),
-            showBadge: _showBadgeNotificaciones,
-            badgeColor: constants.blueGeneral,
-            padding: EdgeInsets.all(6),
-            position: BadgePosition.topEnd(top: 12, end: 12,),
-          ),
-        ],
       ),
       body: (_publicaciones.isEmpty) ? Center(
 
@@ -271,12 +242,6 @@ class MisActividadesPageState extends State<MisActividadesPage> {
 
     setState(() {
       _loadingActividades = false;
-    });
-  }
-
-  void setShowBadgeNotificaciones(bool value){
-    setState(() {
-      _showBadgeNotificaciones = value;
     });
   }
 

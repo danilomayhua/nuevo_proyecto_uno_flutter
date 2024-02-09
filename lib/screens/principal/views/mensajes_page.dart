@@ -71,8 +71,8 @@ class _MensajesPageState extends State<MensajesPage> {
             _buildEnableNotifications(),
           const Spacer(),
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text("Aquí aparecerán los chats de las actividades donde te unas.",
+            padding: EdgeInsets.symmetric(horizontal: 32),
+            child: Text("Aquí aparecerán los chats de actividades a las que te unas.",
               style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
               textAlign: TextAlign.center,
             ),
