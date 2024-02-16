@@ -71,8 +71,9 @@ class FirebaseNotificaciones {
 
     FirebaseMessaging messaging = FirebaseMessaging.instance;
 
+    // El valor de "alert" es "false", para no mostrar notificaciones en foreground desde FCM (foreground lo maneja FlutterLocalNotificationsPlugin)
     await messaging.setForegroundNotificationPresentationOptions(
-      alert: true,
+      alert: false,
       badge: true,
       sound: true,
     ); // Configuracion para iOS

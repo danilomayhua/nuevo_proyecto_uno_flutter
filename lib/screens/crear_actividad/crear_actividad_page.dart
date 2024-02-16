@@ -1141,7 +1141,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
       return AlertDialog(
         content: SingleChildScrollView(
           child: Column(children: [
-            const Text("Existen 2 tipos de privacidad en las actividades:",
+            const Text("Hay 2 tipos de privacidad en las actividades:",
               style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
               textAlign: TextAlign.center,
             ),
@@ -1168,7 +1168,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
                 ),
               ),
               SizedBox(width: 8,),
-              Expanded(child: Text("El usuario que quiera unirse, envía una solicitud y alguno de los cocreadores tiene que aceptar para que entre al chat grupal.",
+              Expanded(child: Text("Los usuarios que se unan a la actividad enviarán una solicitud, y alguno de los cocreadores (tú) debe aceptar para que entren al chat grupal.",
                 style: TextStyle(fontSize: 14, color: constants.grey),
               ),),
             ], crossAxisAlignment: CrossAxisAlignment.start,),
