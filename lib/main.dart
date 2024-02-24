@@ -6,6 +6,7 @@ import 'package:tenfo/firebase_options.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/screens/signup/views/signup_picture_page.dart';
+import 'package:tenfo/screens/user/user_page.dart';
 import 'package:tenfo/screens/welcome/welcome_page.dart';
 import 'package:tenfo/services/firebase_notificaciones.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
@@ -78,11 +79,36 @@ class MyApp extends StatelessWidget {
       supportedLocales: const [
         Locale('es')
       ],
+
+      // Al cambiar una condicion aqui, cambiar _verificarSesion de los screen en onGenerateRoute
       home: isLoggedIn
           ? (_isUsuarioSinFoto())
             ? const SignupPicturePage(isFromSignup: false,)
             : const PrincipalPage()
           : const WelcomePage(),
+
+      onGenerateRoute: (settings){
+        // Al crear nuevas rutas para deep linking, agregar path en AndroidManifest.xml y en archivo iOS de la web (ver documentacion)
+
+        // Si la app no está abierta, abre "home" y despues la ruta especificada (al ir a atras, ira a home)
+        // Si la app está abierta, abre la ruta especificada (al ir atras, ira a lo que estaba abierto)
+
+        // No comprobar aqui isLoggedIn, porque el valor no se actualiza hasta cerrar y volver a abrir la app.
+
+        Uri? uri = Uri.tryParse(settings.name ?? "");
+
+        if (uri != null && uri.pathSegments.length == 1 && uri.pathSegments[0].startsWith('@')) {
+          String username = uri.pathSegments[0].substring(1); // Elimina el "@" del inicio
+          if (username.length > 50) {
+            username = username.substring(0, 50); // Obtiene solo el string hasta una longitud de 50
+          }
+
+          return MaterialPageRoute(builder: (context) => UserPage(usuario: null, routeUsername: username,));
+        }
+
+        //return MaterialPageRoute(builder: (context) => UnknownScreen());
+        return null;
+      },
     );
   }
 
