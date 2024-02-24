@@ -20,6 +20,8 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>FlutterDeepLinkingEnabled</key>
+	<true/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>https</string>
@@ -31,7 +33,7 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Allow access to photos to upload photos from your library. It will be used as profile picture.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-    <string>Allow access to the location. It will be used to see activities near you and show your activities to people nearby.</string>
+	<string>Allow access to the location. It will be used to see activities near you and show your activities to people nearby.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
