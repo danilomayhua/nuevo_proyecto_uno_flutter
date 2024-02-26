@@ -102,7 +102,14 @@ class MyApp extends StatelessWidget {
           if (username.length > 50) {
             username = username.substring(0, 50); // Obtiene solo el string hasta una longitud de 50
           }
+          return MaterialPageRoute(builder: (context) => UserPage(usuario: null, routeUsername: username,));
+        }
 
+        if (uri != null && uri.pathSegments.length == 2 && uri.pathSegments[0] == 'add-friend') {
+          String username = uri.pathSegments[1];
+          if (username.length > 50) {
+            username = username.substring(0, 50); // Obtiene solo el string hasta una longitud de 50
+          }
           return MaterialPageRoute(builder: (context) => UserPage(usuario: null, routeUsername: username,));
         }
 
