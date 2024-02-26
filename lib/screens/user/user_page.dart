@@ -16,6 +16,7 @@ import 'package:tenfo/screens/chat/chat_page.dart';
 import 'package:tenfo/screens/contactos_mutuos/contactos_mutuos_page.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/screens/settings/settings_page.dart';
+import 'package:tenfo/screens/welcome/welcome_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/shared_preferences_keys.dart';
@@ -25,10 +26,11 @@ import 'package:tenfo/widgets/icon_universidad_verificada.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class UserPage extends StatefulWidget {
-  const UserPage({Key? key, required Usuario this.usuario, this.isFromProfile = false}) : super(key: key);
+  const UserPage({Key? key, required this.usuario, this.isFromProfile = false, this.routeUsername}) : super(key: key);
 
-  final Usuario usuario;
+  final Usuario? usuario;
   final bool isFromProfile;
+  final String? routeUsername;
 
   @override
   State<UserPage> createState() => _UserPageState();
@@ -39,6 +41,8 @@ enum _PopupMenuOption { bloquearUsuario, desbloquearUsuario }
 class _UserPageState extends State<UserPage> {
 
   late UsuarioPerfil _usuarioPerfil;
+
+  bool _isloadingRouteUsername = false;
 
   bool _loadingPerfil = false;
   bool _enviandoBotonContacto = false;
@@ -61,26 +65,65 @@ class _UserPageState extends State<UserPage> {
   void initState() {
     super.initState();
 
+    if(widget.usuario == null){
+      // Si widget.usuario es nulo, tiene que enviar widget.routeUsername
+      _isloadingRouteUsername = true;
+
+      // Verifica sesion siempre que viene desde un route (deep linking)
+      _verificarSesion();
+
+      // No usar _usuarioPerfil hasta que cargue el usuario
+
+      return;
+    }
+
     _usuarioPerfil = UsuarioPerfil(
-      id: widget.usuario.id,
-      nombre: widget.usuario.nombre,
-      username: widget.usuario.username,
-      foto: widget.usuario.foto,
+      id: widget.usuario!.id,
+      nombre: widget.usuario!.nombre,
+      username: widget.usuario!.username,
+      foto: widget.usuario!.foto,
     );
 
     if(widget.isFromProfile){
 
       _actualizarUsuarioPerfilSesion();
 
-      _cargarUsuario();
+      _cargarUsuario(null);
 
     } else {
-      _cargarUsuario();
+      _cargarUsuario(null);
     }
+  }
+
+  Future<void> _verificarSesion() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getBool(SharedPreferencesKeys.isLoggedIn) ?? false;
+
+    if(!isLoggedIn){
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+          builder: (context) => const WelcomePage()
+      ), (route) => false);
+
+      return;
+    }
+
+    _cargarUsuario(widget.routeUsername ?? "");
   }
 
   @override
   Widget build(BuildContext context) {
+
+    if(_isloadingRouteUsername){
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(widget.routeUsername ?? ""),
+        ),
+        body: Center(
+          child: _loadingPerfil ? const CircularProgressIndicator() : Container(),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Row(children: [
@@ -739,7 +782,7 @@ class _UserPageState extends State<UserPage> {
     });
   }
 
-  Future<void> _cargarUsuario() async {
+  Future<void> _cargarUsuario(String? username) async {
     setState(() {
       _loadingPerfil = true;
     });
@@ -747,11 +790,21 @@ class _UserPageState extends State<UserPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() => {_usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs)});
 
+    Map<String, String> queryParams = {};
+    if(username != null){
+      // Ingreso desde routeUsername
+      queryParams = {
+        "username": username
+      };
+    } else {
+      queryParams = {
+        "usuario_id": _usuarioPerfil.id
+      };
+    }
+
     var response = await HttpService.httpGet(
       url: constants.urlUsuarioPerfil,
-      queryParams: {
-        "usuario_id": _usuarioPerfil.id
-      },
+      queryParams: queryParams,
       usuarioSesion: _usuarioSesion,
     );
 
@@ -807,11 +860,17 @@ class _UserPageState extends State<UserPage> {
           prefs.setString(SharedPreferencesKeys.usuarioSesion, jsonEncode(_usuarioSesion!));
         }
 
+
+        // Cambia el Scaffold si ingreso desde routeUsername
+        _isloadingRouteUsername = false;
+
       } else {
 
         if(datosJson['error_tipo'] == 'deshabilitado'){
           _showSnackBar("Usuario deshabilitado.");
-        } else{
+        } else if(datosJson['error_tipo'] == 'usuario_inexistente'){
+          _showSnackBar("El usuario no existe.");
+        } else {
           _showSnackBar("Se produjo un error inesperado");
         }
 

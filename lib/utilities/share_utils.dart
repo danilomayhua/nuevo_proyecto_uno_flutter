@@ -18,9 +18,7 @@ class ShareUtils {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
 
-    String textoCompartir = "Agregame en Tenfo con mi usuario @${usuarioSesion.username}\n\n"
-        "Link en App Store: https://apps.apple.com/ar/app/tenfo/id6443714838\n\n"
-        "Link en Google Play: https://play.google.com/store/apps/details?id=app.tenfo.mobile";
+    String textoCompartir = "https://tenfo.app/add-friend/${usuarioSesion.username}";
 
     Share.share(textoCompartir);
   }
