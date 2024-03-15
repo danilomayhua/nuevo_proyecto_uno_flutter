@@ -31,9 +31,9 @@ final usernameColors = [
   Colors.teal[500],
 ];
 
-//const String urlBase = "http://192.168.1.3:3000";
+//const String urlBase = "http://192.168.1.6:3000";
 const String urlBase = "https://tenfo.app:3000";
-//const String urlBaseWebSocket = "ws://192.168.1.3:3000/chat";
+//const String urlBaseWebSocket = "ws://192.168.1.6:3000/chat";
 const String urlBaseWebSocket = "wss://tenfo.app:3000/chat";
 
 const String urlLogin = "/api/autenticacion/login";
@@ -43,6 +43,11 @@ const String urlRegistroEnviarCodigo = "/api/registro/enviar-codigo-email";
 const String urlRegistroVerificarCodigo = "/api/registro/verificar-codigo-email";
 const String urlRegistroUsuario = "/api/registro/crear-usuario";
 const String urlRegistroVerificarInvitacion = "/api/registro/verificar-invitacion-codigo";
+const String urlRegistroTelefonoEnviarCodigo = "/api/registro/enviar-codigo-telefono";
+const String urlRegistroTelefonoVerificarCodigo = "/api/registro/verificar-codigo-telefono";
+const String urlRegistroUsuarioConTelefono = "/api/registro/crear-usuario-con-telefono";
+const String urlRegistroSolicitarUniversidad = "/api/registro/solicitar-universidad";
+const String urlRegistroVerificarUbicacion = "/api/registro/verificar-ubicacion";
 
 const String urlGuardarFirebaseToken = "/api/firebase/actualizar-token";
 
@@ -109,10 +114,14 @@ const String urlCrearRetiro = "/api/retiro/crear";
 
 const String urlMisContactos = "/api/perfil/contactos";
 const String urlUsuariosBloqueados = "/api/perfil/usuarios-bloqueados";
+const String urlSugerenciasTelefonoContactos = "/api/perfil/sugerencias-telefono-contactos";
 
 const String urlCambiarDescripcion = "/api/perfil/cambiar-descripcion";
 const String urlCambiarInstagram = "/api/perfil/cambiar-instagram";
 const String urlCambiarFotoPerfil = "/api/perfil/cambiar-foto";
+
+const String urlConfiguracionEmailEnviarCodigo = "/api/configuracion-cuenta/email-enviar-codigo";
+const String urlConfiguracionEmailVerificarCodigo = "/api/configuracion-cuenta/email-verificar-codigo";
 
 const String urlConfiguracionCambiarUsername = "/api/configuracion-cuenta/cambiar-username";
 const String urlConfiguracionCambiarNombre = "/api/configuracion-cuenta/cambiar-nombre";

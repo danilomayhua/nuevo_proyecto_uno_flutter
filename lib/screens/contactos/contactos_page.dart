@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:tenfo/models/usuario.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/buscador/buscador_page.dart';
+import 'package:tenfo/screens/contactos_sugerencias/contactos_sugerencias_page.dart';
 import 'package:tenfo/screens/crear_actividad/crear_actividad_page.dart';
 import 'package:tenfo/screens/user/user_page.dart';
 import 'package:tenfo/services/http_service.dart';
@@ -111,13 +112,16 @@ class _ContactosPageState extends State<ContactosPage> {
       constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
       child: OutlinedButton.icon(
         onPressed: (){
-          ShareUtils.shareProfile();
-
+          //ShareUtils.shareProfile();
           // Envia historial del usuario
-          _enviarHistorialUsuario(HistorialUsuario.getContactosInvitarAmigo());
+          //_enviarHistorialUsuario(HistorialUsuario.getContactosInvitarAmigo());
+
+          Navigator.push(context, MaterialPageRoute(
+            builder: (context) => const ContactosSugerenciasPage(),
+          ));
         },
         icon: const Icon(Icons.person_add),
-        label: const Text("Invitar facuamigos",
+        label: const Text("Agregar amigos",
           style: TextStyle(fontSize: 14,),
         ),
         style: OutlinedButton.styleFrom(

@@ -15,8 +15,10 @@ class UsuarioSesion {
 
   String nombre;
   String apellido;
-  String email;
+  String? email;
+  String? telefono_numero;
   DateTime nacimiento_fecha;
+  String? universidad_id;
   String? descripcion;
   String? instagram;
   List<String> interesesId;
@@ -25,7 +27,8 @@ class UsuarioSesion {
 
   UsuarioSesion({required this.authToken, required this.id, required this.nombre_completo,
     required this.username, required this.foto, required this.nombre, required this.apellido,
-    required this.email, required this.nacimiento_fecha, required this.descripcion, required this.instagram,
+    required this.email, required this.telefono_numero, required this.nacimiento_fecha, required this.universidad_id,
+    required this.descripcion, required this.instagram,
     required this.interesesId, required this.isAdmin, required this.isUsuarioSinFoto});
 
   factory UsuarioSesion.fromJson(Map<String, dynamic> json){
@@ -44,8 +47,10 @@ class UsuarioSesion {
       nombre: json['usuario']['nombre'],
       apellido: json['usuario']['apellido'],
       email: json['usuario']['email'],
+      telefono_numero: json['usuario']['telefono_numero'],
       // 'isUtc' Necesario para que no muestre en dia local (en local podria mostrar un dia antes del nacimiento)
       nacimiento_fecha: DateTime.fromMillisecondsSinceEpoch(json['usuario']['nacimiento_fecha'], isUtc: true,),
+      universidad_id: json['usuario']['universidad_id']?.toString(),
       descripcion: json['usuario']['descripcion'],
       instagram: json['usuario']['instagram'],
       interesesId: intereses,
@@ -69,7 +74,9 @@ class UsuarioSesion {
       'username': username,
       'foto_url': foto.substring(constants.urlBase.length), // Elimina urlBase agregado al principio
       'email': email,
+      'telefono_numero': telefono_numero,
       'nacimiento_fecha': nacimiento_fecha.millisecondsSinceEpoch,
+      'universidad_id': universidad_id,
       'descripcion': descripcion,
       'instagram': instagram,
       'intereses': interesesId,

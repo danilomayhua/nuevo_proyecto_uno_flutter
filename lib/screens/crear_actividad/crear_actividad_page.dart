@@ -889,15 +889,15 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
                           ),
                         const Spacer(),
 
+                        /*
                         ElevatedButton.icon(
                           onPressed: _enviandoCrearInvitacion ? null : () {
 
                             _crearInvitacionCocreadorExterno(setStateDialog);
-                            /*
+
                             // Podria lanzar urls directas
                             // Uri url = Uri.parse("whatsapp://send?text=Probando un mensaje");
                             // Uri url = Uri.parse("instagram://sharesheet?text=Probandounmensaje"); // No funciona, capaz ya lo sacaron
-                            */
                           },
                           icon: const Icon(Icons.share, size: 18,),
                           label: const Text("Invitar amigo",
@@ -923,6 +923,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
                             ],
                           ),
                         ),
+                        */
                       ], mainAxisSize: MainAxisSize.min,),)
 
                       : ListView.builder(

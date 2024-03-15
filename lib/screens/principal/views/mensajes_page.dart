@@ -13,6 +13,7 @@ import 'package:tenfo/services/firebase_notificaciones.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tenfo/utilities/historial_usuario.dart';
 
 class MensajesPage extends StatefulWidget {
   @override
@@ -359,22 +360,61 @@ class _MensajesPageState extends State<MensajesPage> {
   }
 
   Future<void> _habilitarNotificacionesPush() async {
+
+    bool isAceptado = false;
+
     try {
       // Permisos para iOS y para Android 13+
       NotificationSettings settings = await FirebaseMessaging.instance.requestPermission();
 
       if(settings.authorizationStatus != AuthorizationStatus.authorized){
+        // Envia historial del usuario
+        _enviarHistorialUsuario(HistorialUsuario.getBandejaChatsNotificacionesActivar(false));
+
         _showSnackBar("Los permisos están denegados. Permite las notificaciones desde Ajustes en la app.");
         return;
       }
+
+      isAceptado = true;
+
     } catch(e){
       // Captura error, por si surge algun posible error con FirebaseMessaging
     }
 
     _isNotificacionesPushHabilitado = true;
     setState(() {});
+
+    // Envia historial del usuario
+    _enviarHistorialUsuario(HistorialUsuario.getBandejaChatsNotificacionesActivar(isAceptado));
   }
 
+
+  Future<void> _enviarHistorialUsuario(Map<String, dynamic> historialUsuario) async {
+    //setState(() {});
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    var response = await HttpService.httpPost(
+      url: constants.urlCrearHistorialUsuarioActivo,
+      body: {
+        "historiales_usuario_activo": [historialUsuario],
+      },
+      usuarioSesion: usuarioSesion,
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = await jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+        //
+      } else {
+        //_showSnackBar("Se produjo un error inesperado");
+      }
+    }
+
+    //setState(() {});
+  }
 
   void _showSnackBar(String texto){
     ScaffoldMessenger.of(context).removeCurrentSnackBar();

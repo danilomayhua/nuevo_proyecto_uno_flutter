@@ -3,19 +3,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 
-class SettingsEmailPage extends StatefulWidget {
-  const SettingsEmailPage({Key? key}) : super(key: key);
+class SettingsTelefonoPage extends StatefulWidget {
+  const SettingsTelefonoPage({Key? key}) : super(key: key);
 
   @override
-  State<SettingsEmailPage> createState() => _SettingsEmailPageState();
+  State<SettingsTelefonoPage> createState() => _SettingsTelefonoPageState();
 }
 
-class _SettingsEmailPageState extends State<SettingsEmailPage> {
+class _SettingsTelefonoPageState extends State<SettingsTelefonoPage> {
 
-  String? _email;
+  String? _telefono;
 
-  final TextEditingController _emailController = TextEditingController(text: '');
-  String? _emailErrorText;
+  final TextEditingController _telefonoController = TextEditingController(text: '');
+  String? _telefonoErrorText;
 
   @override
   void initState() {
@@ -24,8 +24,8 @@ class _SettingsEmailPageState extends State<SettingsEmailPage> {
     SharedPreferences.getInstance().then((prefs){
       UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
 
-      _email = usuarioSesion.email;
-      _emailController.text = usuarioSesion.email ?? "";
+      _telefono = usuarioSesion.telefono_numero;
+      _telefonoController.text = usuarioSesion.telefono_numero ?? "";
 
       setState(() {});
     });
@@ -35,7 +35,7 @@ class _SettingsEmailPageState extends State<SettingsEmailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Email"),
+        title: const Text("Número de teléfono"),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -43,17 +43,17 @@ class _SettingsEmailPageState extends State<SettingsEmailPage> {
           child: Column(children: [
             const SizedBox(height: 16,),
 
-            if(_email == null)
+            if(_telefono == null)
               ...[
                 const Align(
                   alignment: Alignment.centerLeft,
-                  child: Text("No tienes un email vinculado a tu cuenta.",
+                  child: Text("No tienes un número de teléfono vinculado a tu cuenta.",
                     style: TextStyle(color: constants.grey),
                   ),
                 ),
               ],
 
-            if(_email != null)
+            if(_telefono != null)
               ...[
                 const Align(
                   alignment: Alignment.centerLeft,
@@ -63,16 +63,14 @@ class _SettingsEmailPageState extends State<SettingsEmailPage> {
                 ),
                 const SizedBox(height: 24,),
                 TextField(
-                  controller: _emailController,
+                  controller: _telefonoController,
                   decoration: InputDecoration(
-                    hintText: "nombre@universidad.edu",
+                    hintText: "Número de teléfono",
                     border: const OutlineInputBorder(),
                     counterText: '',
-                    errorText: _emailErrorText,
+                    errorText: _telefonoErrorText,
                     errorMaxLines: 2,
                   ),
-                  maxLength: 100,
-                  keyboardType: TextInputType.emailAddress,
                   enabled: false,
                   style: const TextStyle(color: Colors.black54),
                 ),

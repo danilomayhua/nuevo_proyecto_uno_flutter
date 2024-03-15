@@ -529,6 +529,7 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
 
         String registroActivadoToken = datosJson['data']['registro_activado_token'];
 
+        /*
         Navigator.pushReplacement(context, MaterialPageRoute(
             builder: (context) => SignupLocationPage(
               email: _email,
@@ -536,6 +537,7 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
               registroActivadoToken: registroActivadoToken,
             )
         ));
+        */
 
       } else {
 

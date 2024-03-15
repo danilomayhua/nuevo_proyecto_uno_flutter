@@ -112,17 +112,23 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
           child: Column(children: [
 
             Row(children: [
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: constants.greyLight, width: 0.5,),
-                ),
-                height: 25,
-                width: 25,
-                child: CircleAvatar(
-                  //backgroundColor: constants.greyBackgroundImage,
-                  backgroundColor: const Color(0xFFFAFAFA),
-                  backgroundImage: CachedNetworkImageProvider(widget.disponibilidad.creador.foto),
+              GestureDetector(
+                onTap: (){
+                  Navigator.pop(context);
+                  _showDialogUsuarioDatos();
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: constants.greyLight, width: 0.5,),
+                  ),
+                  height: 25,
+                  width: 25,
+                  child: CircleAvatar(
+                    //backgroundColor: constants.greyBackgroundImage,
+                    backgroundColor: const Color(0xFFFAFAFA),
+                    backgroundImage: CachedNetworkImageProvider(widget.disponibilidad.creador.foto),
+                  ),
                 ),
               ),
 
@@ -133,23 +139,26 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
 
                 Row(children: [
 
-                  Flexible(child: Row(children: [
-                    Flexible(
-                      child: Text(widget.disponibilidad.creador.nombre,
-                        style: const TextStyle(color: constants.blackGeneral, fontSize: 14,),
-                        maxLines: 1,
-                      ),
+                  Flexible(
+                    child: GestureDetector(
+                      onTap: (){
+                        Navigator.pop(context);
+                        _showDialogUsuarioDatos();
+                      },
+                      child: Row(children: [
+                        Flexible(
+                          child: Text(widget.disponibilidad.creador.nombre,
+                            style: const TextStyle(color: constants.blackGeneral, fontSize: 14,),
+                            maxLines: 1,
+                          ),
+                        ),
+                        const SizedBox(width: 4,),
+                        if(widget.disponibilidad.creador.isVerificadoUniversidad)
+                          const IconUniversidadVerificada(size: 16),
+                        const SizedBox(width: 4,),
+                      ],),
                     ),
-                    const SizedBox(width: 4,),
-                    if(widget.disponibilidad.creador.isVerificadoUniversidad)
-                      GestureDetector(
-                        onTap: (){
-                          _showDialogUniversidadVerificada();
-                        },
-                        child: const IconUniversidadVerificada(size: 16),
-                      ),
-                    const SizedBox(width: 4,),
-                  ],)),
+                  ),
 
                   Text(widget.disponibilidad.fecha,
                     style: const TextStyle(color: constants.grey, fontSize: 12,),
@@ -259,6 +268,70 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
             child: const Text("Entendido"),
           ),
         ],
+      );
+    });
+  }
+
+  void _showDialogUsuarioDatos(){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(children: [
+
+            const SizedBox(height: 16,),
+
+            CircleAvatar(
+              radius: 48,
+              backgroundImage: CachedNetworkImageProvider(widget.disponibilidad.creador.foto),
+              backgroundColor: Colors.transparent,
+            ),
+
+            const SizedBox(height: 16,),
+
+            Row(children: [
+              Flexible(
+                child: Text(widget.disponibilidad.creador.nombre,
+                  style: const TextStyle(color: constants.blackGeneral, fontSize: 18,),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                ),
+              ),
+              const SizedBox(width: 4,),
+              if(widget.disponibilidad.creador.isVerificadoUniversidad)
+                const IconUniversidadVerificada(size: 16),
+              const SizedBox(width: 4,),
+            ], mainAxisSize: MainAxisSize.min,),
+
+            const SizedBox(height: 24,),
+
+            if(widget.disponibilidad.creador.descripcion != null)
+              ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(widget.disponibilidad.creador.descripcion ?? "",
+                    style: const TextStyle(color: constants.grey, fontSize: 14, height: 1.3,),
+                    textAlign: TextAlign.center,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(height: 24,),
+              ],
+
+            if(widget.disponibilidad.creador.universidadNombre != null)
+              ...[
+                Row(children: [
+                  const Icon(Icons.school_outlined, size: 20, color: constants.blackGeneral,),
+                  const SizedBox(width: 8,),
+                  Text(widget.disponibilidad.creador.universidadNombre ?? "",
+                    style: const TextStyle(color: constants.blackGeneral, fontSize: 14,),
+                  ),
+                ],),
+                const SizedBox(height: 16,),
+              ],
+
+          ], mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.center,),
+        ),
       );
     });
   }

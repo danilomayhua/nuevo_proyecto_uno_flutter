@@ -1,6 +1,7 @@
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ShareUtils {
   static void shareActivityCocreatorCode(String code, String activityTitle) {
@@ -21,6 +22,23 @@ class ShareUtils {
     String textoCompartir = "https://tenfo.app/add-friend/${usuarioSesion.username}";
 
     Share.share(textoCompartir);
+  }
+
+  static Future<void> shareProfileWhatsappNumber(String numberE164) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    String textoCompartir = "https://tenfo.app/add-friend/${usuarioSesion.username}";
+
+    String urlString = "https://wa.me/${numberE164}?text=${Uri.encodeFull(textoCompartir)}";
+
+    Uri url = Uri.parse(urlString);
+
+    try {
+      await launchUrl(url, mode: LaunchMode.externalApplication,);
+    } catch (e){
+      throw 'Could not launch $urlString';
+    }
   }
 
   static void shareActivity(String activityTitle) async {

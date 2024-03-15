@@ -30,6 +30,8 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSContactsUsageDescription</key>
+	<string>Allows access to contacts to suggest friends and co-create activities.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Allow access to photos to upload photos from your library. It will be used as profile picture.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

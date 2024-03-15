@@ -422,6 +422,8 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 id: disponibilidadDatos['creador']['id'],
                 foto: constants.urlBase + disponibilidadDatos['creador']['foto_url'],
                 nombre: disponibilidadDatos['creador']['nombre'],
+                descripcion: disponibilidadDatos['creador']['descripcion'],
+                universidadNombre: disponibilidadDatos['creador']['universidad_nombre'],
                 isVerificadoUniversidad: disponibilidadDatos['creador']['is_verificado_universidad'],
                 verificadoUniversidadNombre: disponibilidadDatos['creador']['verificado_universidad_nombre'],
               ),

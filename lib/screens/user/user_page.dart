@@ -16,10 +16,12 @@ import 'package:tenfo/screens/chat/chat_page.dart';
 import 'package:tenfo/screens/contactos_mutuos/contactos_mutuos_page.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/screens/settings/settings_page.dart';
+import 'package:tenfo/screens/verificar_universidad/verificar_universidad_page.dart';
 import 'package:tenfo/screens/welcome/welcome_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/shared_preferences_keys.dart';
+import 'package:tenfo/utilities/universidades.dart';
 import 'package:tenfo/widgets/dialog_enviar_sticker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/widgets/icon_universidad_verificada.dart';
@@ -217,7 +219,7 @@ class _UserPageState extends State<UserPage> {
             ),
             const SizedBox(height: 16,),
             Text("Este perfil cuenta con un correo verificado de la ${_usuarioPerfil.verificadoUniversidadNombre ?? ""}. Los perfiles sin esta insignia "
-                "corresponden a usuarios que no utilizaron un correo de estudiante (por lo general, son invitados de estudiantes con universidad verificada).",
+                "corresponden a usuarios que no utilizaron un correo de estudiante.",
               style: const TextStyle(color: constants.blackGeneral, fontSize: 14,),
               textAlign: TextAlign.left,
             ),
@@ -240,6 +242,8 @@ class _UserPageState extends State<UserPage> {
       bool isVerificadoUniversidad = _usuarioPerfil.isVerificadoUniversidad;
       String? verificadoUniversidadNombre = _usuarioPerfil.verificadoUniversidadNombre;
 
+      UsuarioPerfilUniversidad? usuarioPerfilUniversidad = _usuarioPerfil.universidad;
+
 
       _usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
 
@@ -252,6 +256,13 @@ class _UserPageState extends State<UserPage> {
 
       _usuarioPerfil.descripcion = _usuarioSesion!.descripcion;
       _usuarioPerfil.instagram = _usuarioSesion!.instagram;
+
+      if(usuarioPerfilUniversidad == null && _usuarioSesion!.universidad_id != null){
+        // Solo los usuarios nuevos tienen universidad_id en UsuarioSesion
+        String universidadId = _usuarioSesion!.universidad_id!;
+        usuarioPerfilUniversidad = UsuarioPerfilUniversidad(id: universidadId, nombre: Universidades.getNombre(universidadId),);
+      }
+      _usuarioPerfil.universidad = usuarioPerfilUniversidad;
 
       _usuarioPerfil.isVerificadoUniversidad = isVerificadoUniversidad;
       _usuarioPerfil.verificadoUniversidadNombre = verificadoUniversidadNombre;
@@ -338,14 +349,25 @@ class _UserPageState extends State<UserPage> {
             padding: EdgeInsets.symmetric(horizontal: 16,),
             child: Column(
               children: [
-                const SizedBox(height: 24, width: double.maxFinite,),
+                const SizedBox(height: 32, width: double.maxFinite,),
+
+                if(_usuarioPerfil.universidad != null)
+                  ...[
+                    Row(children: [
+                      const Icon(Icons.school_outlined, size: 20, color: constants.blackGeneral,),
+                      const SizedBox(width: 8,),
+                      Text(_usuarioPerfil.universidad!.nombre,
+                        style: const TextStyle(color: constants.blackGeneral, fontSize: 14,),
+                      ),
+                    ]),
+                  ],
+
+                const SizedBox(height: 8,),
+
                 if(_usuarioPerfil.instagram != null || widget.isFromProfile)
                   ...[
-                    const Text("Instagram", style: TextStyle(color: constants.blackGeneral)),
-                    const SizedBox(height: 8,),
-
                     if(_usuarioPerfil.instagram != null)
-                      GestureDetector(
+                      InkWell(
                         onTap: () async {
                           String urlString = "https://www.instagram.com/${_usuarioPerfil.instagram}";
                           Uri url = Uri.parse(urlString);
@@ -358,36 +380,65 @@ class _UserPageState extends State<UserPage> {
                         },
                         child: Row(children: [
                           Container(
+                            margin: const EdgeInsets.symmetric(vertical: 8,),
                             height: 18,
                             width: 18,
                             child: Image.asset("assets/instagram_logo.png"),
                           ),
-                          const SizedBox(width: 4,),
+                          const SizedBox(width: 8,),
                           Text(_usuarioPerfil.instagram!,
                             style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
                           ),
-                        ],),
+                          const SizedBox(width: 16,),
+                        ], mainAxisSize: MainAxisSize.min,),
                       ),
 
                     if(widget.isFromProfile && _usuarioSesion != null && _usuarioPerfil.instagram == null)
-                      GestureDetector(
+                      InkWell(
                         onTap: (){
                           _showDialogCambiarInstagram();
                         },
                         child: Row(children: [
                           Container(
+                            margin: const EdgeInsets.symmetric(vertical: 8,),
                             height: 18,
                             width: 18,
                             child: Image.asset("assets/instagram_logo.png"),
                           ),
-                          const SizedBox(width: 4,),
+                          const SizedBox(width: 8,),
                           const Text("Agregar instagram",
                             style: TextStyle(color: constants.blueGeneral, fontSize: 12,),
                           ),
-                        ],),
+                          const SizedBox(width: 16,),
+                        ], mainAxisSize: MainAxisSize.min,),
                       ),
 
-                    const SizedBox(height: 24,),
+                    const SizedBox(height: 8,),
+                  ],
+
+
+                // Solo puede verificar si no tiene email
+                if(widget.isFromProfile && _usuarioSesion != null && _usuarioSesion!.email == null)
+                  ...[
+                    const SizedBox(height: 48,),
+                    Container(
+                      alignment: Alignment.center,
+                      constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+                      child: OutlinedButton.icon(
+                        onPressed: (){
+                          _showDialogVerificarse();
+                        },
+                        icon: const IconUniversidadVerificada(size: 20, isEnabled: false,),
+                        label: const Text("Verifícate",
+                          style: TextStyle(fontSize: 14,),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          shape: const StadiumBorder(),
+                          primary: Colors.blueGrey,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16,),
                   ],
 
                 if(_loadingPerfil)
@@ -512,6 +563,65 @@ class _UserPageState extends State<UserPage> {
         ],
       ),
     );
+  }
+
+  void _showDialogVerificarse(){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(children: [
+
+            const IconUniversidadVerificada(size: 40,),
+            const SizedBox(height: 8,),
+            const Text("Verifica tu universidad",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 18, fontWeight: FontWeight.bold,),
+              textAlign: TextAlign.center,
+            ),
+
+            const SizedBox(height: 16,),
+
+            const Text("Ayúdanos a proteger la comunidad verificando que eres tú con el correo "
+                "universitario. Esto agregará la insignia de Universidad Verificada en tu perfil y le dará más validez al perfil.",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),
+              textAlign: TextAlign.center,
+            ),
+
+            const SizedBox(height: 16,),
+
+            Container(
+              constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+              child: ElevatedButton(
+                onPressed: () async {
+                  final result = await Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => const VerificarUniversidadPage(),
+                  ));
+
+                  if(result == true){
+                    _usuarioPerfil.isVerificadoUniversidad = true;
+                    _usuarioPerfil.verificadoUniversidadNombre = _usuarioPerfil.universidad?.nombre;
+
+                    _actualizarUsuarioPerfilSesion();
+
+                    Navigator.of(context).pop();
+                  }
+                },
+                child: const Text("Continuar"),
+                style: ElevatedButton.styleFrom(
+                  shape: const StadiumBorder(),
+                ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+              ),
+            ),
+
+          ], mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.center,),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Por ahora no"),
+          ),
+        ],
+      );
+    });
   }
 
   Widget _buildBotonContacto(){
@@ -820,6 +930,14 @@ class _UserPageState extends State<UserPage> {
           username: datosUsuario['username'],
           foto: constants.urlBase + datosUsuario['foto_url'],
         );
+
+        if(datosUsuario['universidad'] != null){
+          _usuarioPerfil.universidad = UsuarioPerfilUniversidad(
+            id: datosUsuario['universidad']['id'].toString(),
+            nombre: datosUsuario['universidad']['nombre'],
+          );
+        }
+
         _usuarioPerfil.descripcion = datosUsuario['descripcion'];
         _usuarioPerfil.instagram = datosUsuario['instagram'];
         _usuarioPerfil.contactoEstado = UsuarioPerfil.getUsuarioPerfilContactoEstadoFromString(datosUsuario['contacto_estado']);

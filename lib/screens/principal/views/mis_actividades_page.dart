@@ -179,6 +179,8 @@ class _MisActividadesPageState extends State<MisActividadesPage> {
               id: element['creador']['id'],
               foto: constants.urlBase + element['creador']['foto_url'],
               nombre: element['creador']['nombre'],
+              descripcion: element['creador']['descripcion'],
+              universidadNombre: element['creador']['universidad_nombre'],
               isVerificadoUniversidad: element['creador']['is_verificado_universidad'],
               verificadoUniversidadNombre: element['creador']['verificado_universidad_nombre'],
             ),

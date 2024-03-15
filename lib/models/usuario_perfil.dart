@@ -9,7 +9,16 @@ enum UsuarioPerfilContactoEstado {
   BLOQUEO_RECIBIDO
 }
 
+class UsuarioPerfilUniversidad {
+  String id;
+  String nombre;
+
+  UsuarioPerfilUniversidad({required this.id, required this.nombre});
+}
+
 class UsuarioPerfil extends Usuario {
+
+  UsuarioPerfilUniversidad? universidad;
   String? descripcion;
   String? instagram;
   UsuarioPerfilContactoEstado? contactoEstado;

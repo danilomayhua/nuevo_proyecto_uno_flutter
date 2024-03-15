@@ -341,6 +341,7 @@ class _ActividadPageState extends State<ActividadPage> {
               ],),
             ),
 
+          /*
           if(!widget.actividad.isAutor)
             Align(
               alignment: Alignment.center,
@@ -364,6 +365,7 @@ class _ActividadPageState extends State<ActividadPage> {
                 ),
               ),
             ),
+         */
 
         ], crossAxisAlignment: CrossAxisAlignment.start),
       ),

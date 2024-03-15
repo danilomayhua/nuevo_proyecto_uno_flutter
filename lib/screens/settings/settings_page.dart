@@ -18,6 +18,7 @@ import 'package:tenfo/screens/settings/views/settings_invitaciones_page.dart';
 import 'package:tenfo/screens/settings/views/settings_nacimiento_page.dart';
 import 'package:tenfo/screens/settings/views/settings_nombre_page.dart';
 import 'package:tenfo/screens/settings/views/settings_privacidad_page.dart';
+import 'package:tenfo/screens/settings/views/settings_telefono_page.dart';
 import 'package:tenfo/screens/settings/views/settings_username_page.dart';
 import 'package:tenfo/screens/welcome/welcome_page.dart';
 import 'package:tenfo/services/http_service.dart';
@@ -62,11 +63,13 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           const SizedBox(height: 24,),
 
+          /*
           _buildFila(titulo: "Invitaciones directas", onTap: () async {
             Navigator.push(context, MaterialPageRoute(
                 builder: (context) => const SettingsInvitacionesPage()
             ));
           }, color: constants.blueGeneral,),
+          */
 
           /*
           if(!Platform.isIOS)
@@ -116,6 +119,12 @@ class _SettingsPageState extends State<SettingsPage> {
           _buildFila(titulo: "Email", onTap: () async {
             Navigator.push(context, MaterialPageRoute(
                 builder: (context) => const SettingsEmailPage()
+            ));
+          },),
+
+          _buildFila(titulo: "Número de teléfono", onTap: () async {
+            Navigator.push(context, MaterialPageRoute(
+                builder: (context) => const SettingsTelefonoPage()
             ));
           },),
 

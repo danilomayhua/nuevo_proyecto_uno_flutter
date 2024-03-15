@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tenfo/screens/signup/views/signup_email_page.dart';
+import 'package:tenfo/screens/signup/views/signup_university_page.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({Key? key, this.codigoInvitacion}) : super(key: key);
@@ -19,6 +19,6 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SignupEmailPage(codigoInvitacion: widget.codigoInvitacion,);
+    return const SignupUniversityPage();
   }
 }

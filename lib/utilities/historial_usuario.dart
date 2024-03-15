@@ -10,12 +10,16 @@ class HistorialUsuario {
 
   static const String _contactosInvitarAmigo = "/contactos/invitar-amigo";
 
+  static const String _contactosSugerenciasInvitarAmigo = "/contactos-sugerencias/invitar-amigo";
+
   static const String _seleccionarCrearTipo = "/crear/seleccionar-tipo";
 
   static const String _agregarFoto = "/agregar-foto";
   static const String _agregarFotoOmitir = "/agregar-foto/omitir";
 
   static const String _actividadInvitarAmigo = "/actividad/invitar-amigo";
+
+  static const String _bandejaChatsNotificacionesActivar = "/bandeja-chats/notificaciones-push/activar";
 
 
   /// En CrearActividad, cuando ingresa a la segunda pantalla
@@ -70,6 +74,16 @@ class HistorialUsuario {
     };
   }
 
+  /// En ContactosSugerencias, cuando invita a un amigo
+  static Map<String, dynamic> getContactosSugerenciasInvitarAmigo(String numero){
+    return {
+      "evento": _contactosSugerenciasInvitarAmigo,
+      "datos_adicionales": {
+        "telefono_contacto_numero" : numero,
+      }
+    };
+  }
+
   /// En SeleccionarCrearTipo, cuando ingresa a la pantalla
   static Map<String, dynamic> getSeleccionarCrearTipo(){
     return {
@@ -87,6 +101,7 @@ class HistorialUsuario {
         "evento": _agregarFoto,
         "datos_adicionales": {
           "permiso_ubicacion_aceptado": signupPermisosEstado.isPermisoUbicacionAceptado ? "SI" : "NO",
+          "permiso_telefono_contactos_aceptado": signupPermisosEstado.isPermisoTelefonoContactosAceptado ? "SI" : "NO",
           "permiso_notificaciones_aceptado": signupPermisosEstado.isPermisoNotificacionesAceptado ? "SI" : "NO",
           "requiere_permiso_notificaciones": signupPermisosEstado.isRequierePermisoNotificaciones ? "SI" : "NO",
         }
@@ -114,6 +129,16 @@ class HistorialUsuario {
       "evento": _actividadInvitarAmigo,
       "datos_adicionales": {
         "actividad_id": actividadId,
+      }
+    };
+  }
+
+  /// En Mensajes, cuando acepta las notificaciones push
+  static Map<String, dynamic> getBandejaChatsNotificacionesActivar(bool isAceptado){
+    return {
+      "evento": _bandejaChatsNotificacionesActivar,
+      "datos_adicionales": {
+        "permiso_notificaciones_aceptado": isAceptado ? "SI" : "NO",
       }
     };
   }

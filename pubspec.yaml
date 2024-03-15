@@ -53,6 +53,10 @@ dependencies:
   geolocator: ^9.0.2
   package_info_plus: ^1.4.2
   cached_network_image: ^3.2.0
+  # La ultima version de flutter_contacts (1.1.7+1) genera un error al compilar
+  flutter_contacts: 1.1.6
+  # La ultima version compatible de intl_phone_number_input (0.7.1) genera un error al compilar
+  intl_phone_number_input: 0.7.0+2
 
 dev_dependencies:
   flutter_test:

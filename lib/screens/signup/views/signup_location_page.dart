@@ -1,18 +1,20 @@
+import 'dart:convert';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:tenfo/models/signup_permisos_estado.dart';
-import 'package:tenfo/screens/signup/views/signup_profile_page.dart';
-import 'package:tenfo/screens/welcome/welcome_page.dart';
+import 'package:tenfo/screens/signup/views/signup_not_available_page.dart';
+import 'package:tenfo/screens/signup/views/signup_phone_page.dart';
+import 'package:tenfo/services/http_service.dart';
+import 'package:tenfo/services/location_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 
 class SignupLocationPage extends StatefulWidget {
-  const SignupLocationPage({Key? key, required this.email,
-    required this.codigo, required this.registroActivadoToken}) : super(key: key);
+  const SignupLocationPage({Key? key, required this.universidadId}) : super(key: key);
 
-  final String email;
-  final String codigo;
-  final String registroActivadoToken;
+  final String universidadId;
 
   @override
   State<SignupLocationPage> createState() => _SignupLocationPageState();
@@ -27,9 +29,16 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
 
   SignupPermisosEstado _signupPermisosEstado = SignupPermisosEstado(
     isPermisoUbicacionAceptado: false,
+    isPermisoTelefonoContactosAceptado: false,
     isPermisoNotificacionesAceptado: false,
     isRequierePermisoNotificaciones: false,
   );
+
+  bool _enviandoUbicacion = false;
+
+  final LocationService _locationService = LocationService();
+  LocationServicePermissionStatus _permissionStatus = LocationServicePermissionStatus.loading;
+  LocationServicePosition? _locationServicePosition;
 
   @override
   void initState() {
@@ -37,19 +46,14 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
 
     _isNotificacionesPushHabilitado = false;
     _loadingNotificacionesPushHabilitado = true;
-    _showContenido();
+    _cargarNotificacionesPushEstado();
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget child = Scaffold(
+    return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        leading: BackButton(
-          onPressed: (){
-            _handleBack();
-          },
-        ),
       ),
       backgroundColor: Colors.white,
       body: _loadingNotificacionesPushHabilitado ? const Center(child: CircularProgressIndicator(),) : Padding(
@@ -62,9 +66,7 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
 
           Expanded(
             child: Center(child: SingleChildScrollView(
-              child: _isNotificacionesPushHabilitado
-                  ? _contenidoSinSolicitarNotificacionesPush()
-                  : _contenidoConSolicitarNotificacionesPush(),
+              child: _contenidoSolicitarUbicacionContactos(),
             ),),
           ),
 
@@ -73,47 +75,10 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
         ],),
       ),
     );
-
-    return WillPopScope(
-      child: child,
-      onWillPop: (){
-        _handleBack();
-        return Future.value(false);
-      },
-    );
-  }
-
-  void _handleBack(){
-    _showDialogCancelarRegistro();
-  }
-
-  void _showDialogCancelarRegistro() {
-    showDialog(context: context, builder: (context) {
-      return AlertDialog(
-        title: const Text("¿Estás seguro de que quieres cancelar el registro?"),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-                  builder: (context) => const WelcomePage()
-              ), (root) => false);
-            },
-            child: const Text('Eliminar registro', style: TextStyle(color: constants.redAviso),),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Continuar registro'),
-          ),
-        ],
-      );
-    });
   }
 
 
-  Future<void> _showContenido() async {
+  Future<void> _cargarNotificacionesPushEstado() async {
     try {
       NotificationSettings settings = await FirebaseMessaging.instance.getNotificationSettings();
       if(settings.authorizationStatus == AuthorizationStatus.authorized){
@@ -239,12 +204,73 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
     ], mainAxisAlignment: MainAxisAlignment.center,);
   }
 
+  Widget _contenidoSolicitarUbicacionContactos(){
+    return Column(children: [
+      Row(children: [
+        const Icon(Icons.location_on, size: 40, color: constants.blackGeneral,),
+        const SizedBox(width: 16,),
+        Expanded(child: Text(
+          'Es necesario permitir ubicación para ver actividades de tu ciudad y al crear tus actividades. '
+              'Tu ubicación siempre será privada y nunca será compartida con otros usuarios.',
+          textAlign: TextAlign.left,
+          style: TextStyle(
+            fontSize: 14.0,
+            color: Colors.grey[700],
+            height: 1.2,
+          ),
+        ),),
+      ], crossAxisAlignment: CrossAxisAlignment.start,),
+      const SizedBox(height: 24,),
+      Row(children: [
+        Container(
+          width: 40,
+          alignment: Alignment.center,
+          child: const Icon(Icons.contacts_outlined, size: 28, color: constants.blackGeneral,),
+        ),
+        const SizedBox(width: 16,),
+        Expanded(child: Text(
+          'Permite los contactos para poder sugerirte amigos en tu universidad y cocrear actividades fácilmente.',
+          textAlign: TextAlign.left,
+          style: TextStyle(
+            fontSize: 14.0,
+            color: Colors.grey[700],
+            height: 1.2,
+          ),
+        ),),
+      ], crossAxisAlignment: CrossAxisAlignment.start,),
+      const SizedBox(height: 24,),
+      Container(
+        constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: _enviandoUbicacion ? null : () => _habilitarUbicacion(),
+          child: const Text('Continuar'),
+          style: ElevatedButton.styleFrom(
+            shape: const StadiumBorder(),
+          ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+        ),
+      ),
+
+      if(_isAvailableBotonOmitir)
+        ...[
+          const SizedBox(height: 16,),
+          TextButton(
+            onPressed: _enviandoUbicacion ? null : () => _cargarUbicacion(),
+            child: const Text("Omitir este paso"),
+            style: TextButton.styleFrom(
+              textStyle: const TextStyle(fontSize: 12,),
+            ),
+          ),
+        ],
+    ], mainAxisAlignment: MainAxisAlignment.center,);
+  }
+
 
   Future<void> _habilitarUbicacion() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       _showSnackBar("Tienes los servicios de ubicación deshabilitados. Actívalo desde Ajustes.");
-      _habilitarNotificacionesPush(false);
+      _habilitarTelefonoContactos(false);
       return;
     }
 
@@ -252,18 +278,18 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        _habilitarNotificacionesPush(false);
+        _habilitarTelefonoContactos(false);
         return;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
       _showSnackBar("Los permisos están denegados. Permite la ubicación desde Ajustes en la app.");
-      _habilitarNotificacionesPush(false);
+      _habilitarTelefonoContactos(false);
       return;
     }
 
-    _habilitarNotificacionesPush(true);
+    _habilitarTelefonoContactos(true);
   }
 
   Future<void> _habilitarNotificacionesPush(bool isUbicacionHabilitado) async {
@@ -297,12 +323,103 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
     _continuarRegistro();
   }
 
+  Future<void> _habilitarTelefonoContactos(bool isUbicacionHabilitado) async {
+    bool permisoTelefonoContactos = false;
+
+    try {
+
+      // TODO : Buscar otro paquete para manejar permisos.
+
+      // No usar "readonly: true", esto genera un error que termina la app.
+      // permisoTelefonoContactos = await FlutterContacts.requestPermission(readonly: true);
+      permisoTelefonoContactos = await FlutterContacts.requestPermission();
+
+    } catch(e){
+      // Captura error, por si surge algun posible error con el paquete
+    }
+
+    if (!permisoTelefonoContactos || !isUbicacionHabilitado) {
+      _signupPermisosEstado.isPermisoUbicacionAceptado = isUbicacionHabilitado;
+      _signupPermisosEstado.isPermisoTelefonoContactosAceptado = permisoTelefonoContactos;
+
+      _isAvailableBotonOmitir = true;
+      setState(() {});
+      return;
+    }
+
+    _signupPermisosEstado.isPermisoUbicacionAceptado = true;
+    _signupPermisosEstado.isPermisoTelefonoContactosAceptado = true;
+
+    _cargarUbicacion();
+  }
+
+  Future<void> _cargarUbicacion() async {
+    _enviandoUbicacion = true;
+    setState(() {});
+
+    _permissionStatus = await _locationService.verificarUbicacion();
+    if(_permissionStatus == LocationServicePermissionStatus.permitted){
+
+      _locationServicePosition = await _locationService.obtenerUbicacion();
+      _verificarUbicacion();
+
+    } else {
+      // Si apreto "Omitir", puede tener la ubicacion no permitida
+
+      _enviandoUbicacion = false;
+      setState(() {});
+
+      _continuarRegistro();
+    }
+  }
+
+  Future<void> _verificarUbicacion() async {
+    setState(() {
+      _enviandoUbicacion = true;
+    });
+
+    var response = await HttpService.httpPost(
+      url: constants.urlRegistroVerificarUbicacion,
+      body: {
+        "ubicacion_latitud": _locationServicePosition?.latitude.toString() ?? "",
+        "ubicacion_longitud": _locationServicePosition?.longitude.toString() ?? "",
+        "universidad_id": widget.universidadId,
+      },
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+
+        _continuarRegistro();
+
+      } else {
+
+        if(datosJson['error_tipo'] == 'ubicacion_no_disponible'){
+
+          Navigator.pushReplacement(context, MaterialPageRoute(
+            builder: (context) => const SignupNotAvailablePage(
+              isUniversidadNoDisponible: false,
+            ),
+          ));
+
+        } else {
+          _showSnackBar("Se produjo un error inesperado");
+        }
+
+      }
+    }
+
+    setState(() {
+      _enviandoUbicacion = false;
+    });
+  }
+
   void _continuarRegistro(){
     Navigator.pushReplacement(context, MaterialPageRoute(
-        builder: (context) => SignupProfilePage(
-          email: widget.email,
-          codigo: widget.codigo,
-          registroActivadoToken: widget.registroActivadoToken,
+        builder: (context) => SignupPhonePage(
+          universidadId: widget.universidadId,
           signupPermisosEstado: _signupPermisosEstado,
         )
     ));

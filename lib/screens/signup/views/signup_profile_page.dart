@@ -16,12 +16,13 @@ import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/shared_preferences_keys.dart';
 
 class SignupProfilePage extends StatefulWidget {
-  const SignupProfilePage({Key? key, required this.email,
+  const SignupProfilePage({Key? key, required this.telefono,
     required this.codigo, required this.registroActivadoToken,
-    required this.signupPermisosEstado}) : super(key: key);
+    required this.universidadId, required this.signupPermisosEstado}) : super(key: key);
 
-  final String email;
+  final String telefono;
   final String codigo;
+  final String universidadId;
   final String registroActivadoToken;
   final SignupPermisosEstado signupPermisosEstado;
 
@@ -454,14 +455,15 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
     }
 
     var response = await HttpService.httpPost(
-      url: constants.urlRegistroUsuario,
+      url: constants.urlRegistroUsuarioConTelefono,
       body: {
         "nombre": nombre,
         "apellido": apellido,
         "nacimiento_fecha": nacimiento,
         "username": username,
         "contrasena": contrasena,
-        "email": widget.email,
+        "universidad_id": widget.universidadId,
+        "telefono": widget.telefono,
         "codigo": widget.codigo,
         "registro_activado_token": widget.registroActivadoToken,
         "firebase_token": firebaseToken ?? "",
@@ -488,10 +490,8 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
 
         if(datosJson['error_tipo'] == 'username_registrado'){
           _usuarioErrorText = 'El nombre de usuario no está disponible.';
-        } else if(datosJson['error_tipo'] == 'email_registrado'){
-          _showSnackBar("Se produjo un error inesperado");
-        } else if(datosJson['error_tipo'] == 'codigo_invitacion_invalido'){
-          _showDialogCodigoInvitacionInvalido();
+        } else if(datosJson['error_tipo'] == 'telefono_registrado'){
+          _showSnackBar("Se produjo un error inesperado con teléfono registrado");
         } else {
           _showSnackBar("Se produjo un error inesperado");
         }
@@ -501,31 +501,6 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
 
     setState(() {
       _enviandoRegistro = false;
-    });
-  }
-
-  void _showDialogCodigoInvitacionInvalido(){
-    showDialog(context: context, builder: (context){
-      return AlertDialog(
-        content: SingleChildScrollView(
-          child: Column(children: const [
-            Text("Lo sentimos, el código invitación introducido anteriormente, ya fue utilizado en estos momentos.\n\n"
-                "Tendrás que ingresar otro código de invitación o hacer el registro directamente.",
-              style: TextStyle(color: constants.blackGeneral, fontSize: 16, height: 1.3,),
-            ),
-          ], mainAxisSize: MainAxisSize.min,),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text("Entendido"),
-          ),
-        ],
-      );
-    }).then((value){
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-          builder: (context) => const WelcomePage()
-      ), (route) => false);
     });
   }
 
