@@ -378,6 +378,7 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
         ),
         const SizedBox(height: 16,),
 
+        /*
         Align(
           alignment: Alignment.centerLeft,
           child: RichText(
@@ -400,6 +401,7 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
           ),
         ),
         const SizedBox(height: 8,),
+        */
       ],),
     );
   }
