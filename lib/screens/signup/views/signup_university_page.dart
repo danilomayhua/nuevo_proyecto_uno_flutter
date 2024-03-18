@@ -83,10 +83,27 @@ class _SignupUniversityPageState extends State<SignupUniversityPage> {
                   text: "Al continuar, aceptas los ",
                   children: [
                     TextSpan(
-                      text: "Términos y Condiciones",
+                      text: "Términos",
                       style: const TextStyle(decoration: TextDecoration.underline,),
                       recognizer: TapGestureRecognizer()..onTap = () async {
                         String urlString = "https://tenfo.app/terminos.html";
+                        Uri url = Uri.parse(urlString);
+
+                        try {
+                          await launchUrl(url, mode: LaunchMode.externalApplication,);
+                        } catch (e){
+                          throw 'Could not launch $urlString';
+                        }
+                      },
+                    ),
+                    const TextSpan(
+                      text: " y ",
+                    ),
+                    TextSpan(
+                      text: "Política de Privacidad",
+                      style: const TextStyle(decoration: TextDecoration.underline,),
+                      recognizer: TapGestureRecognizer()..onTap = () async {
+                        String urlString = "https://tenfo.app/terminos.html#politica-privacidad";
                         Uri url = Uri.parse(urlString);
 
                         try {
