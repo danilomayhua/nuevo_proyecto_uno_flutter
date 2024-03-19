@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/models/usuario.dart';
@@ -23,6 +24,7 @@ import 'package:tenfo/screens/settings/views/settings_username_page.dart';
 import 'package:tenfo/screens/welcome/welcome_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({Key? key, required this.usuario}) : super(key: key);
@@ -150,7 +152,7 @@ class _SettingsPageState extends State<SettingsPage> {
             width: double.infinity,
           ),
 
-          const SizedBox(height: 23,),
+          const SizedBox(height: 24,),
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16,),
@@ -170,6 +172,50 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
 
+          const SizedBox(height: 40,),
+
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16,),
+            alignment: Alignment.center,
+            child: RichText(
+              text: TextSpan(
+                style: const TextStyle(color: constants.grey, fontSize: 12,),
+                children: [
+                  TextSpan(
+                    text: "Términos",
+                    style: const TextStyle(decoration: TextDecoration.underline,),
+                    recognizer: TapGestureRecognizer()..onTap = () async {
+                      String urlString = "https://tenfo.app/politica.html";
+                      Uri url = Uri.parse(urlString);
+
+                      try {
+                        await launchUrl(url, mode: LaunchMode.externalApplication,);
+                      } catch (e){
+                        throw 'Could not launch $urlString';
+                      }
+                    },
+                  ),
+                  const TextSpan(
+                    text: " y ",
+                  ),
+                  TextSpan(
+                    text: "Política de Privacidad",
+                    style: const TextStyle(decoration: TextDecoration.underline,),
+                    recognizer: TapGestureRecognizer()..onTap = () async {
+                      String urlString = "https://tenfo.app/politica.html#politica-privacidad";
+                      Uri url = Uri.parse(urlString);
+
+                      try {
+                        await launchUrl(url, mode: LaunchMode.externalApplication,);
+                      } catch (e){
+                        throw 'Could not launch $urlString';
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
           const SizedBox(height: 24,),
 
         ],),

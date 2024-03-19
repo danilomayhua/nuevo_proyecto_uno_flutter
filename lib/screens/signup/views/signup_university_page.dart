@@ -72,21 +72,21 @@ class _SignupUniversityPageState extends State<SignupUniversityPage> {
               },
             ),
 
-            const SizedBox(height: 48,),
+            const SizedBox(height: 40,),
 
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16,),
               alignment: Alignment.center,
               child: RichText(
                 text: TextSpan(
-                  style: const TextStyle(color: constants.grey, fontSize: 12,),
+                  style: const TextStyle(color: constants.blackGeneral, fontSize: 12,),
                   text: "Al continuar, aceptas los ",
                   children: [
                     TextSpan(
                       text: "Términos",
                       style: const TextStyle(decoration: TextDecoration.underline,),
                       recognizer: TapGestureRecognizer()..onTap = () async {
-                        String urlString = "https://tenfo.app/terminos.html";
+                        String urlString = "https://tenfo.app/politica.html";
                         Uri url = Uri.parse(urlString);
 
                         try {
@@ -103,7 +103,7 @@ class _SignupUniversityPageState extends State<SignupUniversityPage> {
                       text: "Política de Privacidad",
                       style: const TextStyle(decoration: TextDecoration.underline,),
                       recognizer: TapGestureRecognizer()..onTap = () async {
-                        String urlString = "https://tenfo.app/terminos.html#politica-privacidad";
+                        String urlString = "https://tenfo.app/politica.html#politica-privacidad";
                         Uri url = Uri.parse(urlString);
 
                         try {
