@@ -364,12 +364,14 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
       _verificarUbicacion();
 
     } else {
+      //_enviandoUbicacion = false;
+      //setState(() {});
+      //_continuarRegistro();
+
+
       // Si apreto "Omitir", puede tener la ubicacion no permitida
-
-      _enviandoUbicacion = false;
-      setState(() {});
-
-      _continuarRegistro();
+      // Si no tiene ubicacion permitida, _locationServicePosition es null
+      _verificarUbicacion();
     }
   }
 
@@ -384,6 +386,12 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
         "ubicacion_latitud": _locationServicePosition?.latitude.toString() ?? "",
         "ubicacion_longitud": _locationServicePosition?.longitude.toString() ?? "",
         "universidad_id": widget.universidadId,
+
+        // Envia datos para analizar comportamiento en historial
+        "permiso_ubicacion_aceptado": _signupPermisosEstado.isPermisoUbicacionAceptado ? "SI" : "NO",
+        "permiso_telefono_contactos_aceptado": _signupPermisosEstado.isPermisoTelefonoContactosAceptado ? "SI" : "NO",
+        "permiso_notificaciones_aceptado": _signupPermisosEstado.isPermisoNotificacionesAceptado ? "SI" : "NO",
+        "requiere_permiso_notificaciones": _signupPermisosEstado.isRequierePermisoNotificaciones ? "SI" : "NO",
       },
     );
 

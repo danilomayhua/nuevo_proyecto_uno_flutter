@@ -12,6 +12,8 @@ class HistorialUsuario {
 
   static const String _contactosSugerenciasInvitarAmigo = "/contactos-sugerencias/invitar-amigo";
 
+  static const String _perfilInvitarAmigo = "/perfil/invitar-amigo";
+
   static const String _seleccionarCrearTipo = "/crear/seleccionar-tipo";
 
   static const String _agregarFoto = "/agregar-foto";
@@ -19,6 +21,7 @@ class HistorialUsuario {
 
   static const String _actividadInvitarAmigo = "/actividad/invitar-amigo";
 
+  static const String _bandejaChatsNotificaciones = "/bandeja-chats/notificaciones-push";
   static const String _bandejaChatsNotificacionesActivar = "/bandeja-chats/notificaciones-push/activar";
 
 
@@ -84,6 +87,14 @@ class HistorialUsuario {
     };
   }
 
+  /// En Perfil, cuando presiona compartir
+  static Map<String, dynamic> getPerfilInvitarAmigo(){
+    return {
+      "evento": _perfilInvitarAmigo,
+      "datos_adicionales": {}
+    };
+  }
+
   /// En SeleccionarCrearTipo, cuando ingresa a la pantalla
   static Map<String, dynamic> getSeleccionarCrearTipo(){
     return {
@@ -129,6 +140,16 @@ class HistorialUsuario {
       "evento": _actividadInvitarAmigo,
       "datos_adicionales": {
         "actividad_id": actividadId,
+      }
+    };
+  }
+
+  /// En Mensajes, cuando aparece popup notificaciones push
+  static Map<String, dynamic> getBandejaChatsNotificaciones(bool isAceptado){
+    return {
+      "evento": _bandejaChatsNotificaciones,
+      "datos_adicionales": {
+        "permiso_notificaciones_aceptado": isAceptado ? "SI" : "NO",
       }
     };
   }

@@ -13,6 +13,7 @@ import 'package:tenfo/screens/signup/views/signup_picture_page.dart';
 import 'package:tenfo/screens/welcome/welcome_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
+import 'package:tenfo/utilities/historial_no_usuario.dart';
 import 'package:tenfo/utilities/shared_preferences_keys.dart';
 
 class SignupProfilePage extends StatefulWidget {
@@ -34,6 +35,8 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
 
   final PageController _pageController = PageController();
   int _pageCurrent = 0;
+
+  int _pasoVisto = 1;
 
   bool _enviandoNombreCompleto = false;
   final TextEditingController _nombreController = TextEditingController(text: '');
@@ -132,6 +135,8 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
         actions: [
           TextButton(
             onPressed: () {
+              _crearHistorial();
+
               Navigator.of(context).pop();
               Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
                   builder: (context) => const WelcomePage()
@@ -148,6 +153,35 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
         ],
       );
     });
+  }
+
+  void _crearHistorial(){
+    String pasoVisto = _pasoVisto.toString();
+
+    String nombre = _nombreController.text.trim();
+    String apellido = _apellidoController.text.trim();
+    String nacimiento = "";
+    String username = "";
+    bool isContrasenaCompletado = false;
+
+    if(_pasoVisto > 1){
+      nacimiento = _nacimientoDateTime.millisecondsSinceEpoch.toString();
+
+      if(_pasoVisto > 2){
+        username = _usuarioController.text.trim();
+        if(_contrasenaController.text != "") isContrasenaCompletado = true;
+      }
+    }
+
+    // Envia historial no usuario
+    _enviarHistorialNoUsuario(HistorialNoUsuario.getRegistroPerfilCancelar(
+      pasoVisto,
+      nombre.isEmpty ? null : nombre,
+      apellido.isEmpty ? null : apellido,
+      nacimiento.isEmpty ? null : nacimiento,
+      username.isEmpty ? null : username,
+      isContrasenaCompletado,
+    ));
   }
 
   Widget _contenidoNombreCompleto(){
@@ -223,6 +257,9 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
     setState(() {});
 
     if(_nombreErrorText == null && _apellidoErrorText == null){
+      // El valor tiene que ser el ultimo paso avanzado
+      if(_pasoVisto < 2) _pasoVisto = 2;
+
       _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
     }
   }
@@ -313,6 +350,9 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
 
   void _validarNacimiento(){
     if(_nacimientoFechaString != ""){
+      // El valor tiene que ser el ultimo paso avanzado
+      if(_pasoVisto < 3) _pasoVisto = 3;
+
       _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
     }
   }
@@ -610,6 +650,29 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
     );
   }
 
+
+  Future<void> _enviarHistorialNoUsuario(Map<String, dynamic> historialNoUsuario) async {
+    //setState(() {});
+
+    var response = await HttpService.httpPost(
+      url: constants.urlCrearHistorialNoUsuario,
+      body: {
+        "historiales_no_usuario": [historialNoUsuario],
+      },
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = await jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+        //
+      } else {
+        //_showSnackBar("Se produjo un error inesperado");
+      }
+    }
+
+    //setState(() {});
+  }
 
   void _showSnackBar(String texto){
     ScaffoldMessenger.of(context).removeCurrentSnackBar();

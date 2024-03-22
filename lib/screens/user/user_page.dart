@@ -20,6 +20,8 @@ import 'package:tenfo/screens/verificar_universidad/verificar_universidad_page.d
 import 'package:tenfo/screens/welcome/welcome_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
+import 'package:tenfo/utilities/historial_usuario.dart';
+import 'package:tenfo/utilities/share_utils.dart';
 import 'package:tenfo/utilities/shared_preferences_keys.dart';
 import 'package:tenfo/utilities/universidades.dart';
 import 'package:tenfo/widgets/dialog_enviar_sticker.dart';
@@ -417,27 +419,56 @@ class _UserPageState extends State<UserPage> {
                   ],
 
 
-                // Solo puede verificar si no tiene email
-                if(widget.isFromProfile && _usuarioSesion != null && _usuarioSesion!.email == null)
+                if(widget.isFromProfile && _usuarioSesion != null)
                   ...[
                     const SizedBox(height: 48,),
-                    Container(
-                      alignment: Alignment.center,
-                      constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
-                      child: OutlinedButton.icon(
-                        onPressed: (){
-                          _showDialogVerificarse();
-                        },
-                        icon: const IconUniversidadVerificada(size: 20, isEnabled: false,),
-                        label: const Text("Verifícate",
-                          style: TextStyle(fontSize: 14,),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          shape: const StadiumBorder(),
-                          primary: Colors.blueGrey,
+                    Row(children: [
+
+                      // Solo puede verificar si no tiene email
+                      if(_usuarioSesion!.email == null)
+                        ...[
+                          Container(
+                            alignment: Alignment.center,
+                            constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+                            child: OutlinedButton.icon(
+                              onPressed: (){
+                                _showDialogVerificarse();
+                              },
+                              icon: const IconUniversidadVerificada(size: 20, isEnabled: false,),
+                              label: const Text("Verifícate",
+                                style: TextStyle(fontSize: 14,),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                shape: const StadiumBorder(),
+                                primary: Colors.blueGrey,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16,),
+                        ],
+
+                      Container(
+                        alignment: Alignment.center,
+                        constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+                        child: OutlinedButton.icon(
+                          onPressed: (){
+                            ShareUtils.shareProfile(_usuarioSesion);
+
+                            // Envia historial del usuario
+                            _enviarHistorialUsuario(HistorialUsuario.getPerfilInvitarAmigo());
+                          },
+                          icon: const Icon(Icons.ios_share, size: 20,),
+                          label: const Text("Compartir",
+                            style: TextStyle(fontSize: 14,),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            shape: const StadiumBorder(),
+                            primary: Colors.blueGrey,
+                          ),
                         ),
                       ),
-                    ),
+
+                    ], mainAxisAlignment: MainAxisAlignment.center,),
                     const SizedBox(height: 16,),
                   ],
 
@@ -1453,6 +1484,33 @@ class _UserPageState extends State<UserPage> {
     setState(() {
       _enviandoFotoPerfil = false;
     });
+  }
+
+  Future<void> _enviarHistorialUsuario(Map<String, dynamic> historialUsuario) async {
+    //setState(() {});
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    var response = await HttpService.httpPost(
+      url: constants.urlCrearHistorialUsuarioActivo,
+      body: {
+        "historiales_usuario_activo": [historialUsuario],
+      },
+      usuarioSesion: usuarioSesion,
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = await jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+        //
+      } else {
+        //_showSnackBar("Se produjo un error inesperado");
+      }
+    }
+
+    //setState(() {});
   }
 
   void _showSnackBar(String texto){

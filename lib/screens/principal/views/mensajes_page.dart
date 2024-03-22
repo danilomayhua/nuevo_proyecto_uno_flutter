@@ -309,7 +309,21 @@ class _MensajesPageState extends State<MensajesPage> {
     try {
       NotificationSettings settings = await FirebaseMessaging.instance.getNotificationSettings();
       if(settings.authorizationStatus != AuthorizationStatus.authorized){
-        _isNotificacionesPushHabilitado = false;
+
+        // Permisos para iOS y para Android 13+
+        NotificationSettings settings = await FirebaseMessaging.instance.requestPermission();
+        if(settings.authorizationStatus != AuthorizationStatus.authorized){
+          _isNotificacionesPushHabilitado = false;
+
+          // Si los permisos están denegados, siempre va enviar historial
+
+          // Envia historial del usuario
+          _enviarHistorialUsuario(HistorialUsuario.getBandejaChatsNotificaciones(false));
+
+        } else {
+          // Envia historial del usuario
+          _enviarHistorialUsuario(HistorialUsuario.getBandejaChatsNotificaciones(true));
+        }
       }
     } catch(e){
       // Captura error, por si surge algun posible error con FirebaseMessaging

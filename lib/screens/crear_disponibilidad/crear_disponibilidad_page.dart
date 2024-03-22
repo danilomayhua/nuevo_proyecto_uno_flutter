@@ -59,7 +59,7 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
         ),
       ),
       backgroundColor: Colors.white,
-      body: Column(children: [
+      body: SafeArea(child: Column(children: [
         Expanded(child: SingleChildScrollView(
           child: _contenido(),
         )),
@@ -72,7 +72,7 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
           },
         ),
         const SizedBox(height: 16,),
-      ]),
+      ]),),
     );
   }
 
@@ -82,8 +82,9 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
         content: SingleChildScrollView(
           child: Column(children: const [
             Text("La visualización estará durante 48 horas solamente.\n\n"
-                "Solo las personas cercanas a tu ubicación que hayan creado en las últimas 48 horas, una actividad o una visualización, podrán verla.",
-              style: TextStyle(color: constants.blackGeneral,),
+                "Solo las personas cercanas a tu ubicación que hayan creado en las últimas 48 horas, una actividad o una visualización, podrán verla.\n\n"
+                "Puedes tener hasta 3 estados visibles a la vez. Si creas más de 3, el nuevo estado reemplazará al más antiguo automáticamente.",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
               textAlign: TextAlign.left,
             ),
           ], mainAxisSize: MainAxisSize.min,),

@@ -15,9 +15,12 @@ class ShareUtils {
     Share.share(textoCompartir);
   }
 
-  static Future<void> shareProfile() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+  static Future<void> shareProfile(UsuarioSesion? usuarioSesion) async {
+
+    if(usuarioSesion == null){
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+    }
 
     String textoCompartir = "https://tenfo.app/add-friend/${usuarioSesion.username}";
 

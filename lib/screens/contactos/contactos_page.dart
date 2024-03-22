@@ -70,7 +70,7 @@ class _ContactosPageState extends State<ContactosPage> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8,),
-            const Text("Agrega amigos para descubrir vínculos en común con personas en las actividades.",
+            const Text("Agrega amigos para cocrear actividades juntos y para ver amigos en común con personas en actividades.",
               style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
               textAlign: TextAlign.center,
             ),

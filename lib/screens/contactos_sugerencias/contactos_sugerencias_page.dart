@@ -211,7 +211,11 @@ class _ContactosSugerenciasPageState extends State<ContactosSugerenciasPage> {
           // Envia historial del usuario
           _enviarHistorialUsuario(HistorialUsuario.getContactosSugerenciasInvitarAmigo(phone?.number ?? ""));
 
-          ShareUtils.shareProfileWhatsappNumber(phone?.number ?? "");
+
+          // Elimina cualquier caracter que no sea un digito del numero
+          String? cleanedPhoneNumber = phone?.number.replaceAll(RegExp(r'[^\d]'), '');
+
+          ShareUtils.shareProfileWhatsappNumber(cleanedPhoneNumber ?? "");
         },
         child: const Text("Invitar", style: TextStyle(fontSize: 12)),
         style: OutlinedButton.styleFrom(
