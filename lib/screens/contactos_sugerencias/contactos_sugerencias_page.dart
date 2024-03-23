@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:tenfo/models/usuario.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/user/user_page.dart';
@@ -53,11 +55,26 @@ class _ContactosSugerenciasPageState extends State<ContactosSugerenciasPage> {
             const SizedBox(height: 16,),
             const Icon(Icons.contacts_outlined, size: 40, color: constants.grey,),
             const SizedBox(height: 24,),
-            Text("Permite los contactos desde Ajustes para poder sugerirte amigos y cocrear actividades fácilmente.",
+            Text(Platform.isIOS
+                ? "Permite los contactos para poder sugerirte amigos y cocrear actividades fácilmente."
+                : "Tenfo requiere acceso a la lista de contactos para poder sugerirte amigos. "
+                "Esto se envía a nuestros servidores para mostrarte las sugerencias de posibles amigos. No lo compartimos con terceros.",
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14.0,
                 color: Colors.grey[700],
+              ),
+            ),
+            const SizedBox(height: 24,),
+            Container(
+              constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => _habilitarTelefonoContactos(),
+                child: const Text('Aceptar'),
+                style: ElevatedButton.styleFrom(
+                  shape: const StadiumBorder(),
+                ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
               ),
             ),
             const SizedBox(height: 16,),
@@ -226,24 +243,39 @@ class _ContactosSugerenciasPageState extends State<ContactosSugerenciasPage> {
     );
   }
 
+  Future<void> _habilitarTelefonoContactos() async {
+    bool permisoTelefonoContactos = false;
+
+    try {
+
+      permisoTelefonoContactos = await FlutterContacts.requestPermission();
+
+    } catch(e){
+      // Captura error, por si surge algun posible error con el paquete
+    }
+
+    if(!permisoTelefonoContactos){
+      _showSnackBar("Los permisos están denegados. Permite los contactos desde Ajustes en la app.");
+      return;
+    }
+
+    _isPermisoTelefonoContactos = true;
+    _cargarTelefonoContactos();
+  }
+
   Future<void> _cargarTelefonoContactos() async {
     _loadingContactosSugerencias = true;
     setState(() {});
 
 
-    _isPermisoTelefonoContactos = false;
+    _isPermisoTelefonoContactos = true;
 
-    try {
-      // TODO : usar un paquete para manejar permisos (esto automaticamente pide permisos al ingresar a esta pantalla)
-      _isPermisoTelefonoContactos = await FlutterContacts.requestPermission();
-    } catch(e){
-      // Captura error, por si surge algun posible error con el paquete
-    }
+    final PermissionStatus permissionStatus = await Permission.contacts.status;
+    if(!permissionStatus.isGranted){
+      _isPermisoTelefonoContactos = false;
 
-    if(!_isPermisoTelefonoContactos){
       _loadingContactosSugerencias = false;
       setState(() {});
-
       return;
     }
 

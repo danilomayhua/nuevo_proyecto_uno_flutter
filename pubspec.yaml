@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.35+42
+version: 1.0.36+43
 
 environment:
   sdk: ">=2.16.0 <3.0.0"
@@ -57,6 +57,7 @@ dependencies:
   flutter_contacts: 1.1.6
   # La ultima version compatible de intl_phone_number_input (0.7.1) genera un error al compilar
   intl_phone_number_input: 0.7.0+2
+  permission_handler: ^11.0.1
 
 dev_dependencies:
   flutter_test:
