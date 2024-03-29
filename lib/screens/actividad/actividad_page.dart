@@ -10,11 +10,13 @@ import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/chat_solicitudes/chat_solicitudes_page.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/screens/user/user_page.dart';
+import 'package:tenfo/screens/welcome/welcome_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/historial_usuario.dart';
 import 'package:tenfo/utilities/intereses.dart';
 import 'package:tenfo/utilities/share_utils.dart';
+import 'package:tenfo/utilities/shared_preferences_keys.dart';
 import 'package:tenfo/widgets/actividad_boton_entrar.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,13 +24,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ActividadPage extends StatefulWidget {
   ActividadPage({Key? key, required this.actividad, this.reload = true,
     this.creadoresPendientes = const [], this.creadoresPendientesExternosCodigo = const [],
-    this.onChangeIngreso}) : super(key: key);
+    this.onChangeIngreso,
+    this.invitacionCodigo, this.routeInvitacionCreador,}) : super(key: key);
 
-  Actividad actividad;
+  Actividad? actividad;
   final bool reload;
   final List<Usuario> creadoresPendientes;
   final List<String> creadoresPendientesExternosCodigo;
   final void Function(Actividad)? onChangeIngreso;
+  final String? invitacionCodigo;
+  final String? routeInvitacionCreador;
 
   @override
   State<ActividadPage> createState() => _ActividadPageState();
@@ -51,16 +56,58 @@ class _ActividadPageState extends State<ActividadPage> {
   List<Usuario> _creadoresPendientes = [];
   List<String> _creadoresPendientesExternosCodigo = [];
 
+  String? _invitacionCodigo;
+  bool _enviandoGenerarInvitacionCreador = false;
+
+  bool _isFromInvitacionCreador = false;
+
   @override
   void initState() {
     super.initState();
 
     _creadoresPendientes = widget.creadoresPendientes;
     _creadoresPendientesExternosCodigo = widget.creadoresPendientesExternosCodigo;
+    _invitacionCodigo = widget.invitacionCodigo;
+
+
+    if(widget.actividad == null){
+      // Si widget.actividad es nulo, tiene que enviar widget.routeInvitacionCreador
+      _loadingActividad = true;
+      _isFromInvitacionCreador = true;
+
+      // Verifica sesion siempre que viene desde un route (deep linking)
+      _verificarSesion();
+
+      // Despues de verificar sesion, ejecutar lo de abajo
+
+      return;
+    }
+
 
     if(widget.reload){
-      _cargarActividad();
+      _cargarActividad(null);
     }
+
+    SharedPreferences.getInstance().then((prefs){
+      _usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+      setState(() {});
+    });
+  }
+
+  Future<void> _verificarSesion() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getBool(SharedPreferencesKeys.isLoggedIn) ?? false;
+
+    if(!isLoggedIn){
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+          builder: (context) => const WelcomePage()
+      ), (route) => false);
+
+      return;
+    }
+
+
+    _cargarActividad(widget.routeInvitacionCreador ?? "");
 
     SharedPreferences.getInstance().then((prefs){
       _usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
@@ -80,16 +127,16 @@ class _ActividadPageState extends State<ActividadPage> {
               _compartirActividad();
             },
           ),*/
-          if(widget.actividad.getIsCreador(_usuarioSesion != null ? _usuarioSesion!.id : "" ) && widget.actividad.privacidadTipo == ActividadPrivacidadTipo.PRIVADO)
+          if(widget.actividad!.getIsCreador(_usuarioSesion != null ? _usuarioSesion!.id : "" ) && widget.actividad!.privacidadTipo == ActividadPrivacidadTipo.PRIVADO)
             IconButton(
               onPressed: (){
                 Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => ChatSolicitudesPage(actividad: widget.actividad),
+                  builder: (context) => ChatSolicitudesPage(actividad: widget.actividad!),
                 ));
               },
               icon: const Icon(Icons.group_add_outlined),
             ),
-          if(widget.actividad.isAutor)
+          if(widget.actividad!.isAutor)
             PopupMenuButton<_PopupMenuOption>(
               onSelected: (_PopupMenuOption result) {
                 if(result == _PopupMenuOption.eliminarActividad) {
@@ -103,7 +150,7 @@ class _ActividadPageState extends State<ActividadPage> {
                 ),
               ],
             ),
-          if(!widget.actividad.isAutor)
+          if(!widget.actividad!.isAutor)
             PopupMenuButton<_PopupMenuOption>(
               onSelected: (_PopupMenuOption result) {
                 if(result == _PopupMenuOption.reportarActividad) {
@@ -136,18 +183,18 @@ class _ActividadPageState extends State<ActividadPage> {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Row(children: [
-                Text(Intereses.getNombre(widget.actividad.interes),
+                Text(Intereses.getNombre(widget.actividad!.interes),
                   style: const TextStyle(color: constants.blackGeneral, fontSize: 12,),
                 ),
                 const SizedBox(width: 2,),
-                Intereses.getIcon(widget.actividad.interes, size: 16,),
+                Intereses.getIcon(widget.actividad!.interes, size: 16,),
               ], mainAxisSize: MainAxisSize.min,),
             ),
             const Spacer(),
             RichText(
               text: TextSpan(
                 style: const TextStyle(color: constants.grey, fontSize: 14,),
-                text: widget.actividad.getPrivacidadTipoString(),
+                text: widget.actividad!.getPrivacidadTipoString(),
                 children: [
                   WidgetSpan(
                     alignment: PlaceholderAlignment.middle,
@@ -166,7 +213,7 @@ class _ActividadPageState extends State<ActividadPage> {
                 ],
               ),
             ),
-            Text(" • " + widget.actividad.fecha,
+            Text(" • " + widget.actividad!.fecha,
               style: TextStyle(color: constants.greyLight, fontSize: 14,),
             ),
             const SizedBox(width: 16,),
@@ -178,7 +225,7 @@ class _ActividadPageState extends State<ActividadPage> {
             constraints: const BoxConstraints(minHeight: 40),
             alignment: Alignment.centerLeft,
             padding: const EdgeInsets.symmetric(horizontal: 16,),
-            child: Text(widget.actividad.titulo,
+            child: Text(widget.actividad!.titulo,
               style: const TextStyle(color: constants.blackGeneral, fontSize: 18,
                 height: 1.3, fontWeight: FontWeight.w500,),
             ),
@@ -199,9 +246,9 @@ class _ActividadPageState extends State<ActividadPage> {
             alignment: Alignment.centerRight,
             padding: EdgeInsets.symmetric(horizontal: 16,),
             child: ActividadBotonEntrar(
-              actividad: widget.actividad,
+              actividad: widget.actividad!,
               onChangeIngreso: (){
-                if(widget.onChangeIngreso != null) widget.onChangeIngreso!(widget.actividad);
+                if(widget.onChangeIngreso != null) widget.onChangeIngreso!(widget.actividad!);
               },
             ),
           ),
@@ -213,26 +260,26 @@ class _ActividadPageState extends State<ActividadPage> {
             child: Text("Cocreadores:", style: TextStyle(color: constants.blackGeneral),),
           ),
           ListView.builder(
-            itemCount: widget.actividad.creadores.length,
+            itemCount: widget.actividad!.creadores.length,
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) => ListTile(
               dense: true,
-              title: Text(widget.actividad.creadores[index].nombre,
+              title: Text(widget.actividad!.creadores[index].nombre,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              subtitle: Text(widget.actividad.creadores[index].username,
+              subtitle: Text(widget.actividad!.creadores[index].username,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               leading: CircleAvatar(
                 backgroundColor: constants.greyBackgroundImage,
-                backgroundImage: CachedNetworkImageProvider(widget.actividad.creadores[index].foto),
+                backgroundImage: CachedNetworkImageProvider(widget.actividad!.creadores[index].foto),
               ),
               onTap: (){
                 Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => UserPage(usuario: widget.actividad.creadores[index],)),
+                  MaterialPageRoute(builder: (context) => UserPage(usuario: widget.actividad!.creadores[index],)),
                 );
               },
             ),
@@ -240,7 +287,7 @@ class _ActividadPageState extends State<ActividadPage> {
 
           const SizedBox(height: 16,),
 
-          if(widget.actividad.isAutor && (_creadoresPendientes.isNotEmpty || _creadoresPendientesExternosCodigo.isNotEmpty))
+          if(widget.actividad!.isAutor && (_creadoresPendientes.isNotEmpty || _creadoresPendientesExternosCodigo.isNotEmpty))
             Column(children: [
               const Padding(
                 padding: EdgeInsets.only(left: 16, top: 12, right: 16, bottom: 0,),
@@ -303,13 +350,59 @@ class _ActividadPageState extends State<ActividadPage> {
                     onTap: (){
                       ShareUtils.shareActivityCocreatorCode(
                         _creadoresPendientesExternosCodigo[index],
-                        widget.actividad.titulo,
+                        widget.actividad!.titulo,
                       );
                     },
                   ),
                 ),
               const SizedBox(height: 16,),
             ], crossAxisAlignment: CrossAxisAlignment.start,),
+
+          if(widget.actividad!.isAutor)
+            Align(
+              alignment: Alignment.center,
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 24,),
+                constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+                child: ElevatedButton(
+                  onPressed: _enviandoGenerarInvitacionCreador ? null : () => _compartirInvitacionCreador(),
+                  child: const Text("Agregar cocreadores"),
+                  style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                  ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+                ),
+              ),
+            ),
+
+          if(_isFromInvitacionCreador && !widget.actividad!.getIsCreador(_usuarioSesion?.id ?? "" ) && !_isCreadorPendiente)
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: constants.grey),
+                color: Colors.white,
+              ),
+              margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 16,),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+              child: Column(children: [
+                const Text("Fuiste invitado como cocreador de la actividad. "
+                    "Tienes que confirmar para ser parte y tener los permisos de admin.",
+                  style: TextStyle(color: constants.grey, fontSize: 12,),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16,),
+                OutlinedButton(
+                  onPressed: _enviandoConfirmarCocreador ? null : () => _confirmarCocreadorInvitacion(),
+                  child: const Text("Confirmar", style: TextStyle(fontWeight: FontWeight.normal,),),
+                  style: OutlinedButton.styleFrom(
+                    primary: Colors.white,
+                    backgroundColor: constants.blueGeneral,
+                    //onSurface: constants.grey,
+                    side: const BorderSide(color: Colors.transparent, width: 0.5,),
+                    shape: const StadiumBorder(),
+                  ),
+                ),
+              ],),
+            ),
 
           if(_isCreadorPendiente)
             Container(
@@ -491,7 +584,7 @@ class _ActividadPageState extends State<ActividadPage> {
     });
   }
 
-  Future<void> _cargarActividad() async {
+  Future<void> _cargarActividad(String? invitacionCreador) async {
     setState(() {
       _loadingActividad = true;
     });
@@ -499,11 +592,21 @@ class _ActividadPageState extends State<ActividadPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
 
+    Map<String, String> queryParams = {};
+    if(invitacionCreador != null){
+      // Ingreso desde routeInvitacionCreador
+      queryParams = {
+        "invitacion_codigo": invitacionCreador
+      };
+    } else {
+      queryParams = {
+        "actividad_id": widget.actividad!.id
+      };
+    }
+
     var response = await HttpService.httpGet(
       url: constants.urlVerActividad,
-      queryParams: {
-        "actividad_id": widget.actividad.id
-      },
+      queryParams: queryParams,
       usuarioSesion: usuarioSesion,
     );
 
@@ -571,7 +674,9 @@ class _ActividadPageState extends State<ActividadPage> {
 
         _isCreadorPendiente = datosJson['data']['is_creador_pendiente'];
 
-        if(widget.onChangeIngreso != null) widget.onChangeIngreso!(widget.actividad);
+        _invitacionCodigo = datosJson['data']['invitacion_codigo'];
+
+        if(widget.onChangeIngreso != null) widget.onChangeIngreso!(widget.actividad!);
 
       } else {
 
@@ -604,7 +709,7 @@ class _ActividadPageState extends State<ActividadPage> {
     var response = await HttpService.httpPost(
       url: constants.urlEliminarActividad,
       body: {
-        "actividad_id": widget.actividad.id
+        "actividad_id": widget.actividad!.id
       },
       usuarioSesion: usuarioSesion,
     );
@@ -641,7 +746,7 @@ class _ActividadPageState extends State<ActividadPage> {
     var response = await HttpService.httpPost(
       url: constants.urlReportarActividad,
       body: {
-        "actividad_id": widget.actividad.id
+        "actividad_id": widget.actividad!.id
       },
       usuarioSesion: usuarioSesion,
     );
@@ -678,7 +783,7 @@ class _ActividadPageState extends State<ActividadPage> {
     var response = await HttpService.httpPost(
       url: constants.urlActividadConfirmarCocreador,
       body: {
-        "actividad_id": widget.actividad.id
+        "actividad_id": widget.actividad!.id
       },
       usuarioSesion: usuarioSesion,
     );
@@ -688,10 +793,116 @@ class _ActividadPageState extends State<ActividadPage> {
 
       if(datosJson['error'] == false){
 
-        _cargarActividad();
+        _cargarActividad(null);
 
       } else {
         _showSnackBar("Se produjo un error inesperado");
+      }
+    }
+
+    setState(() {
+      _enviandoConfirmarCocreador = false;
+    });
+  }
+
+  void _compartirInvitacionCreador(){
+    /*if(_creadores.length >= 3){
+      _showSnackBar("Solo se pueden añadir tres(3) cocreadores");
+      return;
+    }*/
+
+    _enviandoGenerarInvitacionCreador = true;
+
+    if(_invitacionCodigo != null){
+
+      ShareUtils.shareActivityCocreator(_invitacionCodigo!);
+
+      // Envia historial del usuario
+      _enviarHistorialUsuario(HistorialUsuario.getActividadCocreadoresInvitarAmigo(widget.actividad!.id));
+
+      _enviandoGenerarInvitacionCreador = false;
+      setState(() {});
+
+    } else {
+      _generarInvitacionCreador();
+    }
+  }
+
+  Future<void> _generarInvitacionCreador() async {
+    setState(() {
+      _enviandoGenerarInvitacionCreador = true;
+    });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    var response = await HttpService.httpPost(
+      url: constants.urlActividadCrearInvitacionCreadorActividadCreada,
+      body: {
+        "actividad_id": widget.actividad!.id
+      },
+      usuarioSesion: usuarioSesion,
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+
+        _invitacionCodigo = datosJson['data']['invitacion_codigo'];
+
+        ShareUtils.shareActivityCocreator(_invitacionCodigo!);
+
+        // Envia historial del usuario
+        _enviarHistorialUsuario(HistorialUsuario.getActividadCocreadoresInvitarAmigo(widget.actividad!.id));
+
+      } else {
+
+        if(datosJson['error_tipo'] == 'limite_codigos'){
+          _showSnackBar("Ya has generado el máximo de códigos permitidos para hoy.");
+        } else {
+          _showSnackBar("Se produjo un error inesperado");
+        }
+
+      }
+    }
+
+    setState(() {
+      _enviandoGenerarInvitacionCreador = false;
+    });
+  }
+
+  Future<void> _confirmarCocreadorInvitacion() async {
+    setState(() {
+      _enviandoConfirmarCocreador = true;
+    });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    var response = await HttpService.httpPost(
+      url: constants.urlActividadConfirmarCocreadorInvitacion,
+      body: {
+        "invitacion_codigo": widget.routeInvitacionCreador
+      },
+      usuarioSesion: usuarioSesion,
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+
+        _cargarActividad(null);
+
+      } else {
+
+        if(datosJson['error_tipo'] == 'limite_creadores'){
+          _showSnackBar("Esta actividad alcanzó el límite de cocreadores.");
+        } else {
+          _showSnackBar("Se produjo un error inesperado");
+        }
+
       }
     }
 

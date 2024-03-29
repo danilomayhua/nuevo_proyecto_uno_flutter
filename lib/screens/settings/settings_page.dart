@@ -21,6 +21,7 @@ import 'package:tenfo/screens/settings/views/settings_nombre_page.dart';
 import 'package:tenfo/screens/settings/views/settings_privacidad_page.dart';
 import 'package:tenfo/screens/settings/views/settings_telefono_page.dart';
 import 'package:tenfo/screens/settings/views/settings_username_page.dart';
+import 'package:tenfo/screens/signup/views/signup_friends_page.dart';
 import 'package:tenfo/screens/welcome/welcome_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
@@ -38,6 +39,20 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
 
   bool _enviandoCerrarSesion = false;
+
+  bool _isAdmin = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    SharedPreferences.getInstance().then((prefs){
+      UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+      _isAdmin = usuarioSesion.isAdmin;
+
+      setState(() {});
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +96,14 @@ class _SettingsPageState extends State<SettingsPage> {
               ));
             }, color: constants.blueGeneral,),
           */
+
+          // Es solo para probar que esta pantalla ande bien
+          if(_isAdmin)
+            _buildFila(titulo: "Agregar amigos", onTap: () async {
+              Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => const SignupFriendsPage()
+              ));
+            }, color: constants.blueGeneral,),
 
           _buildFila(titulo: "Descripción", onTap: () async {
             Navigator.push(context, MaterialPageRoute(

@@ -62,11 +62,14 @@ const String urlReportarActividad = "/api/actividad/reportar";
 const String urlActividadSugerenciasTitulo = "/api/actividad/sugerencias-crear-actividad";
 const String urlActividadBuscadorCocreador = "/api/actividad/buscador-agregar-cocreador";
 const String urlActividadCodigoCocreadorExterno = "/api/actividad/codigo-cocreador-externo";
+const String urlActividadCrearInvitacionCreador = "/api/actividad/crear-invitacion-creador";
+const String urlActividadCrearInvitacionCreadorActividadCreada = "/api/actividad/crear-invitacion-creador-actividad-creada";
 
 const String urlActividadUnirse = "/api/actividad/unirse";
 const String urlActividadCancelarSolicitud = "/api/actividad/cancelar-solicitud-unirse";
 const String urlActividadAceptarSolicitud = "/api/actividad/aceptar-solicitud-unirse";
 const String urlActividadConfirmarCocreador = "/api/actividad/confirmar-cocreador";
+const String urlActividadConfirmarCocreadorInvitacion = "/api/actividad/confirmar-cocreador-invitacion";
 const String urlActividadSolicitudes = "/api/actividad/solicitudes";
 
 const String urlCrearDisponibilidad = "/api/disponibilidad/crear";

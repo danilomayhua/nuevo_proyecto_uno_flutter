@@ -7,6 +7,7 @@ class HistorialUsuario {
   static const String _crearActividadBuscador = "/crear-actividad/buscador";
   static const String _crearActividadBuscadorCodigoInformacion = "/crear-actividad/buscador/codigo-informacion";
   static const String _crearActividadBuscadorResultado = "/crear-actividad/buscador/resultado";
+  static const String _crearActividadCocreadoresInvitarAmigo = "/crear-actividad/cocreadores-invitar-amigo";
 
   static const String _contactosInvitarAmigo = "/contactos/invitar-amigo";
 
@@ -20,6 +21,7 @@ class HistorialUsuario {
   static const String _agregarFotoOmitir = "/agregar-foto/omitir";
 
   static const String _actividadInvitarAmigo = "/actividad/invitar-amigo";
+  static const String _actividadCocreadoresInvitarAmigo = "/actividad/cocreadores-invitar-amigo";
 
   static const String _bandejaChatsNotificaciones = "/bandeja-chats/notificaciones-push";
   static const String _bandejaChatsNotificacionesActivar = "/bandeja-chats/notificaciones-push/activar";
@@ -69,6 +71,16 @@ class HistorialUsuario {
     };
   }
 
+  /// En CrearActividad, cuando obtiene resultado del buscador de cocreador
+  static Map<String, dynamic> getCrearActividadCocreadoresInvitarAmigo(String numero){
+    return {
+      "evento": _crearActividadCocreadoresInvitarAmigo,
+      "datos_adicionales": {
+        "telefono_contacto_numero" : numero,
+      }
+    };
+  }
+
   /// En Contactos, cuando invita a un amigo
   static Map<String, dynamic> getContactosInvitarAmigo(){
     return {
@@ -77,12 +89,13 @@ class HistorialUsuario {
     };
   }
 
-  /// En ContactosSugerencias, cuando invita a un amigo
-  static Map<String, dynamic> getContactosSugerenciasInvitarAmigo(String numero){
+  /// En ContactosSugerencias o en SignupFriends, cuando invita a un amigo
+  static Map<String, dynamic> getContactosSugerenciasInvitarAmigo(String numero, {bool isFromSignup = false}){
     return {
       "evento": _contactosSugerenciasInvitarAmigo,
       "datos_adicionales": {
         "telefono_contacto_numero" : numero,
+        "enviado_desde": isFromSignup ? "registro" : "agregar-amigos",
       }
     };
   }
@@ -138,6 +151,16 @@ class HistorialUsuario {
   static Map<String, dynamic> getActividadInvitarAmigo(String actividadId){
     return {
       "evento": _actividadInvitarAmigo,
+      "datos_adicionales": {
+        "actividad_id": actividadId,
+      }
+    };
+  }
+
+  /// En Actividad, cuando invita a un amigo a cocreadores
+  static Map<String, dynamic> getActividadCocreadoresInvitarAmigo(String actividadId){
+    return {
+      "evento": _actividadCocreadoresInvitarAmigo,
       "datos_adicionales": {
         "actividad_id": actividadId,
       }

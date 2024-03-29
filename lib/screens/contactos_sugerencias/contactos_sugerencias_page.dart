@@ -29,6 +29,8 @@ class _ContactosSugerenciasPageState extends State<ContactosSugerenciasPage> {
   List<Contact> _telefonoContactos = [];
   List<Contact> _filteredTelefonoContactos = [];
 
+  List<String> _telefonosE164 = [];
+
   List<Usuario> _sugerencias = [];
 
   bool _loadingContactosSugerencias = false;
@@ -99,6 +101,7 @@ class _ContactosSugerenciasPageState extends State<ContactosSugerenciasPage> {
 
           return _buildTelefonoContacto(_filteredTelefonoContactos[index - _sugerencias.length - 2]);
         },
+        padding: const EdgeInsets.only(bottom: 24,),
       ),
     );
   }
@@ -235,7 +238,7 @@ class _ContactosSugerenciasPageState extends State<ContactosSugerenciasPage> {
           ShareUtils.shareProfileWhatsappNumber(cleanedPhoneNumber ?? "");
         },
         child: const Text("Invitar", style: TextStyle(fontSize: 12)),
-        style: OutlinedButton.styleFrom(
+        style: ElevatedButton.styleFrom(
           shape: const StadiumBorder(),
           padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8,),
         ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
@@ -293,35 +296,43 @@ class _ContactosSugerenciasPageState extends State<ContactosSugerenciasPage> {
     }
 
 
-    List<String> listaTelefonosE164 = [];
+    List<Future<void>> futures = [];
 
     for (var element in _telefonoContactos) {
       Phone? phone = element.phones.isNotEmpty ? element.phones.first : null;
 
-      try {
-        // TODO : se demora segundos en formatear todos los numeros (ver como mejorar)
-
-        // De momento solo permite registros en Argentina, asi que por defecto la region es "AR"
-        PhoneNumber parsedPhoneNumber = await PhoneNumber.getRegionInfoFromPhoneNumber(phone?.number ?? "", 'AR');
-
-        String? telefonoE164 = parsedPhoneNumber.phoneNumber; // Devuelve en formato E.164, transforma el "15" a "9"
-
-        if(telefonoE164 != null){
-          if (telefonoE164.startsWith("+54")) {
-            if (!telefonoE164.startsWith("+549")) {
-              telefonoE164 = telefonoE164.replaceFirst("+54", "+549");
-            }
-          }
-
-          listaTelefonosE164.add(telefonoE164);
-        }
-
-      } catch (e) {
-        // Error al formatear numero
+      if (phone != null) {
+        Future<void> future = _formatPhoneNumber(phone.number);
+        futures.add(future);
       }
     }
 
-    _cargarSugerencias(listaTelefonosE164);
+    // Ejecuta _formatPhoneNumber en todos los numeros simultaneamente
+    await Future.wait(futures);
+
+    _cargarSugerencias(_telefonosE164);
+  }
+
+  Future<void> _formatPhoneNumber(String phoneNumber) async {
+    try {
+      // De momento solo permite registros en Argentina, asi que por defecto la region es "AR"
+      PhoneNumber parsedPhoneNumber = await PhoneNumber.getRegionInfoFromPhoneNumber(phoneNumber, 'AR');
+
+      String? telefonoE164 = parsedPhoneNumber.phoneNumber; // Devuelve en formato E.164, transforma el "15" a "9"
+
+      if(telefonoE164 != null){
+        if (telefonoE164.startsWith("+54")) {
+          if (!telefonoE164.startsWith("+549")) {
+            telefonoE164 = telefonoE164.replaceFirst("+54", "+549");
+          }
+        }
+
+        _telefonosE164.add(telefonoE164);
+      }
+
+    } catch (e) {
+      // Error al formatear numero
+    }
   }
 
   Future<void> _cargarSugerencias(List<String> telefonoContactosNumero) async {

@@ -44,6 +44,26 @@ class ShareUtils {
     }
   }
 
+  static Future<void> shareActivityCocreatorWhatsappNumber(String numberE164, String invitacionCodigo) async {
+    String textoCompartir = "Unite a mi actividad en Tenfo: https://tenfo.app/activity-creator/$invitacionCodigo";
+
+    String urlString = "https://wa.me/${numberE164}?text=${Uri.encodeFull(textoCompartir)}";
+
+    Uri url = Uri.parse(urlString);
+
+    try {
+      await launchUrl(url, mode: LaunchMode.externalApplication,);
+    } catch (e){
+      throw 'Could not launch $urlString';
+    }
+  }
+
+  static Future<void> shareActivityCocreator(String invitacionCodigo) async {
+    String textoCompartir = "Unite a mi actividad en Tenfo: https://tenfo.app/activity-creator/$invitacionCodigo";
+
+    Share.share(textoCompartir);
+  }
+
   static void shareActivity(String activityTitle) async {
     String textoCompartir = "Ingresá a esta actividad en Tenfo:\n\n"
         "$activityTitle\n\n\n"

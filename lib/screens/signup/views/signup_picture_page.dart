@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/models/signup_permisos_estado.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
+import 'package:tenfo/screens/signup/views/signup_friends_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/historial_usuario.dart';
@@ -77,17 +78,14 @@ class _SignupPicturePageState extends State<SignupPicturePage> {
           child: Column(children: [
             const SizedBox(height: 16,),
 
-            const Text("Foto de perfil",
+            const Text("Bienvenido a Tenfo",
               style: TextStyle(color: constants.blackGeneral, fontSize: 24,),
             ),
             const SizedBox(height: 24,),
-            Align(
+            const Align(
               alignment: Alignment.centerLeft,
-              // TODO : el texto es incorrecto. No hay funciones para desbloquear al poner foto.
-              child: Text(widget.isFromSignup
-                  ? "Bienvenido a Tenfo. Vamos a completar tu perfil: ¡Agrega tu foto de perfil!"
-                  : "Agrega tu foto para completar tu perfil y desbloquear nuevas funciones.",
-                style: const TextStyle(color: constants.grey,),
+              child: Text("Vamos a completar tu perfil: ¡Agrega tu foto de perfil!",
+                style: TextStyle(color: constants.grey,),
                 textAlign: TextAlign.left,
               ),
             ),
@@ -253,7 +251,12 @@ class _SignupPicturePageState extends State<SignupPicturePage> {
   }
 
   void _continuarRegistro(){
-    if(widget.isFromSignup){
+
+    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+        builder: (context) => const SignupFriendsPage()
+    ), (root) => false);
+
+    /*if(widget.isFromSignup){
 
       Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
           builder: (context) => const PrincipalPage(principalPageView: PrincipalPageView.home, isFromSignup: true,)
@@ -265,7 +268,7 @@ class _SignupPicturePageState extends State<SignupPicturePage> {
           builder: (context) => const PrincipalPage()
       ), (root) => false);
 
-    }
+    }*/
   }
 
   Future<void> _enviarHistorialUsuario(Map<String, dynamic> historialUsuario) async {

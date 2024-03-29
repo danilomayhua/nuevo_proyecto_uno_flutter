@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:tenfo/models/actividad.dart';
 import 'package:tenfo/models/actividad_requisito.dart';
 import 'package:tenfo/models/actividad_sugerencia_titulo.dart';
@@ -50,10 +52,18 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
   List<UsuarioCocreadorPendiente> _creadores = [];
   List<Usuario> _creadoresBusqueda = [];
+  String _textoBusqueda = "";
   bool _loadingCreadoresBusqueda = false;
   bool _dialogCreadoresIsOpen = false;
   Timer? _timer;
   bool _enviandoCrearInvitacion = false;
+
+  List<Contact> _telefonoContactos = [];
+  List<Contact> _filteredTelefonoContactos = [];
+
+  String? _invitacionCodigo;
+  bool _enviandoGenerarInvitacionCodigo = false;
+  String _numeroGenerarInvitacionCodigo = "";
 
   final List<String> _stringActividadTipo = ["Público","Privado","Requisitos"];
   ActividadTipo? _actividadTipo = ActividadTipo.privado;
@@ -126,6 +136,9 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         usuario: widget.cocreadorUsuario,
       ));
     }
+
+    _cargarTelefonoContactos();
+    _buscarUsuario("", setState);
   }
 
   @override
@@ -152,7 +165,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         ),
       ),
       backgroundColor: Colors.white,
-      body: Column(children: [
+      body: SafeArea(child: Column(children: [
         Expanded(child: PageView(
           controller: _pageController,
           physics: const NeverScrollableScrollPhysics(),
@@ -163,21 +176,22 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
             SingleChildScrollView(
               child: contenidoUno(),
             ),
-            SingleChildScrollView(
-              child: contenidoDos(),
-            ),
+            contenidoDos(),
           ],
         )),
-        GestureDetector(
-          child: const Text("¿Quién podrá ver esta actividad?",
-            style: TextStyle(color: constants.grey, fontSize: 12, decoration: TextDecoration.underline,),
-          ),
-          onTap: (){
-            _showDialogAyudaActividadVisible();
-          },
-        ),
-        const SizedBox(height: 16,),
-      ]),
+        if(_pageCurrent == 0)
+          ...[
+            GestureDetector(
+              child: const Text("¿Quién podrá ver esta actividad?",
+                style: TextStyle(color: constants.grey, fontSize: 12, decoration: TextDecoration.underline,),
+              ),
+              onTap: (){
+                _showDialogAyudaActividadVisible();
+              },
+            ),
+            const SizedBox(height: 8,),
+          ],
+      ]),),
     );
 
     return WillPopScope(
@@ -335,8 +349,8 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         const SizedBox(height: 24,),
 
         Row(children: [
-          const Text("¿A qué interés pertenece?", textAlign: TextAlign.left,
-            style: TextStyle(color: constants.blackGeneral,),
+          const Text("Interés:", textAlign: TextAlign.left,
+            style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
           ),
           const SizedBox(width: 4,),
           if(_enabledTooltipSugerencias && _intereses.isNotEmpty)
@@ -367,7 +381,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         const SizedBox(height: 8,),
         Container(
           alignment: Alignment.centerLeft,
-          height: 75,
+          height: 70,
           child: ListView.builder(itemBuilder: (context, index){
 
             if(index == _intereses.length){
@@ -402,8 +416,8 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
                 }
               },
               child: Container(
-                width: 60,
-                margin: const EdgeInsets.symmetric(horizontal: 8),
+                width: 56,
+                margin: const EdgeInsets.symmetric(horizontal: 4),
                 decoration: BoxDecoration(
                   color: _selectedInteresId == _intereses[index] ? Colors.black12 : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
@@ -417,7 +431,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
                           shape: BoxShape.circle,
                           color: Colors.white,
                         ),
-                        child: Intereses.getIcon(_intereses[index])
+                        child: Intereses.getIcon(_intereses[index], size: 16,)
                     ),
                     const SizedBox(height: 4,),
                     Text(Intereses.getNombre(_intereses[index]), style: TextStyle(fontSize: 10),)
@@ -430,7 +444,24 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
           }, scrollDirection: Axis.horizontal, itemCount: _intereses.length + 1, shrinkWrap: true,),
         ),
 
-        const SizedBox(height: 16,),
+        const SizedBox(height: 24,),
+
+        Row(
+          children: [
+            const Text("Tipo:", style: TextStyle(color: constants.blackGeneral, fontSize: 12,),),
+            const SizedBox(width: 8,),
+            OutlinedButton(
+              onPressed: () => _mostrarDialogTipos(),
+              child: Text(_actividadTipoSelected, style: const TextStyle(fontSize: 12,)),
+              style: OutlinedButton.styleFrom(
+                primary: constants.blackGeneral,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 24,),
 
         Container(
           width: double.infinity,
@@ -444,10 +475,10 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
             ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
           ),
         ),
-        const SizedBox(height: 8,),
+        /*const SizedBox(height: 8,),
         const Text("Paso 1 de 2",
           style: TextStyle(color: constants.grey, fontSize: 12,),
-        ),
+        ),*/
 
         const SizedBox(height: 32,),
       ],),
@@ -458,6 +489,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       child: Column(children: [
+        /*
         Container(
           width: double.infinity,
           child: RichText(
@@ -511,45 +543,137 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         ),
 
         const SizedBox(height: 24,),
+        */
 
-        Row(
-          children: [
-            const Text("Tipo:", style: TextStyle(color: constants.blackGeneral),),
-            const SizedBox(width: 8,),
-            OutlinedButton(
-              onPressed: () => _mostrarDialogTipos(),
-              child: Text(_actividadTipoSelected, style: TextStyle(fontSize: 12,)),
-              style: OutlinedButton.styleFrom(
-                primary: constants.blackGeneral,
-                padding: EdgeInsets.symmetric(horizontal: 12),
-              ),
-            ),
-            IconButton(
-              onPressed: (){
-                _showDialogAyudaTiposActividad();
-              },
-              icon: Icon(Icons.help_outline, color: constants.grey,),
-              padding: EdgeInsets.all(0),
-            ),
-          ],
-        ),
-        if(_actividadTipo == ActividadTipo.requisitos)
-          Align(
-            alignment: Alignment.centerLeft,
-            child: OutlinedButton.icon(
-              onPressed: (){
-                _showDialogPreguntas();
-              },
-              icon: Icon(Icons.edit, size: 18,),
-              label: Text("Editar preguntas", style: TextStyle(fontSize: 12,)),
-              style: OutlinedButton.styleFrom(
-                primary: constants.blackGeneral,
-                padding: EdgeInsets.symmetric(horizontal: 12),
-              ),
-            ),
+        Container(
+          alignment: Alignment.centerLeft,
+          child: const Text("Selecciona a tus amigos para crear la actividad con tu grupo",
+            style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
+            textAlign: TextAlign.left,
           ),
+        ),
 
-        const SizedBox(height: 32,),
+        const SizedBox(height: 16,),
+
+        Container(
+          alignment: Alignment.centerLeft,
+          height: 32,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: _creadores.length + 1,
+            shrinkWrap: true,
+            itemBuilder: (context, index){
+              if(index == 0){
+                // Si no tiene creadores agregados, no muestra el texto
+                if(_creadores.isEmpty) return Container();
+
+                return Container(
+                  alignment: Alignment.center,
+                  child: const Text("Cocreadores:",
+                    style: TextStyle(color: constants.grey, fontSize: 12,),
+                    textAlign: TextAlign.left,
+                  ),
+                );
+              }
+
+              index = index - 1;
+
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4,),
+                padding: const EdgeInsets.symmetric(horizontal: 4,),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: constants.grey, width: 0.5,),
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: constants.greyBackgroundImage,
+                      backgroundImage: CachedNetworkImageProvider(_creadores[index].usuario!.foto),
+                      radius: 12,
+                    ),
+                    const SizedBox(width: 4,),
+                    Text(_creadores[index].usuario!.username, style: const TextStyle(fontSize: 10),),
+                    const SizedBox(width: 4,),
+                    GestureDetector(
+                      onTap: (){
+                        setState(() {
+                          _creadores.removeAt(index);
+                        });
+                      },
+                      child: const Icon(Icons.close, color: constants.blackGeneral, size: 18,),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+
+        const SizedBox(height: 16,),
+
+        TextField(
+          decoration: const InputDecoration(
+            isDense: true,
+            hintText: "Buscar...",
+            counterText: '',
+            border: OutlineInputBorder(),
+            focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+            contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8,),
+          ),
+          maxLength: 200,
+          minLines: 1,
+          maxLines: 1,
+          textCapitalization: TextCapitalization.sentences,
+          style: const TextStyle(fontSize: 14,),
+          onChanged: (text){
+            if(text == _textoBusqueda){
+              return;
+            }
+            _textoBusqueda = text;
+
+
+            setState(() {
+              _filteredTelefonoContactos = _telefonoContactos
+                  .where((contact) => contact.displayName.toLowerCase().contains(text.toLowerCase()))
+                  .toList();
+            });
+
+
+            _timer?.cancel();
+
+            setState(() {
+              _loadingCreadoresBusqueda = true;
+            });
+
+            _timer = Timer(const Duration(milliseconds: 500), (){
+              _buscarUsuario(text, setState);
+            });
+          },
+        ),
+
+        Expanded(child: ListView.builder(
+          itemCount: _creadoresBusqueda.length + 1 + _filteredTelefonoContactos.length + 1, // 2 listas y 2 texto cabecera
+          itemBuilder: (context, index){
+            if(index == 0){
+              return _buildCabeceraAmigos();
+            }
+
+            if (index < _creadoresBusqueda.length + 1) {
+              // Al buscar un contacto, quita los resultados anteriores
+              if(_loadingCreadoresBusqueda) return Container();
+
+              return _buildUsuarioBusqueda(_creadoresBusqueda[index - 1]);
+            }
+
+            if (index == _creadoresBusqueda.length + 1) {
+              return _buildCabeceraTelefonoContactos();
+            }
+
+            return _buildTelefonoContacto(_filteredTelefonoContactos[index - _creadoresBusqueda.length - 2]);
+          },
+          padding: const EdgeInsets.only(bottom: 24,),
+        ),),
 
         Container(
           width: double.infinity,
@@ -561,13 +685,160 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
             ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
           ),
         ),
-        const SizedBox(height: 8,),
+        /*const SizedBox(height: 8,),
         const Text("Paso 2 de 2",
           style: TextStyle(color: constants.grey, fontSize: 12,),
-        ),
-
-        const SizedBox(height: 32,),
+        ),*/
       ],),
+    );
+  }
+
+  Widget _buildCabeceraAmigos(){
+    return Column(children: [
+      Container(
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.only(top: 16, bottom: 12,),
+        child: const Text("Amigos",
+          style: TextStyle(color: constants.grey, fontSize: 12,),
+        ),
+      ),
+
+      if(_loadingCreadoresBusqueda)
+        ...[
+          Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(16),
+            child: const CircularProgressIndicator(),
+          ),
+        ],
+
+      if(!_loadingCreadoresBusqueda && _creadoresBusqueda.isEmpty)
+        ...[
+          const SizedBox(height: 24,),
+          Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 16,),
+            child: const Text("No hay resultados",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 12,
+                height: 1.3, fontWeight: FontWeight.bold,),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 24,),
+        ],
+    ],);
+  }
+
+  Widget _buildCabeceraTelefonoContactos(){
+    return Column(children: [
+      /*Padding(
+        padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 12,),
+        child: Row(children: [
+          const Text("Contactos",
+            style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
+          ),
+          const Spacer(),
+          Text("Invitaciones ${(_totalInvitaciones <= 5) ? _totalInvitaciones : 5}/5",
+            style: const TextStyle(color: constants.blueGeneral, fontSize: 12, fontWeight: FontWeight.bold,),
+          ),
+        ],),
+      ),*/
+      Container(
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.only(top: 16, bottom: 12,),
+        child: const Text("Contactos",
+          style: TextStyle(color: constants.grey, fontSize: 12,),
+        ),
+      ),
+
+      //if(_telefonoContactos.isNotEmpty && _filteredTelefonoContactos.isEmpty)
+      if(_filteredTelefonoContactos.isEmpty)
+        ...[
+          const SizedBox(height: 24,),
+          Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 16,),
+            child: const Text("No hay resultados encontrados",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 12,
+                height: 1.3, fontWeight: FontWeight.bold,),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 24,),
+        ],
+    ],);
+  }
+
+  Widget _buildUsuarioBusqueda(Usuario usuario){
+    return ListTile(
+      dense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12,),
+      title: Text(usuario.nombre,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: Text(usuario.username,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      leading: CircleAvatar(
+        backgroundColor: constants.greyBackgroundImage,
+        backgroundImage: CachedNetworkImageProvider(usuario.foto),
+      ),
+      onTap: (){
+        if(_creadores.length >= 3){
+          _showSnackBar("Solo se pueden añadir tres(3) cocreadores");
+          return;
+        }
+
+        for(var creador in _creadores){
+          if(creador.usuario?.id == usuario.id){
+            return;
+          }
+        }
+
+        setState(() {
+          _creadores.add(UsuarioCocreadorPendiente(
+            tipo: UsuarioCocreadorPendienteTipo.CREADOR_PENDIENTE,
+            usuario: usuario,
+          ));
+        });
+      },
+      trailing: _creadores.any((creador) => creador.usuario?.id == usuario.id)
+          ? const Icon(Icons.check_box_outlined, color: constants.blackGeneral,)
+          : const Icon(Icons.check_box_outline_blank, color: constants.blackGeneral,),
+    );
+  }
+
+  Widget _buildTelefonoContacto(Contact contact){
+    Phone? phone = contact.phones.isNotEmpty ? contact.phones.first : null;
+    String primeraLetra = contact.displayName.substring(0, 1).toUpperCase();
+
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12,),
+      title: Text(contact.displayName,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      leading: CircleAvatar(
+        backgroundColor: constants.greyBackgroundImage,
+        child: Text(primeraLetra,
+          style: const TextStyle(color: constants.blackGeneral, fontSize: 18, fontWeight: FontWeight.bold,),
+        ),
+      ),
+      trailing: OutlinedButton(
+        onPressed: !_enviandoGenerarInvitacionCodigo
+            ? () => _enviarInvitacionCodigo(phone?.number ?? "")
+            : (_numeroGenerarInvitacionCodigo == (phone?.number ?? ""))
+              ? null
+              : (){},
+        child: const Text("Invitar", style: TextStyle(fontSize: 12)),
+        style: OutlinedButton.styleFrom(
+          primary: constants.blackGeneral,
+          shape: const StadiumBorder(),
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8,),
+        ),
+      ),
     );
   }
 
@@ -723,6 +994,31 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
     await Future.delayed(const Duration(milliseconds: 10)); // Necesario para que no se cierre al momento de mostrar
     dynamic tooltip = _keyTooltipSugerencias.currentState; // Es dynamic para que tome la funcion ensureTooltipVisible
     tooltip?.ensureTooltipVisible();
+  }
+
+  Future<void> _cargarTelefonoContactos() async {
+    //_loadingContactosSugerencias = true;
+    //setState(() {});
+
+
+    //_isPermisoTelefonoContactos = true;
+
+    final PermissionStatus permissionStatus = await Permission.contacts.status;
+    if(!permissionStatus.isGranted){
+      //_isPermisoTelefonoContactos = false;
+
+      //_loadingContactosSugerencias = false;
+      //setState(() {});
+      return;
+    }
+
+
+    _telefonoContactos = await FlutterContacts.getContacts(withProperties: true,);
+    _filteredTelefonoContactos = _telefonoContactos;
+
+
+    //_loadingContactosSugerencias = false;
+    setState(() {});
   }
 
   void _validarContenidoUno(){
@@ -985,11 +1281,14 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
       _loadingCreadoresBusqueda = true;
     });
 
+    // Permite enviar texto vacio
+    /*
     if(texto.trim() == ''){
       _creadoresBusqueda.clear();
       setStateDialog(() {_loadingCreadoresBusqueda = false;});
       return;
     }
+    */
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
@@ -1030,9 +1329,82 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
     });
 
 
-    // Agrega historial del usuario
-    List<String>? usuariosId = usuarios?.map<String>((element) => element['id']).toList();
-    _agregarHistorialUsuario(HistorialUsuario.getCrearActividadBuscadorResultado(texto, usuariosId));
+    if(texto.trim() != ''){
+      // Agrega historial del usuario
+      List<String>? usuariosId = usuarios?.map<String>((element) => element['id']).toList();
+      _agregarHistorialUsuario(HistorialUsuario.getCrearActividadBuscadorResultado(texto, usuariosId));
+    }
+  }
+
+  void _enviarInvitacionCodigo(String phoneNumber){
+    if(_creadores.length >= 3){
+      _showSnackBar("Solo se pueden añadir tres(3) cocreadores");
+      return;
+    }
+
+    _enviandoGenerarInvitacionCodigo = true;
+    _numeroGenerarInvitacionCodigo = phoneNumber;
+
+    if(_invitacionCodigo != null){
+
+      String cleanedPhoneNumber = phoneNumber.replaceAll(RegExp(r'[^\d]'), ''); // Elimina cualquier caracter que no sea un digito del numero
+      ShareUtils.shareActivityCocreatorWhatsappNumber(cleanedPhoneNumber, _invitacionCodigo!);
+
+      // Agrega historial del usuario
+      _agregarHistorialUsuario(HistorialUsuario.getCrearActividadCocreadoresInvitarAmigo(phoneNumber));
+
+      _enviandoGenerarInvitacionCodigo = false;
+      _numeroGenerarInvitacionCodigo = "";
+      setState(() {});
+
+    } else {
+      _generarInvitacionCodigo(phoneNumber);
+    }
+  }
+
+  Future<void> _generarInvitacionCodigo(String phoneNumber) async {
+    setState(() {
+      _enviandoGenerarInvitacionCodigo = true;
+      _numeroGenerarInvitacionCodigo = phoneNumber;
+    });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    var response = await HttpService.httpPost(
+      url: constants.urlActividadCrearInvitacionCreador,
+      body: {},
+      usuarioSesion: usuarioSesion,
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+
+        _invitacionCodigo = datosJson['data']['invitacion_codigo'];
+
+        String cleanedPhoneNumber = phoneNumber.replaceAll(RegExp(r'[^\d]'), ''); // Elimina cualquier caracter que no sea un digito del numero
+        ShareUtils.shareActivityCocreatorWhatsappNumber(cleanedPhoneNumber, _invitacionCodigo!);
+
+        // Agrega historial del usuario
+        _agregarHistorialUsuario(HistorialUsuario.getCrearActividadCocreadoresInvitarAmigo(phoneNumber));
+
+      } else {
+
+        if(datosJson['error_tipo'] == 'limite_codigos'){
+          _showSnackBar("Ya has generado el máximo de códigos permitidos para hoy.");
+        } else {
+          _showSnackBar("Se produjo un error inesperado");
+        }
+
+      }
+    }
+
+    setState(() {
+      _enviandoGenerarInvitacionCodigo = false;
+      _numeroGenerarInvitacionCodigo = "";
+    });
   }
 
   void _showDialogAyudaCreadorExterno(){
@@ -1219,6 +1591,43 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
+
+                  const SizedBox(height: 24,),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16,),
+                    child: Row(children: [
+                      SizedBox(
+                        width: 56,
+                        child: Text("Público:",
+                          style: TextStyle(fontSize: 12, color: constants.blackGeneral,
+                            fontWeight: _actividadTipo == ActividadTipo.publico ? FontWeight.bold : null,
+                          ),
+                        ),
+                      ),
+                      const Expanded(child: Text("Cualquier usuario puede unirse a la actividad y entrar automáticamente al chat grupal.",
+                        style: TextStyle(fontSize: 12, color: constants.grey),
+                      ),),
+                    ], crossAxisAlignment: CrossAxisAlignment.start,),
+                  ),
+                  const SizedBox(height: 8,),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16,),
+                    child: Row(children: [
+                      SizedBox(
+                        width: 56,
+                        child: Text("Privado:",
+                          style: TextStyle(fontSize: 12, color: constants.blackGeneral,
+                            fontWeight: _actividadTipo == ActividadTipo.privado ? FontWeight.bold : null,
+                          ),
+                        ),
+                      ),
+                      const Expanded(child: Text("Para unirse a la actividad, los usuarios deben enviar una solicitud y ser aprobados por ti o por alguno de los cocreadores.",
+                        style: TextStyle(fontSize: 12, color: constants.grey),
+                      ),),
+                    ], crossAxisAlignment: CrossAxisAlignment.start,),
+                  ),
+                  const SizedBox(height: 24,),
+
                   RadioListTile<ActividadTipo>(
                     title: Text(_stringActividadTipo[0]),
                     value: ActividadTipo.publico,
@@ -1530,6 +1939,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         "creadores_externos_codigo": creadoresExternoCodigo,
         "ubicacion_latitud": _locationServicePosition?.latitude.toString() ?? "",
         "ubicacion_longitud": _locationServicePosition?.longitude.toString() ?? "",
+        "invitacion_codigo": _invitacionCodigo,
 
         // Envia historial del usuario para analizar comportamiento
         "historiales_usuario_activo": _historialesUsuario,
@@ -1565,6 +1975,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
               reload: false,
               creadoresPendientes: creadoresUsuario,
               creadoresPendientesExternosCodigo: creadoresExternoCodigo,
+              invitacionCodigo: _invitacionCodigo,
             )
         )).then((value) => {
 

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:tenfo/firebase_options.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
+import 'package:tenfo/screens/actividad/actividad_page.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/screens/signup/views/signup_picture_page.dart';
 import 'package:tenfo/screens/user/user_page.dart';
@@ -111,6 +112,11 @@ class MyApp extends StatelessWidget {
             username = username.substring(0, 50); // Obtiene solo el string hasta una longitud de 50
           }
           return MaterialPageRoute(builder: (context) => UserPage(usuario: null, routeUsername: username,));
+        }
+
+        if (uri != null && uri.pathSegments.length == 2 && uri.pathSegments[0] == 'activity-creator') {
+          String invitacionCreador = uri.pathSegments[1];
+          return MaterialPageRoute(builder: (context) => ActividadPage(actividad: null, routeInvitacionCreador: invitacionCreador,));
         }
 
         //return MaterialPageRoute(builder: (context) => UnknownScreen());
