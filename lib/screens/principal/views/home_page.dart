@@ -3,10 +3,12 @@ import 'dart:ui';
 
 import 'package:badges/badges.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:tenfo/models/actividad.dart';
 import 'package:tenfo/models/chat.dart';
+import 'package:tenfo/models/previsualizacion_actividad.dart';
 import 'package:tenfo/models/publicacion.dart';
 import 'package:tenfo/models/usuario.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
@@ -17,6 +19,7 @@ import 'package:tenfo/screens/seleccionar_crear_tipo/seleccionar_crear_tipo_page
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/services/location_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
+import 'package:tenfo/utilities/historial_usuario.dart';
 import 'package:tenfo/utilities/intereses.dart';
 import 'package:tenfo/utilities/shared_preferences_keys.dart';
 import 'package:tenfo/widgets/card_actividad.dart';
@@ -45,6 +48,8 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   List<Publicacion> _publicaciones = [];
   bool _isActividadesPermitido = true;
   bool _isCreadorActividadVisible = false;
+
+  List<PrevisualizacionActividad> _previsualizacionActividades = [];
 
   ScrollController _scrollController = ScrollController();
   bool _loadingActividades = false;
@@ -84,6 +89,8 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
 
     WidgetsBinding.instance?.addObserver(this);
+
+    _verificarNotificacionesPush();
   }
 
   @override
@@ -283,6 +290,29 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
+  Future<void> _verificarNotificacionesPush() async {
+    try {
+      NotificationSettings settings = await FirebaseMessaging.instance.getNotificationSettings();
+      if(settings.authorizationStatus != AuthorizationStatus.authorized){
+
+        // Permisos para iOS y para Android 13+
+        NotificationSettings settings = await FirebaseMessaging.instance.requestPermission();
+        if(settings.authorizationStatus != AuthorizationStatus.authorized){
+          // Si los permisos están denegados, siempre va enviar historial
+
+          // Envia historial del usuario
+          _enviarHistorialUsuario(HistorialUsuario.getHomeNotificaciones(false));
+
+        } else {
+          // Envia historial del usuario
+          _enviarHistorialUsuario(HistorialUsuario.getHomeNotificaciones(true));
+        }
+      }
+    } catch(e){
+      // Captura error, por si surge algun posible error con FirebaseMessaging
+    }
+  }
+
   Future<void> _mostrarIntereses() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
@@ -310,6 +340,8 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     _ultimoActividadIdMostrado = "";
 
     _publicaciones = [];
+
+    _previsualizacionActividades = [];
 
     setState(() {});
 
@@ -443,6 +475,30 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
         _isActividadesPermitido = datosJson['is_permitido_ver_actividades'];
         _isCreadorActividadVisible = datosJson['is_creador_actividad_visible'];
 
+        if(!_isActividadesPermitido && datosJson['previsualizacion_actividades'] != null){
+          List<dynamic> previsualizacionActividades = datosJson['previsualizacion_actividades'];
+          for (var element in previsualizacionActividades) {
+
+            List<PrevisualizacionActividadCreador> creadores = [];
+            element['creadores'].forEach((creador) {
+              creadores.add(PrevisualizacionActividadCreador(
+                nombre: creador['nombre'],
+                foto: constants.urlBase + creador['foto_url'],
+              ));
+            });
+
+            PrevisualizacionActividad previsualizacionActividad = PrevisualizacionActividad(
+              titulo: element['titulo'],
+              fecha: element['fecha_texto'],
+              fechaCompleto: element['fecha'].toString(),
+              creadores: creadores,
+            );
+
+            _previsualizacionActividades.add(previsualizacionActividad);
+
+          }
+        }
+
         _lastTimeCargarActividades = DateTime.now();
 
       } else {
@@ -496,125 +552,162 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
         child: IgnorePointer(
           child: SingleChildScrollView(child: Column(children: [
             const SizedBox(height: 12,),
+
+            // Se muestran tarjetas vacias si no existe _previsualizacionActividades[i]
             for (int i=0; i<5; i++)
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                height: 180,
+                height: i < _previsualizacionActividades.length ? null : 180,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: constants.grey),
                   color: Colors.white,
                 ),
+                padding: const EdgeInsets.only(left: 8, top: 12, right: 8, bottom: 24,),
+                child: Column(children: [
+                  Row(
+                    children: [
+                      Text(i < _previsualizacionActividades.length ? _previsualizacionActividades[i].fecha : "",
+                        style: const TextStyle(color: constants.greyLight, fontSize: 12,),
+                      ),
+                    ],
+                    mainAxisAlignment: MainAxisAlignment.end,
+                  ),
+                  const SizedBox(height: 24,),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Text(i < _previsualizacionActividades.length ? _previsualizacionActividades[i].titulo : "",
+                      style: const TextStyle(color: constants.blackGeneral, fontSize: 18, height: 1.3,),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(height: 40,),
+                  if(i < _previsualizacionActividades.length)
+                    Row(children: [
+                      SizedBox(
+                        width: (15 * _previsualizacionActividades[i].creadores.length) + 10,
+                        height: 20,
+                        child: Stack(
+                          children: [
+                            Container(),
+                            for (int j=(_previsualizacionActividades[i].creadores.length-1); j>=0; j--)
+                              Positioned(
+                                left: (15 * j).toDouble(),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: constants.greyLight, width: 0.5,),
+                                  ),
+                                  height: 20,
+                                  width: 20,
+                                  child: CircleAvatar(
+                                    backgroundColor: const Color(0xFFFAFAFA),
+                                    backgroundImage: CachedNetworkImageProvider(_previsualizacionActividades[i].creadores[j].foto),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Flexible(
+                        child: Text(_previsualizacionCocreadoresTexto(_previsualizacionActividades[i]),
+                          style: const TextStyle(color: constants.grey, fontSize: 12,),
+                          maxLines: 1,
+                        ),
+                      ),
+                    ],),
+                ], crossAxisAlignment: CrossAxisAlignment.start,),
               ),
+
           ], crossAxisAlignment: CrossAxisAlignment.stretch,),)
         ),
       ),
 
-      BackdropFilter(
-        filter: ImageFilter.blur(
-          sigmaX: 3.0,
-          sigmaY: 3.0,
+      Positioned.fill(child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.transparent,
+              Colors.black.withOpacity(0.6),
+            ],
+            stops: const [0.1, 0.8],
+          ),
         ),
-        child: Center(child: Card(
-          elevation: 10,
-          color: Colors.white,
-          shape: RoundedRectangleBorder(
-            side: const BorderSide(color: Colors.grey, width: 0.5,),
-            borderRadius: BorderRadius.circular(20),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(
+            sigmaX: 3.0,
+            sigmaY: 3.0,
           ),
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16,),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-            child: Column(children: [
+          child: Center(child: Card(
+            elevation: 10,
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              side: const BorderSide(color: Colors.grey, width: 0.5,),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16,),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              child: Column(children: [
 
-              Text("Crea tu actividad o visualización para acceder a las actividades disponibles.",
-                style: TextStyle(color: Colors.grey[800], fontSize: 14,),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8,),
-              Text("Esto solo lo podrán ver personas que también crearon en este momento.",
-                style: TextStyle(color: Colors.grey[800], fontSize: 14,),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32,),
-
-              Container(
-                constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
-                child: ElevatedButton.icon(
-                  onPressed: (){
-                    Navigator.push(context, MaterialPageRoute(
-                      builder: (context) => const SeleccionarCrearTipoPage(),
-                    ));
-                  },
-                  icon: const Icon(Icons.add_rounded, size: 24,),
-                  label: const Text("Comenzar", style: TextStyle(fontSize: 18,),),
-                  style: ElevatedButton.styleFrom(
-                    shape: const StadiumBorder(),
-                  ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+                Text("Crea tu actividad o visualización para acceder a las actividades disponibles.",
+                  style: TextStyle(color: Colors.grey[800], fontSize: 14,),
+                  textAlign: TextAlign.center,
                 ),
-              ),
+                const SizedBox(height: 8,),
+                Text("Esto solo lo podrán ver personas que también crearon en este momento.",
+                  style: TextStyle(color: Colors.grey[800], fontSize: 14,),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32,),
 
-            ], mainAxisAlignment: MainAxisAlignment.center, mainAxisSize: MainAxisSize.min,),
-          ),
-        )),
-      ),
+                Container(
+                  constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+                  child: ElevatedButton.icon(
+                    onPressed: (){
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (context) => const SeleccionarCrearTipoPage(),
+                      ));
+                    },
+                    icon: const Icon(Icons.add_rounded, size: 24,),
+                    label: const Text("Nuevo", style: TextStyle(fontSize: 18,),),
+                    style: ElevatedButton.styleFrom(
+                      shape: const StadiumBorder(),
+                    ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+                  ),
+                ),
+
+              ], mainAxisAlignment: MainAxisAlignment.center, mainAxisSize: MainAxisSize.min,),
+            ),
+          )),
+        ),
+      )),
+
     ]);
+  }
 
-    /*
-    return Container(
-      color: Colors.grey[300],
-      padding: const EdgeInsets.symmetric(horizontal: 16,),
-      child: Column(children: [
-        Container(
-          //constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
-          alignment: Alignment.centerLeft,
-          child: TextButton.icon(
-            onPressed: (){
-              _showDialogCambiarIntereses();
-            },
-            icon: const Icon(Icons.edit_outlined, size: 16,),
-            label: const Text("Editar intereses",
-                style: TextStyle(fontSize: 12,)
-            ),
-            style: TextButton.styleFrom(
-              primary: constants.blackGeneral,
-              padding: const EdgeInsets.all(0),
-            ),
-          ),
-        ),
+  String _previsualizacionCocreadoresTexto(PrevisualizacionActividad previsualizacionActividad){
+    String creadoresNombre = "";
 
-        Expanded(child: Column(children: [
-          Text("Para ver las actividades, debes tener una tuya creada en las últimas 48 horas.",
-            style: TextStyle(color: Colors.grey[800], fontSize: 16,),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24,),
-          Container(
-            constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
-            child: ElevatedButton.icon(
-              onPressed: (){
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => const CrearActividadPage(),
-                ));
-              },
-              icon: const Icon(Icons.add_rounded, size: 24,),
-              label: const Text("Crear actividad", style: TextStyle(fontSize: 16,),),
-              style: ElevatedButton.styleFrom(
-                shape: const StadiumBorder(
-                  side: BorderSide(color: constants.grey, width: 0.5,),
-                ),
-                primary: Colors.white,
-                onPrimary: constants.blueGeneral,
-              ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
-            ),
-          ),
-        ], mainAxisAlignment: MainAxisAlignment.center,)),
+    if(previsualizacionActividad.creadores.length == 1){
 
-        // Lo hace ver más centrado al Expanded (es una altura aproximada del TextButton "Editar intereses")
-        const SizedBox(height: 40,),
-      ],),
-    );
-    */
+      creadoresNombre = previsualizacionActividad.creadores[0].nombre;
+
+    } else if(previsualizacionActividad.creadores.length >= 1){
+
+      creadoresNombre = previsualizacionActividad.creadores[0].nombre;
+      for(int i = 1; i < (previsualizacionActividad.creadores.length-1); i++){
+        creadoresNombre += ", "+previsualizacionActividad.creadores[i].nombre;
+      }
+      creadoresNombre += " y "+previsualizacionActividad.creadores[previsualizacionActividad.creadores.length-1].nombre;
+
+    }
+
+    return creadoresNombre;
   }
 
   Widget _buildActividadesVacio(){
@@ -810,6 +903,33 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     setState(() {
       _showBadgeNotificaciones = value;
     });
+  }
+
+  Future<void> _enviarHistorialUsuario(Map<String, dynamic> historialUsuario) async {
+    //setState(() {});
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    var response = await HttpService.httpPost(
+      url: constants.urlCrearHistorialUsuarioActivo,
+      body: {
+        "historiales_usuario_activo": [historialUsuario],
+      },
+      usuarioSesion: usuarioSesion,
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = await jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+        //
+      } else {
+        //_showSnackBar("Se produjo un error inesperado");
+      }
+    }
+
+    //setState(() {});
   }
 
   void _showSnackBar(String texto){

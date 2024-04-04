@@ -149,6 +149,15 @@ class _UserPageState extends State<UserPage> {
 
           if(widget.isFromProfile)
             ...[
+              // Solo puede verificar si no tiene email
+              if(_usuarioSesion != null && _usuarioSesion!.email == null)
+                IconButton(
+                  icon: const Icon(Icons.school_outlined),
+                  onPressed: () async {
+                    _showDialogVerificarse();
+                  },
+                ),
+
               IconButton(
                 icon: const Icon(Icons.manage_accounts_outlined),
                 onPressed: () async {
@@ -424,6 +433,7 @@ class _UserPageState extends State<UserPage> {
                     const SizedBox(height: 48,),
                     Row(children: [
 
+                      /*
                       // Solo puede verificar si no tiene email
                       if(_usuarioSesion!.email == null)
                         ...[
@@ -446,6 +456,7 @@ class _UserPageState extends State<UserPage> {
                           ),
                           const SizedBox(width: 16,),
                         ],
+                      */
 
                       Container(
                         alignment: Alignment.center,
@@ -458,7 +469,7 @@ class _UserPageState extends State<UserPage> {
                             _enviarHistorialUsuario(HistorialUsuario.getPerfilInvitarAmigo());
                           },
                           icon: const Icon(Icons.ios_share, size: 20,),
-                          label: const Text("Compartir",
+                          label: const Text("Compartir perfil",
                             style: TextStyle(fontSize: 14,),
                           ),
                           style: OutlinedButton.styleFrom(
@@ -717,6 +728,10 @@ class _UserPageState extends State<UserPage> {
   }
 
   Widget _buildSeccionBotones(){
+    if(_usuarioPerfil.contactoEstado == null){
+      return SliverToBoxAdapter(child: Container());
+    }
+
     return SliverToBoxAdapter(
       child: Container(
         padding: const EdgeInsets.only(left: 16, top: 24, right: 16, bottom: 24,),
@@ -724,11 +739,17 @@ class _UserPageState extends State<UserPage> {
         child: Row(children: [
           OutlinedButton.icon(
             onPressed: (){
-              Navigator.push(context, MaterialPageRoute(
-                builder: (context) => ChatPage(chat: null, chatIndividualUsuario: _usuarioPerfil,),
-              ));
+              if(_usuarioPerfil.contactoEstado == UsuarioPerfilContactoEstado.CONECTADOS){
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => ChatPage(chat: null, chatIndividualUsuario: _usuarioPerfil,),
+                ));
+              } else {
+                _showDialogMensajeBloqueado();
+              }
             },
-            icon: const Icon(Icons.near_me),
+            icon: _usuarioPerfil.contactoEstado == UsuarioPerfilContactoEstado.CONECTADOS
+                ? const Icon(Icons.near_me)
+                : const Icon(Icons.lock_outline),
             label: const Text('Enviar mensaje', style: TextStyle(fontSize: 16),),
             style: OutlinedButton.styleFrom(
               primary: constants.blueGeneral,
@@ -773,6 +794,27 @@ class _UserPageState extends State<UserPage> {
         ], mainAxisAlignment: MainAxisAlignment.center,),
       ),
     );
+  }
+
+  void _showDialogMensajeBloqueado(){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(children: const [
+            Text("Solo puedes enviar mensajes privados a usuarios agregados como amigos.",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
+              textAlign: TextAlign.left,
+            ),
+          ], mainAxisSize: MainAxisSize.min,),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Entendido"),
+          ),
+        ],
+      );
+    });
   }
 
   void _showDialogEliminarContacto(){

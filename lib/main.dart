@@ -119,6 +119,11 @@ class MyApp extends StatelessWidget {
           return MaterialPageRoute(builder: (context) => ActividadPage(actividad: null, routeInvitacionCreador: invitacionCreador,));
         }
 
+        if (uri != null && uri.pathSegments.length == 2 && uri.pathSegments[0] == 'join-activity') {
+          String actividadId = uri.pathSegments[1];
+          return MaterialPageRoute(builder: (context) => ActividadPage(actividad: null, routeActividadId: actividadId,));
+        }
+
         //return MaterialPageRoute(builder: (context) => UnknownScreen());
         return null;
       },

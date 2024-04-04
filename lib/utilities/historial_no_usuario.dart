@@ -1,7 +1,18 @@
 class HistorialNoUsuario {
 
+  static const String _registroUniversidadElegir = "/registro/universidad/elegir";
   static const String _registroPerfilCancelar = "/registro/perfil/cancelar";
 
+
+  /// En SignupUniversity, cuando elige una universidad
+  static Map<String, dynamic> getRegistroUniversidadElegir(String universidadId){
+    return {
+      "evento": _registroUniversidadElegir,
+      "datos_adicionales": {
+        "universidad_id": universidadId,
+      }
+    };
+  }
 
   /// En SignupProfile, cuando abandona el registro
   static Map<String, dynamic> getRegistroPerfilCancelar(String registroPasoVisto, String? nombre, String? apellido,

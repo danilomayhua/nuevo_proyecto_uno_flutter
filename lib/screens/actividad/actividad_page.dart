@@ -25,7 +25,7 @@ class ActividadPage extends StatefulWidget {
   ActividadPage({Key? key, required this.actividad, this.reload = true,
     this.creadoresPendientes = const [], this.creadoresPendientesExternosCodigo = const [],
     this.onChangeIngreso,
-    this.invitacionCodigo, this.routeInvitacionCreador,}) : super(key: key);
+    this.invitacionCodigo, this.routeInvitacionCreador, this.routeActividadId}) : super(key: key);
 
   Actividad? actividad;
   final bool reload;
@@ -34,6 +34,7 @@ class ActividadPage extends StatefulWidget {
   final void Function(Actividad)? onChangeIngreso;
   final String? invitacionCodigo;
   final String? routeInvitacionCreador;
+  final String? routeActividadId;
 
   @override
   State<ActividadPage> createState() => _ActividadPageState();
@@ -71,9 +72,9 @@ class _ActividadPageState extends State<ActividadPage> {
 
 
     if(widget.actividad == null){
-      // Si widget.actividad es nulo, tiene que enviar widget.routeInvitacionCreador
+      // Si widget.actividad es nulo, tiene que enviar widget.routeInvitacionCreador o widget.routeActividadId
       _loadingActividad = true;
-      _isFromInvitacionCreador = true;
+      if(widget.routeInvitacionCreador != null) _isFromInvitacionCreador = true;
 
       // Verifica sesion siempre que viene desde un route (deep linking)
       _verificarSesion();
@@ -85,7 +86,7 @@ class _ActividadPageState extends State<ActividadPage> {
 
 
     if(widget.reload){
-      _cargarActividad(null);
+      _cargarActividad(null, null);
     }
 
     SharedPreferences.getInstance().then((prefs){
@@ -107,7 +108,16 @@ class _ActividadPageState extends State<ActividadPage> {
     }
 
 
-    _cargarActividad(widget.routeInvitacionCreador ?? "");
+    String? invitacionCreador;
+    String? actividadId;
+    if(widget.routeInvitacionCreador != null){
+      invitacionCreador = widget.routeInvitacionCreador;
+      actividadId = null;
+    } else {
+      invitacionCreador = null;
+      actividadId = widget.routeActividadId;
+    }
+    _cargarActividad(invitacionCreador, actividadId);
 
     SharedPreferences.getInstance().then((prefs){
       _usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
@@ -358,15 +368,63 @@ class _ActividadPageState extends State<ActividadPage> {
               const SizedBox(height: 16,),
             ], crossAxisAlignment: CrossAxisAlignment.start,),
 
+
+          if(!widget.actividad!.isAutor && !_isCreadorPendiente && !_isFromInvitacionCreador)
+            Align(
+              alignment: Alignment.center,
+              child: widget.actividad!.ingresoEstado == ActividadIngresoEstado.INTEGRANTE
+                  ? Container(
+                    margin: const EdgeInsets.symmetric(vertical: 16,),
+                    constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+                    child: TextButton.icon(
+                      onPressed: (){
+                        ShareUtils.shareActivity(widget.actividad!.id);
+
+                        // Envia historial del usuario
+                        _enviarHistorialUsuario(HistorialUsuario.getActividadInvitarAmigo(widget.actividad!.id, isIntegrante: true,));
+                      },
+                      icon: const Icon(Icons.person_add_alt_outlined,),
+                      label: const Text("Invitar amigo"),
+                      style: TextButton.styleFrom(
+                        shape: const StadiumBorder(),
+                      ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+                    ),
+                  )
+                  : Container(
+                    margin: const EdgeInsets.symmetric(vertical: 48,),
+                    child: InkWell(
+                      onTap: (){
+                        ShareUtils.shareActivity(widget.actividad!.id);
+
+                        // Envia historial del usuario
+                        _enviarHistorialUsuario(HistorialUsuario.getActividadInvitarAmigo(widget.actividad!.id, isIntegrante: false,));
+                      },
+                      child: RichText(
+                        text: const TextSpan(
+                          style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
+                          text: "¿Aún no decides si unirte? ",
+                          children: [
+                            TextSpan(
+                              text: "Ingresa con un amigo.",
+                              style: TextStyle(color: constants.blueGeneral, decoration: TextDecoration.underline,),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+            ),
+
           if(widget.actividad!.isAutor)
             Align(
               alignment: Alignment.center,
               child: Container(
                 margin: const EdgeInsets.symmetric(vertical: 24,),
                 constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
-                child: ElevatedButton(
+                child: ElevatedButton.icon(
                   onPressed: _enviandoGenerarInvitacionCreador ? null : () => _compartirInvitacionCreador(),
-                  child: const Text("Agregar cocreadores"),
+                  icon: const Icon(Icons.add_rounded, size: 18,),
+                  label: const Text("Agregar cocreadores"),
                   style: ElevatedButton.styleFrom(
                     shape: const StadiumBorder(),
                   ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
@@ -584,7 +642,7 @@ class _ActividadPageState extends State<ActividadPage> {
     });
   }
 
-  Future<void> _cargarActividad(String? invitacionCreador) async {
+  Future<void> _cargarActividad(String? invitacionCreador, String? actividadId) async {
     setState(() {
       _loadingActividad = true;
     });
@@ -597,6 +655,11 @@ class _ActividadPageState extends State<ActividadPage> {
       // Ingreso desde routeInvitacionCreador
       queryParams = {
         "invitacion_codigo": invitacionCreador
+      };
+    } else if(actividadId != null){
+      // Ingreso desde routeActividadId
+      queryParams = {
+        "actividad_id": actividadId
       };
     } else {
       queryParams = {
@@ -793,7 +856,7 @@ class _ActividadPageState extends State<ActividadPage> {
 
       if(datosJson['error'] == false){
 
-        _cargarActividad(null);
+        _cargarActividad(null, null);
 
       } else {
         _showSnackBar("Se produjo un error inesperado");
@@ -893,7 +956,7 @@ class _ActividadPageState extends State<ActividadPage> {
 
       if(datosJson['error'] == false){
 
-        _cargarActividad(null);
+        _cargarActividad(null, null);
 
       } else {
 

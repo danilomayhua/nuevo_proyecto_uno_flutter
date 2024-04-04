@@ -8,7 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:tenfo/models/usuario.dart';
 import 'package:tenfo/models/usuario_contacto_solicitud.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
-import 'package:tenfo/screens/principal/principal_page.dart';
+import 'package:tenfo/screens/signup/views/signup_tutorial_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -160,7 +160,7 @@ class _SignupFriendsPageState extends State<SignupFriendsPage> {
             onPressed: (){
 
               Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-                  builder: (context) => const PrincipalPage(isFromSignup: true,)
+                  builder: (context) => const SignupTutorialPage()
               ), (root) => false);
 
             },

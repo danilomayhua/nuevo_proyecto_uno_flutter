@@ -45,6 +45,7 @@
                 <data android:pathPrefix="/@" />
                 <data android:pathPrefix="/add-friend/" />
                 <data android:pathPrefix="/activity-creator/" />
+                <data android:pathPrefix="/join-activity/" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/screens/signup/views/signup_location_page.dart';
 import 'package:tenfo/screens/signup/views/signup_send_university_page.dart';
+import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
+import 'package:tenfo/utilities/historial_no_usuario.dart';
 import 'package:tenfo/utilities/universidades.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -143,6 +147,9 @@ class _SignupUniversityPageState extends State<SignupUniversityPage> {
         child: Icon(Icons.school_outlined, color: constants.blackGeneral,),
       ),
       onTap: (){
+        // Envia historial no usuario
+        _enviarHistorialNoUsuario(HistorialNoUsuario.getRegistroUniversidadElegir(universidadId));
+
         Navigator.push(context, MaterialPageRoute(
             builder: (context) => SignupLocationPage(
               universidadId: universidadId,
@@ -168,5 +175,36 @@ class _SignupUniversityPageState extends State<SignupUniversityPage> {
         ));
       },
     );
+  }
+
+  Future<void> _enviarHistorialNoUsuario(Map<String, dynamic> historialNoUsuario) async {
+    //setState(() {});
+
+    var response = await HttpService.httpPost(
+      url: constants.urlCrearHistorialNoUsuario,
+      body: {
+        "historiales_no_usuario": [historialNoUsuario],
+      },
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = await jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+        //
+      } else {
+        //_showSnackBar("Se produjo un error inesperado");
+      }
+    }
+
+    //setState(() {});
+  }
+
+  void _showSnackBar(String texto){
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        behavior: SnackBarBehavior.floating,
+        content: Text(texto, textAlign: TextAlign.center,)
+    ));
   }
 }

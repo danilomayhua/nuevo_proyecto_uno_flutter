@@ -26,6 +26,8 @@ class HistorialUsuario {
   static const String _bandejaChatsNotificaciones = "/bandeja-chats/notificaciones-push";
   static const String _bandejaChatsNotificacionesActivar = "/bandeja-chats/notificaciones-push/activar";
 
+  static const String _homeNotificaciones = "/home/notificaciones-push";
+
 
   /// En CrearActividad, cuando ingresa a la segunda pantalla
   static Map<String, dynamic> getCrearActividadPasoDos(){
@@ -148,11 +150,12 @@ class HistorialUsuario {
   }
 
   /// En Actividad, cuando invita a un amigo
-  static Map<String, dynamic> getActividadInvitarAmigo(String actividadId){
+  static Map<String, dynamic> getActividadInvitarAmigo(String actividadId, {bool isIntegrante = false}){
     return {
       "evento": _actividadInvitarAmigo,
       "datos_adicionales": {
         "actividad_id": actividadId,
+        "enviado_desde": isIntegrante ? "actividad-integrante" : "actividad-no-integrante",
       }
     };
   }
@@ -181,6 +184,16 @@ class HistorialUsuario {
   static Map<String, dynamic> getBandejaChatsNotificacionesActivar(bool isAceptado){
     return {
       "evento": _bandejaChatsNotificacionesActivar,
+      "datos_adicionales": {
+        "permiso_notificaciones_aceptado": isAceptado ? "SI" : "NO",
+      }
+    };
+  }
+
+  /// En Home, cuando aparece popup notificaciones push
+  static Map<String, dynamic> getHomeNotificaciones(bool isAceptado){
+    return {
+      "evento": _homeNotificaciones,
       "datos_adicionales": {
         "permiso_notificaciones_aceptado": isAceptado ? "SI" : "NO",
       }

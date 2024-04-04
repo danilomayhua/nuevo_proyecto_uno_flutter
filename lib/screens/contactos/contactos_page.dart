@@ -134,7 +134,7 @@ class _ContactosPageState extends State<ContactosPage> {
   Widget _buildTextoCabecera(){
     return const Padding(
       padding: EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 12,),
-      child: Text("Agrega amigos para descubrir vínculos en común con personas en las actividades. Solo tú puedes ver tu lista completa de amigos.",
+      child: Text("Solo tú puedes ver tu lista completa de amigos. Agrega amigos para cocrear actividades y para ver amigos en común con otras personas.",
         style: TextStyle(color: constants.grey, fontSize: 12,),
       ),
     );

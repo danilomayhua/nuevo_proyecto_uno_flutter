@@ -4,9 +4,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/models/disponibilidad.dart';
+import 'package:tenfo/models/usuario.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/crear_actividad/crear_actividad_page.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
+import 'package:tenfo/screens/user/user_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/widgets/icon_universidad_verificada.dart';
@@ -114,8 +116,15 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
             Row(children: [
               GestureDetector(
                 onTap: (){
-                  Navigator.pop(context);
-                  _showDialogUsuarioDatos();
+                  /*Navigator.pop(context);
+                  _showDialogUsuarioDatos();*/
+
+                  // TODO : obtener los datos completos del usuario en disponibilidad.creador
+                  Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => UserPage(
+                      usuario: Usuario(id: widget.disponibilidad.creador.id, nombre: "", username: "", foto: widget.disponibilidad.creador.foto,),
+                    )),
+                  );
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -142,8 +151,15 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
                   Flexible(
                     child: GestureDetector(
                       onTap: (){
-                        Navigator.pop(context);
-                        _showDialogUsuarioDatos();
+                        /*Navigator.pop(context);
+                        _showDialogUsuarioDatos();*/
+
+                        // TODO : obtener los datos completos del usuario en disponibilidad.creador
+                        Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => UserPage(
+                            usuario: Usuario(id: widget.disponibilidad.creador.id, nombre: "", username: "", foto: widget.disponibilidad.creador.foto,),
+                          )),
+                        );
                       },
                       child: Row(children: [
                         Flexible(
