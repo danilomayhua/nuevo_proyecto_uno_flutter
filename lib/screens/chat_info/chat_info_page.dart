@@ -152,7 +152,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
 
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text("Hora estimada de encuentro:", style: TextStyle(color: constants.blackGeneral),),
+            child: Text("Hora de encuentro:", style: TextStyle(color: constants.blackGeneral),),
           ),
           const SizedBox(height: 8,),
           Padding(
@@ -201,7 +201,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
                         ),
                         constraints: const BoxConstraints(maxWidth: 200,),
                         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8,),
-                        child: const Text("¡Elige una hora para hacer que el encuentro sea más probable!",
+                        child: const Text("¡Elige una hora para hacer que el encuentro sea más fácil!",
                           style: TextStyle(color: Colors.white,),
                         ),
                       ),
@@ -216,7 +216,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
 
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text("Link de encuentro:", style: TextStyle(color: constants.blackGeneral),),
+            child: Text("Link de ubicación:", style: TextStyle(color: constants.blackGeneral),),
           ),
           const SizedBox(height: 8,),
           Padding(
@@ -228,8 +228,8 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
                   enabled: false,
                   isDense: true,
                   hintText: _isCreador
-                      ? "Ingresa un link de Maps, Zoom, Google Meet, FaceTime..."
-                      : "Indefinido (link de Maps, Zoom, FaceTime...)",
+                      ? "Ingresa un link de Maps..."
+                      : "Indefinido",
                   hintStyle: TextStyle(fontSize: 12,),
                   //counterText: '',
                   border: OutlineInputBorder(),
@@ -354,7 +354,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
           _showDialogOpcionesIntegrante(integrante);
         } else {
           Navigator.push(context, MaterialPageRoute(
-            builder: (context) => UserPage(usuario: integrante.usuario,),
+            builder: (context) => UserPage(usuario: integrante.usuario, compartenGrupoChatId: widget.chat.id,),
           ));
         }
       },
@@ -585,7 +585,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
             controller: _encuentroLinkController,
             decoration: InputDecoration(
               isDense: true,
-              hintText: "Ingresa un link de Maps, Zoom, Google Meet, FaceTime...",
+              hintText: "Ingresa un link de Maps...",
               counterText: '',
               border: OutlineInputBorder(),
               errorText: _encuentroLinkErrorText,
@@ -773,7 +773,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
             onTap: (){
               Navigator.of(context).pop();
               Navigator.push(context, MaterialPageRoute(
-                builder: (context) => UserPage(usuario: integrante.usuario,),
+                builder: (context) => UserPage(usuario: integrante.usuario, compartenGrupoChatId: widget.chat.id,),
               ));
             },
           ),

@@ -19,10 +19,11 @@ import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ChatPage extends StatefulWidget {
-  ChatPage({Key? key, required this.chat, this.chatIndividualUsuario}) : super(key: key);
+  ChatPage({Key? key, required this.chat, this.chatIndividualUsuario, this.compartenGrupoChatId}) : super(key: key);
 
   Chat? chat;
   final Usuario? chatIndividualUsuario;
+  final String? compartenGrupoChatId;
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -178,7 +179,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                 previousMessage: index == 0 ? null : _messageList[index - 1],
                 onProfileRequested: (Usuario usuario) => Navigator.push(context,
                   MaterialPageRoute(
-                    builder: (context) => UserPage(usuario: usuario,),
+                    builder: (context) => UserPage(usuario: usuario, compartenGrupoChatId: _isChatGroup ? widget.chat!.id : null,),
                   ),
                 ),
               );
@@ -329,6 +330,9 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           break;
         case 'chat_individual_mensaje':
           _handlePrivateMessage(response['data']);
+          break;
+        case 'chat_no_disponible':
+          _handleChatNotAvailable(response['data']);
           break;
       }
     });
@@ -505,6 +509,16 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     }
   }
 
+  void _handleChatNotAvailable(Map<String, dynamic> data){
+    if(widget.chatIndividualUsuario?.id != null){
+      if(data['receptor_usuario']['id'] == widget.chatIndividualUsuario!.id){
+        if(_keyMessageEntry.currentState != null){
+          _keyMessageEntry.currentState!.userBlocked();
+        }
+      }
+    }
+  }
+
   void _handleSendMessageRequest(String text) {
     if(_isChatGroup) {
       _webSocket?.add(json.encode({
@@ -529,6 +543,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
             'id': usuarioId,
           },
           'mensaje': {'texto': text},
+          'comparten_grupo_chat_id': widget.compartenGrupoChatId,
         },
       }));
 

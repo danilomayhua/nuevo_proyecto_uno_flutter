@@ -30,10 +30,11 @@ import 'package:tenfo/widgets/icon_universidad_verificada.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class UserPage extends StatefulWidget {
-  const UserPage({Key? key, required this.usuario, this.isFromProfile = false, this.routeUsername}) : super(key: key);
+  const UserPage({Key? key, required this.usuario, this.isFromProfile = false, this.compartenGrupoChatId, this.routeUsername}) : super(key: key);
 
   final Usuario? usuario;
   final bool isFromProfile;
+  final String? compartenGrupoChatId;
   final String? routeUsername;
 
   @override
@@ -739,15 +740,15 @@ class _UserPageState extends State<UserPage> {
         child: Row(children: [
           OutlinedButton.icon(
             onPressed: (){
-              if(_usuarioPerfil.contactoEstado == UsuarioPerfilContactoEstado.CONECTADOS){
+              if(_usuarioPerfil.contactoEstado == UsuarioPerfilContactoEstado.CONECTADOS || widget.compartenGrupoChatId != null){
                 Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => ChatPage(chat: null, chatIndividualUsuario: _usuarioPerfil,),
+                  builder: (context) => ChatPage(chat: null, chatIndividualUsuario: _usuarioPerfil, compartenGrupoChatId: widget.compartenGrupoChatId,),
                 ));
               } else {
                 _showDialogMensajeBloqueado();
               }
             },
-            icon: _usuarioPerfil.contactoEstado == UsuarioPerfilContactoEstado.CONECTADOS
+            icon: _usuarioPerfil.contactoEstado == UsuarioPerfilContactoEstado.CONECTADOS || widget.compartenGrupoChatId != null
                 ? const Icon(Icons.near_me)
                 : const Icon(Icons.lock_outline),
             label: const Text('Enviar mensaje', style: TextStyle(fontSize: 16),),
@@ -801,8 +802,8 @@ class _UserPageState extends State<UserPage> {
       return AlertDialog(
         content: SingleChildScrollView(
           child: Column(children: const [
-            Text("Solo puedes enviar mensajes privados a usuarios agregados como amigos.",
-              style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
+            Text("Solo puedes enviar mensajes privados a usuarios agregados como amigos o que estén participando en una misma actividad.",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),
               textAlign: TextAlign.left,
             ),
           ], mainAxisSize: MainAxisSize.min,),

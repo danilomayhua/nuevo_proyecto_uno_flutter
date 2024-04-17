@@ -56,6 +56,7 @@ class _MessageBubbleState extends State<MessageBubble> {
         child: Container(
           child: RichText(
             text: TextSpan(
+              style: const TextStyle(height: 1.3,),
               children: [
                 if (widget.message.isEntrante)
                   TextSpan(
@@ -69,8 +70,9 @@ class _MessageBubbleState extends State<MessageBubble> {
                 TextSpan(
                   text: widget.message.tipo == MensajeTipo.GRUPO_INGRESO
                       ? widget.message.isEntrante
-                        ? ' se unió al grupo.\nEste usuario no puede ver mensajes anteriores.'
-                        : 'Te has unido al grupo.\nNo puedes ver mensajes anteriores a este.'
+                        ? ' se unió al grupo.\nSolo puede ver los últimos mensajes anteriores.'
+                        : 'Te has unido al grupo.\n\nSolo puedes ver los últimos 5 mensajes anteriores. '
+                        'Podrás ver todos los mensajes nuevos a partir de ahora.\n'
                     : widget.message.tipo == MensajeTipo.GRUPO_SALIDA
                       ? widget.message.isEntrante
                         ? ' salió del grupo'
