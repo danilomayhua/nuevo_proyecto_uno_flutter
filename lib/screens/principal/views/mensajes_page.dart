@@ -261,6 +261,7 @@ class _MensajesPageState extends State<MensajesPage> {
               fecha: "",
               privacidadTipo: ActividadPrivacidadTipo.PUBLICO,
               interes: "",
+              isLiked: false,
               creadores: [],
               ingresoEstado: ActividadIngresoEstado.INTEGRANTE,
               isAutor: false,

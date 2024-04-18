@@ -72,10 +72,16 @@ const String urlActividadConfirmarCocreador = "/api/actividad/confirmar-cocreado
 const String urlActividadConfirmarCocreadorInvitacion = "/api/actividad/confirmar-cocreador-invitacion";
 const String urlActividadSolicitudes = "/api/actividad/solicitudes";
 
+const String urlActividadInvitacionActividadesParaInvitar = "/api/actividad-invitacion/actividades-para-invitar";
+const String urlActividadInvitacionInvitar = "/api/actividad-invitacion/invitar";
+
 const String urlCrearDisponibilidad = "/api/disponibilidad/crear";
 const String urlEliminarDisponibilidad = "/api/disponibilidad/eliminar";
 
 const String urlDisponibilidadSugerencias = "/api/disponibilidad/sugerencias-crear-disponibilidad";
+
+const String urlLikeActividadAgregar = "/api/like-actividad/agregar-like";
+const String urlLikeActividadQuitar = "/api/like-actividad/quitar-like";
 
 const String urlBandejaChats = "/api/bandeja-chats";
 

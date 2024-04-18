@@ -10,7 +10,9 @@ enum NotificacionTipo {
   STICKER_ENVIADO,
   CONTACTO_SOLICITUD,
   CONTACTO_NUEVO,
-  AVISO_PERSONALIZADO
+  AVISO_PERSONALIZADO,
+  ACTIVIDAD_INVITACION,
+  ACTIVIDAD_LIKE,
 }
 
 class Notificacion {
@@ -43,6 +45,10 @@ class Notificacion {
       return NotificacionTipo.CONTACTO_NUEVO;
     } else if(tipoString == "AVISO_PERSONALIZADO"){
       return NotificacionTipo.AVISO_PERSONALIZADO;
+    } else if(tipoString == "ACTIVIDAD_INVITACION"){
+      return NotificacionTipo.ACTIVIDAD_INVITACION;
+    } else if(tipoString == "ACTIVIDAD_LIKE"){
+      return NotificacionTipo.ACTIVIDAD_LIKE;
     } else {
       return NotificacionTipo.INDEFINIDO;
     }

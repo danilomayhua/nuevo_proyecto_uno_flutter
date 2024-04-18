@@ -4,6 +4,7 @@ import 'package:tenfo/models/actividad.dart';
 import 'package:tenfo/screens/actividad/actividad_page.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/widgets/actividad_boton_entrar.dart';
+import 'package:tenfo/widgets/actividad_boton_like.dart';
 
 class CardActividad extends StatefulWidget {
   CardActividad({Key? key, required this.actividad, this.showTooltipUnirse = false}) : super(key: key);
@@ -129,10 +130,12 @@ class _CardActividadState extends State<CardActividad> {
             ],
           ),
           const SizedBox(height: 16,),
-          Align(
-            alignment: Alignment.centerRight,
-            child: ActividadBotonEntrar(actividad: widget.actividad),
-          ),
+          Row(children: [
+            if(!widget.actividad.isAutor)
+              ActividadBotonLike(actividad: widget.actividad),
+            const Spacer(),
+            ActividadBotonEntrar(actividad: widget.actividad),
+          ],),
         ],
         crossAxisAlignment: CrossAxisAlignment.start,),
 

@@ -215,6 +215,7 @@ class _MisActividadesPageState extends State<MisActividadesPage> {
             fecha: element['fecha_texto'],
             privacidadTipo: Actividad.getActividadPrivacidadTipoFromString(element['privacidad_tipo']),
             interes: element['interes_id'].toString(),
+            isLiked: element['like'] == "SI",
             creadores: creadores,
             ingresoEstado: Actividad.getActividadIngresoEstadoFromString(element['ingreso_estado']),
             isAutor: element['autor_usuario_id'] == usuarioSesion.id,

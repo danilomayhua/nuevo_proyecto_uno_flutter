@@ -154,6 +154,24 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
         if(notificacion.avisoPersonalizado != null) _showDialogAvisoPersonalizado(notificacion.avisoPersonalizado!);
       };
 
+    } else if(notificacion.tipo == NotificacionTipo.ACTIVIDAD_INVITACION){
+
+      texto = '${notificacion.autorUsuario!.nombre} te invitó a su actividad.';
+      onTap = (){
+        Navigator.push(context,
+          MaterialPageRoute(builder: (context) => ActividadPage(actividad: notificacion.actividad!,)),
+        );
+      };
+
+    } else if(notificacion.tipo == NotificacionTipo.ACTIVIDAD_LIKE){
+
+      texto = 'A ${notificacion.autorUsuario!.nombre} le gustó tu actividad.';
+      onTap = (){
+        Navigator.push(context,
+          MaterialPageRoute(builder: (context) => ActividadPage(actividad: notificacion.actividad!,)),
+        );
+      };
+
     } else {
       texto = 'Tienes que actualizar la versión para ver esta notificación.';
     }
@@ -242,6 +260,7 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
               isAutor: element['actividad']['autor_usuario_id'] == usuarioSesion.id,
 
               // Los siguientes datos de Actividad no son usados (no son los datos reales)
+              isLiked: false,
               creadores: [],
               ingresoEstado: ActividadIngresoEstado.INTEGRANTE,
             );
@@ -261,6 +280,7 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
                 fecha: "",
                 privacidadTipo: ActividadPrivacidadTipo.PUBLICO,
                 interes: "",
+                isLiked: false,
                 creadores: [],
                 ingresoEstado: ActividadIngresoEstado.INTEGRANTE,
                 isAutor: false,

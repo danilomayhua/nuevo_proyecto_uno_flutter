@@ -426,6 +426,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
               fecha: actividadDatos['fecha_texto'],
               privacidadTipo: Actividad.getActividadPrivacidadTipoFromString(actividadDatos['privacidad_tipo']),
               interes: actividadDatos['interes_id'].toString(),
+              isLiked: actividadDatos['like'] == "SI",
               creadores: creadores,
               ingresoEstado: Actividad.getActividadIngresoEstadoFromString(actividadDatos['ingreso_estado']),
               isAutor: actividadDatos['autor_usuario_id'] == usuarioSesion.id,

@@ -20,6 +20,7 @@ import 'package:tenfo/utilities/shared_preferences_keys.dart';
 import 'package:tenfo/widgets/actividad_boton_entrar.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tenfo/widgets/actividad_boton_like.dart';
 
 class ActividadPage extends StatefulWidget {
   ActividadPage({Key? key, required this.actividad, this.reload = true,
@@ -252,15 +253,26 @@ class _ActividadPageState extends State<ActividadPage> {
           */
           const SizedBox(height: 24,),
 
-          Container(
-            alignment: Alignment.centerRight,
-            padding: EdgeInsets.symmetric(horizontal: 16,),
-            child: ActividadBotonEntrar(
-              actividad: widget.actividad!,
-              onChangeIngreso: (){
-                if(widget.onChangeIngreso != null) widget.onChangeIngreso!(widget.actividad!);
-              },
-            ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16,),
+            child: Row(children: [
+              if(!widget.actividad!.isAutor)
+                ActividadBotonLike(
+                  actividad: widget.actividad!,
+                  onChange: (){
+                    if(widget.onChangeIngreso != null) widget.onChangeIngreso!(widget.actividad!);
+                  },
+                ),
+
+              const Spacer(),
+
+              ActividadBotonEntrar(
+                actividad: widget.actividad!,
+                onChangeIngreso: (){
+                  if(widget.onChangeIngreso != null) widget.onChangeIngreso!(widget.actividad!);
+                },
+              ),
+            ],),
           ),
 
           const SizedBox(height: 16,),
@@ -718,6 +730,7 @@ class _ActividadPageState extends State<ActividadPage> {
           fecha: datosActividad['fecha_texto'],
           privacidadTipo: Actividad.getActividadPrivacidadTipoFromString(datosActividad['privacidad_tipo']),
           interes: datosActividad['interes_id'].toString(),
+          isLiked: datosActividad['like'] == "SI",
           creadores: creadores,
           ingresoEstado: Actividad.getActividadIngresoEstadoFromString(datosActividad['ingreso_estado']),
           isAutor: datosActividad['autor_usuario_id'] == usuarioSesion.id,

@@ -7,6 +7,7 @@ import 'package:tenfo/models/disponibilidad.dart';
 import 'package:tenfo/models/usuario.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/crear_actividad/crear_actividad_page.dart';
+import 'package:tenfo/screens/invitar_actividad/invitar_actividad_page.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/screens/user/user_page.dart';
 import 'package:tenfo/services/http_service.dart';
@@ -209,13 +210,14 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
 
             const SizedBox(height: 24,),
 
-            Text((widget.isCreadorActividadVisible ?? false) || widget.disponibilidad.isAutor
-                ? "Esto es un estado de visualización."
-                : "Esto es un estado de visualización. Crea una actividad para que "
-                "otros usuarios como ${widget.disponibilidad.creador.nombre} puedan unirse.",
-              style: const TextStyle(color: constants.blackGeneral, fontSize: 12, height: 1.3,),
-              textAlign: TextAlign.center,
-            ),
+            if(!(widget.isCreadorActividadVisible ?? false) || widget.disponibilidad.isAutor)
+              Text(widget.disponibilidad.isAutor
+                  ? "Esto es un estado de visualización."
+                  : "Esto es un estado de visualización. Crea una actividad para que "
+                  "otros usuarios como ${widget.disponibilidad.creador.nombre} puedan unirse.",
+                style: const TextStyle(color: constants.blackGeneral, fontSize: 12, height: 1.3,),
+                textAlign: TextAlign.center,
+              ),
 
             if(!(widget.isCreadorActividadVisible ?? false) && !widget.disponibilidad.isAutor)
               ...[
@@ -237,6 +239,26 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
                   ),
                 ),
 
+              ],
+
+            if((widget.isCreadorActividadVisible ?? false) && !widget.disponibilidad.isAutor)
+              ...[
+                Container(
+                  constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+                  child: TextButton.icon(
+                    onPressed: (){
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (context) => InvitarActividadPage(invitacionDisponibilidadCreador: widget.disponibilidad.creador,),
+                      ));
+                    },
+                    icon: const Icon(Icons.person_add_alt_outlined),
+                    label: const Text("Invitar a actividad"),
+                    style: TextButton.styleFrom(
+                      shape: const StadiumBorder(),
+                    ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+                  ),
+                ),
               ],
 
             const SizedBox(height: 16,),
