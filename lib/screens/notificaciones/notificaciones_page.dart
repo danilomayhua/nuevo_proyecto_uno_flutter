@@ -261,6 +261,7 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
 
               // Los siguientes datos de Actividad no son usados (no son los datos reales)
               isLiked: false,
+              likesCount: 0,
               creadores: [],
               ingresoEstado: ActividadIngresoEstado.INTEGRANTE,
             );
@@ -281,6 +282,7 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
                 privacidadTipo: ActividadPrivacidadTipo.PUBLICO,
                 interes: "",
                 isLiked: false,
+                likesCount: 0,
                 creadores: [],
                 ingresoEstado: ActividadIngresoEstado.INTEGRANTE,
                 isAutor: false,

@@ -78,13 +78,13 @@ class _SignupPicturePageState extends State<SignupPicturePage> {
           child: Column(children: [
             const SizedBox(height: 16,),
 
-            const Text("Bienvenido a Tenfo",
+            const Text("Foto de perfil",
               style: TextStyle(color: constants.blackGeneral, fontSize: 24,),
             ),
             const SizedBox(height: 24,),
             const Align(
               alignment: Alignment.centerLeft,
-              child: Text("Vamos a completar tu perfil: ¡Agrega tu foto de perfil!",
+              child: Text("Bienvenido a Tenfo. Vamos a completar tu perfil: ¡Agrega tu foto de perfil!",
                 style: TextStyle(color: constants.grey,),
                 textAlign: TextAlign.left,
               ),
@@ -134,8 +134,8 @@ class _SignupPicturePageState extends State<SignupPicturePage> {
     int totalIntentosFoto = prefs.getInt(SharedPreferencesKeys.totalIntentosAgregarFoto) ?? 0;
 
     // Puede haber un error(cierra la app) al abrir galeria en algunos dispositivos
-    // Si despues de 5 intentos aun no agrego la foto, permitir omitir esta pantalla
-    if(totalIntentosFoto >= 5){
+    // Si despues de 15 intentos aun no agrego la foto, permitir omitir esta pantalla
+    if(totalIntentosFoto >= 15){
       _isAvailableBotonOmitir = true;
       setState(() {});
     }

@@ -36,10 +36,14 @@ class _ActividadBotonLikeState extends State<ActividadBotonLike> {
 
   Future<void> _likeActividad() async {
     widget.actividad.isLiked = true;
+    widget.actividad.likesCount++;
 
     setState(() {
       _enviando = true;
     });
+
+    // Actualiza el contador de likes y el estado de card_actividad que abrio actividad_page
+    if(widget.onChange != null) widget.onChange!();
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
@@ -57,19 +61,20 @@ class _ActividadBotonLikeState extends State<ActividadBotonLike> {
 
       if(datosJson['error'] == false){
 
-        //widget.actividad.isLiked = true;
-
-        // Actualiza el estado de card_actividad que abrio actividad_page
-        if(widget.onChange != null) widget.onChange!();
+        // Los cambios ya fueron agregados al principio de la funcion
 
       } else {
         if(datosJson['error_tipo'] == 'tiene_like'){
 
-          widget.actividad.isLiked = true;
+          //widget.actividad.isLiked = true;
 
         } else {
           widget.actividad.isLiked = false;
+          widget.actividad.likesCount--;
           _showSnackBar("Se produjo un error inesperado");
+
+          // Actualiza el contador de likes y el estado de card_actividad que abrio actividad_page
+          if(widget.onChange != null) widget.onChange!();
         }
       }
     }
@@ -81,10 +86,14 @@ class _ActividadBotonLikeState extends State<ActividadBotonLike> {
 
   Future<void> _quitarLikeActividad() async {
     widget.actividad.isLiked = false;
+    widget.actividad.likesCount--;
 
     setState(() {
       _enviando = true;
     });
+
+    // Actualiza el contador de likes y el estado de card_actividad que abrio actividad_page
+    if(widget.onChange != null) widget.onChange!();
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
@@ -102,19 +111,20 @@ class _ActividadBotonLikeState extends State<ActividadBotonLike> {
 
       if(datosJson['error'] == false){
 
-        //widget.actividad.isLiked = false;
-
-        // Actualiza el estado de card_actividad que abrio actividad_page
-        if(widget.onChange != null) widget.onChange!();
+        // Los cambios ya fueron agregados al principio de la funcion
 
       } else {
         if(datosJson['error_tipo'] == 'no_tiene_like'){
 
-          widget.actividad.isLiked = false;
+          //widget.actividad.isLiked = false;
 
         } else {
           widget.actividad.isLiked = true;
+          widget.actividad.likesCount++;
           _showSnackBar("Se produjo un error inesperado");
+
+          // Actualiza el contador de likes y el estado de card_actividad que abrio actividad_page
+          if(widget.onChange != null) widget.onChange!();
         }
       }
     }

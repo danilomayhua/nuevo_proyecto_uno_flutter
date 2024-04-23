@@ -405,6 +405,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
           // Los siguientes datos de Actividad no son usados (no son los datos reales)
           interes: "",
           isLiked: false,
+          likesCount: 0,
           creadores: [],
         );
 

@@ -147,6 +147,7 @@ class _MisActividadesAntiguasPageState extends State<MisActividadesAntiguasPage>
             privacidadTipo: Actividad.getActividadPrivacidadTipoFromString(element['privacidad_tipo']),
             interes: element['interes_id'].toString(),
             isLiked: element['like'] == "SI",
+            likesCount: element['likes_count'],
             creadores: creadores,
             ingresoEstado: Actividad.getActividadIngresoEstadoFromString(element['ingreso_estado']),
             isAutor: element['autor_usuario_id'] == usuarioSesion.id,

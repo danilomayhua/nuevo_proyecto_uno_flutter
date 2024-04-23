@@ -131,8 +131,15 @@ class _CardActividadState extends State<CardActividad> {
           ),
           const SizedBox(height: 16,),
           Row(children: [
-            if(!widget.actividad.isAutor)
-              ActividadBotonLike(actividad: widget.actividad),
+            ActividadBotonLike(
+              actividad: widget.actividad,
+              onChange: (){
+                setState(() {});
+              },
+            ),
+            Text(widget.actividad.likesCount > 0 ? "${widget.actividad.likesCount}" : "",
+              style: const TextStyle(color: constants.blackGeneral, fontSize: 14,),
+            ),
             const Spacer(),
             ActividadBotonEntrar(actividad: widget.actividad),
           ],),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
+import 'package:tenfo/screens/seleccionar_crear_tipo/seleccionar_crear_tipo_page.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 
 class SignupTutorialPage extends StatefulWidget {
@@ -26,7 +27,7 @@ class _SignupTutorialPageState extends State<SignupTutorialPage> {
           child: Column(children: [
             const SizedBox(height: 16,),
 
-            const Text("¿Cómo funciona Tenfo?",
+            const Text("¿Cómo funciona Tenfo? 👋",
               style: TextStyle(color: constants.blackGeneral, fontSize: 24,),
             ),
 
@@ -104,7 +105,7 @@ class _SignupTutorialPageState extends State<SignupTutorialPage> {
               child: ElevatedButton(
                 onPressed: (){
                   Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-                      builder: (context) => const PrincipalPage(isFromSignup: true,)
+                      builder: (context) => const SeleccionarCrearTipoPage(isFromSignup: true,)
                   ), (root) => false);
                 },
                 child: const Text("Comenzar"),

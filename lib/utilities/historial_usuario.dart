@@ -111,10 +111,12 @@ class HistorialUsuario {
   }
 
   /// En SeleccionarCrearTipo, cuando ingresa a la pantalla
-  static Map<String, dynamic> getSeleccionarCrearTipo(){
+  static Map<String, dynamic> getSeleccionarCrearTipo({bool isFromSignup = false}){
     return {
       "evento": _seleccionarCrearTipo,
-      "datos_adicionales": {}
+      "datos_adicionales": {
+        "enviado_desde": isFromSignup ? "registro" : "principal",
+      }
     };
   }
 

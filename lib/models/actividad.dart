@@ -13,6 +13,7 @@ class Actividad {
   final ActividadPrivacidadTipo privacidadTipo;
   final String interes;
   bool isLiked;
+  int likesCount;
   final List<Usuario> creadores;
   ActividadIngresoEstado ingresoEstado;
 
@@ -25,7 +26,8 @@ class Actividad {
 
   Actividad({required this.id, required this.titulo, required this.descripcion,
       required this.fecha, required this.privacidadTipo, required this.interes,
-      required this.creadores, required this.ingresoEstado, required this.isLiked, required this.isAutor,
+      required this.creadores, required this.ingresoEstado, required this.isLiked,
+      required this.likesCount, required this.isAutor,
       this.chat, this.requisitosPreguntas = const [], this.requisitosEnviado = false});
 
   static ActividadPrivacidadTipo getActividadPrivacidadTipoFromString(String tipoString){

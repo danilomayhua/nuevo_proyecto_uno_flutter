@@ -427,6 +427,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
               privacidadTipo: Actividad.getActividadPrivacidadTipoFromString(actividadDatos['privacidad_tipo']),
               interes: actividadDatos['interes_id'].toString(),
               isLiked: actividadDatos['like'] == "SI",
+              likesCount: actividadDatos['likes_count'],
               creadores: creadores,
               ingresoEstado: Actividad.getActividadIngresoEstadoFromString(actividadDatos['ingreso_estado']),
               isAutor: actividadDatos['autor_usuario_id'] == usuarioSesion.id,
@@ -515,6 +516,10 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
         }
 
       }
+    } else {
+      // Se produjo en el error en el servidor (por ej. Error 500). No quitar "cargando" o mostrar un mensaje en toda la pantalla.
+      _showSnackBar("Se produjo un error");
+      return;
     }
 
     setState(() {
@@ -655,7 +660,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
               child: Column(children: [
 
-                Text("Crea tu actividad o visualización para acceder a las actividades disponibles.",
+                Text("Crea tu actividad o estado para desbloquear las actividades disponibles.",
                   style: TextStyle(color: Colors.grey[800], fontSize: 14,),
                   textAlign: TextAlign.center,
                 ),

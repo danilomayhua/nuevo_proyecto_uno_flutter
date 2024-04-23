@@ -3,11 +3,11 @@ class Universidades {
   static List<String> getListaUniversidades(){
     List<String> listUniversidades = [];
 
+    listUniversidades.add("4");
     listUniversidades.add("9");
     listUniversidades.add("7");
     listUniversidades.add("8");
     listUniversidades.add("3");
-    listUniversidades.add("4");
 
     return listUniversidades;
   }

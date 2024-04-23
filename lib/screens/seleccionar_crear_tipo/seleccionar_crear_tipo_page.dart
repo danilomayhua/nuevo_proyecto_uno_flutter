@@ -5,12 +5,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/crear_actividad/crear_actividad_page.dart';
 import 'package:tenfo/screens/crear_disponibilidad/crear_disponibilidad_page.dart';
+import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/historial_usuario.dart';
 
 class SeleccionarCrearTipoPage extends StatefulWidget {
-  const SeleccionarCrearTipoPage({Key? key}) : super(key: key);
+  const SeleccionarCrearTipoPage({Key? key, this.isFromSignup = false}) : super(key: key);
+
+  final bool isFromSignup;
 
   @override
   State<SeleccionarCrearTipoPage> createState() => _SeleccionarCrearTipoPageState();
@@ -23,7 +26,7 @@ class _SeleccionarCrearTipoPageState extends State<SeleccionarCrearTipoPage> {
     super.initState();
 
     // Envia historial del usuario
-    _enviarHistorialUsuario(HistorialUsuario.getSeleccionarCrearTipo());
+    _enviarHistorialUsuario(HistorialUsuario.getSeleccionarCrearTipo(isFromSignup: widget.isFromSignup));
   }
 
   @override
@@ -31,6 +34,18 @@ class _SeleccionarCrearTipoPageState extends State<SeleccionarCrearTipoPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Nuevo"),
+        leading: IconButton(
+          icon: const Icon(Icons.clear),
+          onPressed: (){
+            if(widget.isFromSignup){
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                  builder: (context) => const PrincipalPage(isFromSignup: true,)
+              ), (root) => false);
+            } else {
+              Navigator.of(context).pop();
+            }
+          },
+        ),
       ),
       backgroundColor: Colors.white,
       body: Column(children: [
@@ -91,7 +106,7 @@ class _SeleccionarCrearTipoPageState extends State<SeleccionarCrearTipoPage> {
                       builder: (context) => const CrearDisponibilidadPage(),
                     ));
                   },
-                  child: const Text("Solo ver"),
+                  child: const Text("Solo ver actividades"),
                   style: ElevatedButton.styleFrom(
                     shape: const StadiumBorder(),
                   ),
@@ -99,15 +114,18 @@ class _SeleccionarCrearTipoPageState extends State<SeleccionarCrearTipoPage> {
               ),
             ], mainAxisAlignment: MainAxisAlignment.center,),
         ),),
-        TextButton(
-          onPressed: (){
-            _showDialogComoFunciona();
-          },
-          child: const Text("Cómo funciona"),
-          style: TextButton.styleFrom(
-            primary: constants.blackGeneral,
+
+        if(!widget.isFromSignup)
+          TextButton(
+            onPressed: (){
+              _showDialogComoFunciona();
+            },
+            child: const Text("Cómo funciona"),
+            style: TextButton.styleFrom(
+              primary: constants.blackGeneral,
+            ),
           ),
-        ),
+
         const SizedBox(height: 16,),
       ]),
     );
@@ -122,7 +140,7 @@ class _SeleccionarCrearTipoPageState extends State<SeleccionarCrearTipoPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              const Text("Para acceder a las actividades disponibles, debes elegir entre dos opciones.",
+              const Text("Para desbloquear lo que otros están compartiendo, puedes elegir entre dos opciones.",
                 style: TextStyle(color: constants.blackGeneral, fontSize: 15, height: 1.3,),
                 textAlign: TextAlign.center,
               ),
@@ -163,12 +181,12 @@ class _SeleccionarCrearTipoPageState extends State<SeleccionarCrearTipoPage> {
                     style: TextStyle(color: constants.blackGeneral, fontSize: 15, height: 1.3,),
                     children: [
                       TextSpan(
-                        text: "Solo ver:",
+                        text: "Solo ver actividades:",
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16,),
                       ),
                       TextSpan(
-                        text: " Al seleccionar esta opción, estarás creando una visualización. Esto es un estado e indica que estás buscando "
-                            "actividades en las que unirte, pero aún no has creado ninguna.",
+                        text: " Esto es un estado e indica que estás buscando actividades, pero aún no has creado ninguna. "
+                            "Elige esta opción si solo quieres ver lo que otros están compartiendo.",
                       )
                     ],
                   ),

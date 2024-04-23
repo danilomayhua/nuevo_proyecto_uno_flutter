@@ -256,13 +256,17 @@ class _ActividadPageState extends State<ActividadPage> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16,),
             child: Row(children: [
-              if(!widget.actividad!.isAutor)
-                ActividadBotonLike(
-                  actividad: widget.actividad!,
-                  onChange: (){
-                    if(widget.onChangeIngreso != null) widget.onChangeIngreso!(widget.actividad!);
-                  },
-                ),
+              ActividadBotonLike(
+                actividad: widget.actividad!,
+                onChange: (){
+                  setState(() {});
+
+                  if(widget.onChangeIngreso != null) widget.onChangeIngreso!(widget.actividad!);
+                },
+              ),
+              Text(widget.actividad!.likesCount > 0 ? "${widget.actividad!.likesCount}" : "",
+                style: const TextStyle(color: constants.blackGeneral, fontSize: 14,),
+              ),
 
               const Spacer(),
 
@@ -731,6 +735,7 @@ class _ActividadPageState extends State<ActividadPage> {
           privacidadTipo: Actividad.getActividadPrivacidadTipoFromString(datosActividad['privacidad_tipo']),
           interes: datosActividad['interes_id'].toString(),
           isLiked: datosActividad['like'] == "SI",
+          likesCount: datosActividad['likes_count'],
           creadores: creadores,
           ingresoEstado: Actividad.getActividadIngresoEstadoFromString(datosActividad['ingreso_estado']),
           isAutor: datosActividad['autor_usuario_id'] == usuarioSesion.id,

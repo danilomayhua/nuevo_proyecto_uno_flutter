@@ -1964,6 +1964,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
                 privacidadTipo: Actividad.getActividadPrivacidadTipoFromString(datosActividad['privacidad_tipo']),
                 interes: datosActividad['interes_id'].toString(),
                 isLiked: datosActividad['like'] == "SI",
+                likesCount: datosActividad['likes_count'],
                 creadores: [Usuario(
                   id: usuarioSesion.id,
                   nombre: usuarioSesion.nombre_completo,

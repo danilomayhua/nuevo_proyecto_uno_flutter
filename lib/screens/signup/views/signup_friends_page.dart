@@ -462,7 +462,8 @@ class _SignupFriendsPageState extends State<SignupFriendsPage> {
     var response = await HttpService.httpPost(
       url: constants.urlEnviarSolicitudContacto,
       body: {
-        "usuario_id": usuarioContactoSolicitud.usuario.id
+        "usuario_id": usuarioContactoSolicitud.usuario.id,
+        "enviado_desde" : "registro",
       },
       usuarioSesion: usuarioSesion,
     );

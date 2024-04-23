@@ -1119,7 +1119,8 @@ class _UserPageState extends State<UserPage> {
     var response = await HttpService.httpPost(
       url: constants.urlEnviarSolicitudContacto,
       body: {
-        "usuario_id": _usuarioPerfil.id
+        "usuario_id": _usuarioPerfil.id,
+        "enviado_desde" : "usuario_perfil",
       },
       usuarioSesion: usuarioSesion,
     );
