@@ -59,21 +59,38 @@ class _SeleccionarCrearTipoPageState extends State<SeleccionarCrearTipoPage> {
 
               const SizedBox(height: 32,),
 
-              Container(
-                constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: (){
-                    Navigator.push(context, MaterialPageRoute(
-                      builder: (context) => const CrearActividadPage(),
-                    ));
-                  },
-                  child: const Text("Crear actividad"),
-                  style: ElevatedButton.styleFrom(
-                    shape: const StadiumBorder(),
-                  ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+              if(!widget.isFromSignup)
+                Container(
+                  constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: (){
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (context) => const CrearActividadPage(),
+                      ));
+                    },
+                    child: const Text("Crear actividad"),
+                    style: ElevatedButton.styleFrom(
+                      shape: const StadiumBorder(),
+                    ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+                  ),
                 ),
-              ),
+              if(widget.isFromSignup)
+                Container(
+                  constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: (){
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (context) => const CrearActividadPage(),
+                      ));
+                    },
+                    child: const Text("Crear actividad"),
+                    style: OutlinedButton.styleFrom(
+                      shape: const StadiumBorder(),
+                    ),
+                  ),
+                ),
 
               const SizedBox(height: 16),
               Row(
@@ -97,21 +114,39 @@ class _SeleccionarCrearTipoPageState extends State<SeleccionarCrearTipoPage> {
               ),
               const SizedBox(height: 16),
 
-              Container(
-                constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: (){
-                    Navigator.push(context, MaterialPageRoute(
-                      builder: (context) => const CrearDisponibilidadPage(),
-                    ));
-                  },
-                  child: const Text("Solo ver actividades"),
-                  style: ElevatedButton.styleFrom(
-                    shape: const StadiumBorder(),
+              if(!widget.isFromSignup)
+                Container(
+                  constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: (){
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (context) => const CrearDisponibilidadPage(),
+                      ));
+                    },
+                    child: const Text("Solo ver actividades"),
+                    style: OutlinedButton.styleFrom(
+                      shape: const StadiumBorder(),
+                    ),
                   ),
                 ),
-              ),
+              if(widget.isFromSignup)
+                Container(
+                  constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: (){
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (context) => const CrearDisponibilidadPage(),
+                      ));
+                    },
+                    child: const Text("Solo ver actividades"),
+                    style: ElevatedButton.styleFrom(
+                      shape: const StadiumBorder(),
+                    ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+                  ),
+                ),
+
             ], mainAxisAlignment: MainAxisAlignment.center,),
         ),),
 
