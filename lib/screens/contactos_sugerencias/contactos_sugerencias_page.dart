@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
@@ -14,6 +15,7 @@ import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/utilities/historial_usuario.dart';
 import 'package:tenfo/utilities/share_utils.dart';
+import 'package:tenfo/utilities/shared_preferences_keys.dart';
 
 class ContactosSugerenciasPage extends StatefulWidget {
   const ContactosSugerenciasPage({Key? key}) : super(key: key);
@@ -25,6 +27,9 @@ class ContactosSugerenciasPage extends StatefulWidget {
 class _ContactosSugerenciasPageState extends State<ContactosSugerenciasPage> {
 
   bool _isPermisoTelefonoContactos = false;
+
+  final TextEditingController _controllerBuscador = TextEditingController(text: "");
+  int _totalInvitaciones = 0;
 
   List<Contact> _telefonoContactos = [];
   List<Contact> _filteredTelefonoContactos = [];
@@ -40,6 +45,7 @@ class _ContactosSugerenciasPageState extends State<ContactosSugerenciasPage> {
     super.initState();
 
     _cargarTelefonoContactos();
+    _cargarNumeroInvitaciones();
   }
 
   @override
@@ -48,62 +54,138 @@ class _ContactosSugerenciasPageState extends State<ContactosSugerenciasPage> {
       appBar: AppBar(
         title: const Text("Agregar amigos"),
       ),
-      body: (_loadingContactosSugerencias || !_isPermisoTelefonoContactos) ? Center(
+      body: SafeArea(child: Column(children: [
 
-        child: _loadingContactosSugerencias ? const CircularProgressIndicator() : Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(children: [
+        const SizedBox(height: 16,),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16,),
+          child: Text("Agrega a tu grupo de amigos para crear e ingresar a actividades con tu grupo.",
+            style: TextStyle(color: constants.grey,),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        const SizedBox(height: 16,),
 
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16,),
+          child: Container(
+            constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: (){
+                // Envia historial del usuario
+                _enviarHistorialUsuario(HistorialUsuario.getContactosSugerenciasInvitarAmigosWhatsapp(isFromSignup: false,));
+
+                ShareUtils.shareProfileWhatsapp();
+              },
+              icon: const Icon(CupertinoIcons.share),
+              label: const Text("Compartir a grupo de compañeros"),
+              style: ElevatedButton.styleFrom(
+                shape: const StadiumBorder(),
+              ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 16,),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16,),
+          child: TextField(
+            controller: _controllerBuscador,
+            decoration: const InputDecoration(
+              isDense: true,
+              hintText: "Buscar...",
+              counterText: '',
+              border: OutlineInputBorder(),
+              focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8,),
+            ),
+            maxLength: 200,
+            minLines: 1,
+            maxLines: 1,
+            textCapitalization: TextCapitalization.sentences,
+            style: const TextStyle(fontSize: 14,),
+            onChanged: (text){
+              setState(() {
+                _filteredTelefonoContactos = _telefonoContactos
+                    .where((contact) => contact.displayName.toLowerCase().contains(text.toLowerCase()))
+                    .toList();
+              });
+            },
+          ),
+        ),
+
+
+        if(!_isPermisoTelefonoContactos)
+          Expanded(child: _loadingContactosSugerencias ? const Center(child: CircularProgressIndicator(),) : Column(children: [
             const SizedBox(height: 16,),
             const Icon(Icons.contacts_outlined, size: 40, color: constants.grey,),
             const SizedBox(height: 24,),
-            Text(Platform.isIOS
-                ? "Permite los contactos para poder sugerirte amigos y cocrear actividades fácilmente."
-                : "Tenfo requiere acceso a la lista de contactos para poder sugerirte amigos. "
-                "Esto se envía a nuestros servidores para mostrarte las sugerencias de posibles amigos. No lo compartimos con terceros.",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14.0,
-                color: Colors.grey[700],
+            Container(
+              width: 240,
+              child: Text(Platform.isIOS
+                  ? "Permite los contactos para poder sugerirte amigos y agregarlos fácilmente."
+                  : "Tenfo requiere acceso a la lista de contactos para poder sugerirte amigos. "
+                  "Esto se envía a nuestros servidores para mostrarte las sugerencias de posibles amigos. No lo compartimos con terceros.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14.0,
+                  color: Colors.grey[700],
+                ),
               ),
             ),
             const SizedBox(height: 24,),
             Container(
               constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
-              width: double.infinity,
-              child: ElevatedButton(
+              child: OutlinedButton(
                 onPressed: () => _habilitarTelefonoContactos(),
                 child: const Text('Aceptar'),
-                style: ElevatedButton.styleFrom(
+                style: OutlinedButton.styleFrom(
                   shape: const StadiumBorder(),
                 ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
               ),
             ),
             const SizedBox(height: 16,),
+          ], mainAxisAlignment: MainAxisAlignment.center,)),
 
-          ], mainAxisSize: MainAxisSize.min,),
-        ),
 
-      ) : ListView.builder(
-        itemCount: _sugerencias.length + 1 + _filteredTelefonoContactos.length + 1, // 2 listas y 2 texto cabecera
-        itemBuilder: (context, index){
-          if(index == 0){
-            return _buildCabeceraSugerencias();
-          }
+        if(_isPermisoTelefonoContactos)
+          Expanded(child: ListView.builder(
+            itemCount: _sugerencias.length + 1 + _filteredTelefonoContactos.length + 1, // 2 listas y 2 texto cabecera
+            itemBuilder: (context, index){
+              if(index == 0){
+                // Al buscar un contacto, quita las sugerencias
+                if(_controllerBuscador.text.isNotEmpty) return Container();
 
-          if (index < _sugerencias.length + 1) {
-            return _buildUsuario(_sugerencias[index - 1]);
-          }
+                return _buildCabeceraSugerencias();
+              }
 
-          if (index == _sugerencias.length + 1) {
-            return _buildCabeceraTelefonoContactos();
-          }
+              if (index < _sugerencias.length + 1) {
+                // Al buscar un contacto, quita las sugerencias
+                if(_controllerBuscador.text.isNotEmpty) return Container();
 
-          return _buildTelefonoContacto(_filteredTelefonoContactos[index - _sugerencias.length - 2]);
-        },
-        padding: const EdgeInsets.only(bottom: 24,),
-      ),
+                return _buildUsuario(_sugerencias[index - 1]);
+              }
+
+              if (index == _sugerencias.length + 1) {
+                return _buildCabeceraTelefonoContactos();
+              }
+
+              return _buildTelefonoContacto(_filteredTelefonoContactos[index - _sugerencias.length - 2]);
+            },
+            padding: const EdgeInsets.only(bottom: 24,),
+          ),),
+      ],),),
     );
+  }
+
+  Future<void> _cargarNumeroInvitaciones() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int invitaciones = prefs.getInt(SharedPreferencesKeys.totalInvitacionesAmigos) ?? 0;
+
+    _totalInvitaciones = invitaciones;
+    setState(() {});
   }
 
   Widget _buildCabeceraSugerencias(){
@@ -112,18 +194,27 @@ class _ContactosSugerenciasPageState extends State<ContactosSugerenciasPage> {
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 12,),
         child: const Text("Sugerencias",
-          style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
+          style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
         ),
       ),
 
-      if(_sugerencias.isEmpty)
+      if(_loadingContactosSugerencias)
         ...[
-          const SizedBox(height: 48,),
+          Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(16),
+            child: const CircularProgressIndicator(),
+          ),
+        ],
+
+      if(!_loadingContactosSugerencias && _sugerencias.isEmpty)
+        ...[
+          const SizedBox(height: 24,),
           Container(
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(horizontal: 16,),
             child: const Text("No hay sugerencias para mostrar",
-              style: TextStyle(color: constants.blackGeneral, fontSize: 14,
+              style: TextStyle(color: constants.blackGeneral, fontSize: 12,
                 height: 1.3, fontWeight: FontWeight.bold,),
               textAlign: TextAlign.center,
             ),
@@ -135,57 +226,33 @@ class _ContactosSugerenciasPageState extends State<ContactosSugerenciasPage> {
 
   Widget _buildCabeceraTelefonoContactos(){
     return Column(children: [
-      const SizedBox(height: 24,),
-      const Divider(color: constants.greyLight, height: 0.5,),
-      const SizedBox(height: 24,),
-
-      Container(
-        alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 12,),
-        child: const Text("Invitar amigos",
-          style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
-        ),
-      ),
-
       Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16,),
-        child: TextField(
-          decoration: const InputDecoration(
-            isDense: true,
-            hintText: "Buscar...",
-            counterText: '',
-            border: OutlineInputBorder(),
+        padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 12,),
+        child: Row(children: [
+          const Text("Invitar amigos",
+            style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
           ),
-          maxLength: 200,
-          minLines: 1,
-          maxLines: 1,
-          textCapitalization: TextCapitalization.sentences,
-          style: const TextStyle(fontSize: 14,),
-          onChanged: (text){
-            setState(() {
-              _filteredTelefonoContactos = _telefonoContactos
-                  .where((contact) => contact.displayName.toLowerCase().contains(text.toLowerCase()))
-                  .toList();
-            });
-          },
-        ),
+          const Spacer(),
+          Text("Invitaciones ${(_totalInvitaciones <= 5) ? _totalInvitaciones : 5}/5",
+            style: const TextStyle(color: constants.blueGeneral, fontSize: 12, fontWeight: FontWeight.bold,),
+          ),
+        ],),
       ),
 
-      const SizedBox(height: 16,),
-
-      if(_filteredTelefonoContactos.isEmpty)...[
-        const SizedBox(height: 48,),
-        Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 16,),
-          child: const Text("No hay resultados encontrados",
-            style: TextStyle(color: constants.blackGeneral, fontSize: 14,
-              height: 1.3, fontWeight: FontWeight.bold,),
-            textAlign: TextAlign.center,
+      if(_telefonoContactos.isNotEmpty && _filteredTelefonoContactos.isEmpty)
+        ...[
+          const SizedBox(height: 48,),
+          Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 16,),
+            child: const Text("No hay resultados encontrados",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 12,
+                height: 1.3, fontWeight: FontWeight.bold,),
+              textAlign: TextAlign.center,
+            ),
           ),
-        ),
-        const SizedBox(height: 48,),
-      ],
+          const SizedBox(height: 48,),
+        ],
     ],);
   }
 
@@ -226,22 +293,27 @@ class _ContactosSugerenciasPageState extends State<ContactosSugerenciasPage> {
           style: const TextStyle(color: constants.blackGeneral, fontSize: 18, fontWeight: FontWeight.bold,),
         ),
       ),
-      trailing: ElevatedButton(
+      trailing: OutlinedButton(
         onPressed: () async {
           // Envia historial del usuario
           _enviarHistorialUsuario(HistorialUsuario.getContactosSugerenciasInvitarAmigo(phone?.number ?? ""));
 
-
-          // Elimina cualquier caracter que no sea un digito del numero
-          String? cleanedPhoneNumber = phone?.number.replaceAll(RegExp(r'[^\d]'), '');
-
+          String? cleanedPhoneNumber = phone?.number.replaceAll(RegExp(r'[^\d]'), ''); // Elimina cualquier caracter que no sea un digito del numero
           ShareUtils.shareProfileWhatsappNumber(cleanedPhoneNumber ?? "");
+
+          _totalInvitaciones++;
+          setState(() {});
+
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          int totalIntentosFoto = prefs.getInt(SharedPreferencesKeys.totalInvitacionesAmigos) ?? 0;
+          prefs.setInt(SharedPreferencesKeys.totalInvitacionesAmigos, totalIntentosFoto + 1);
         },
         child: const Text("Invitar", style: TextStyle(fontSize: 12)),
-        style: ElevatedButton.styleFrom(
+        style: OutlinedButton.styleFrom(
+          primary: constants.blackGeneral,
           shape: const StadiumBorder(),
           padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8,),
-        ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+        ),
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
@@ -555,63 +556,6 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
         const SizedBox(height: 16,),
 
-        Container(
-          alignment: Alignment.centerLeft,
-          height: 32,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: _creadores.length + 1,
-            shrinkWrap: true,
-            itemBuilder: (context, index){
-              if(index == 0){
-                // Si no tiene creadores agregados, no muestra el texto
-                if(_creadores.isEmpty) return Container();
-
-                return Container(
-                  alignment: Alignment.center,
-                  child: const Text("Cocreadores:",
-                    style: TextStyle(color: constants.grey, fontSize: 12,),
-                    textAlign: TextAlign.left,
-                  ),
-                );
-              }
-
-              index = index - 1;
-
-              return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4,),
-                padding: const EdgeInsets.symmetric(horizontal: 4,),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: constants.grey, width: 0.5,),
-                ),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: constants.greyBackgroundImage,
-                      backgroundImage: CachedNetworkImageProvider(_creadores[index].usuario!.foto),
-                      radius: 12,
-                    ),
-                    const SizedBox(width: 4,),
-                    Text(_creadores[index].usuario!.username, style: const TextStyle(fontSize: 10),),
-                    const SizedBox(width: 4,),
-                    GestureDetector(
-                      onTap: (){
-                        setState(() {
-                          _creadores.removeAt(index);
-                        });
-                      },
-                      child: const Icon(Icons.close, color: constants.blackGeneral, size: 18,),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-
-        const SizedBox(height: 16,),
-
         TextField(
           decoration: const InputDecoration(
             isDense: true,
@@ -689,6 +633,63 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         const Text("Paso 2 de 2",
           style: TextStyle(color: constants.grey, fontSize: 12,),
         ),*/
+
+        const SizedBox(height: 16,),
+
+        Container(
+          alignment: Alignment.centerLeft,
+          height: 32,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: _creadores.length + 1,
+            shrinkWrap: true,
+            itemBuilder: (context, index){
+              if(index == 0){
+                // Si no tiene creadores agregados, no muestra el texto
+                if(_creadores.isEmpty) return Container();
+
+                return Container(
+                  alignment: Alignment.center,
+                  child: const Text("Cocreadores:",
+                    style: TextStyle(color: constants.grey, fontSize: 12,),
+                    textAlign: TextAlign.left,
+                  ),
+                );
+              }
+
+              index = index - 1;
+
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4,),
+                padding: const EdgeInsets.symmetric(horizontal: 4,),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: constants.grey, width: 0.5,),
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: constants.greyBackgroundImage,
+                      backgroundImage: CachedNetworkImageProvider(_creadores[index].usuario!.foto),
+                      radius: 12,
+                    ),
+                    const SizedBox(width: 4,),
+                    Text(_creadores[index].usuario!.username, style: const TextStyle(fontSize: 10),),
+                    const SizedBox(width: 4,),
+                    GestureDetector(
+                      onTap: (){
+                        setState(() {
+                          _creadores.removeAt(index);
+                        });
+                      },
+                      child: const Icon(Icons.close, color: constants.blackGeneral, size: 18,),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
       ],),
     );
   }
@@ -786,15 +787,18 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         backgroundImage: CachedNetworkImageProvider(usuario.foto),
       ),
       onTap: (){
+        for(int i = 0; i < _creadores.length; i++){
+          if(_creadores[i].usuario?.id == usuario.id){
+            setState(() {
+              _creadores.removeAt(i);
+            });
+            return;
+          }
+        }
+
         if(_creadores.length >= 3){
           _showSnackBar("Solo se pueden añadir tres(3) cocreadores");
           return;
-        }
-
-        for(var creador in _creadores){
-          if(creador.usuario?.id == usuario.id){
-            return;
-          }
         }
 
         setState(() {
@@ -1598,23 +1602,6 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
                     child: Row(children: [
                       SizedBox(
                         width: 56,
-                        child: Text("Público:",
-                          style: TextStyle(fontSize: 12, color: constants.blackGeneral,
-                            fontWeight: _actividadTipo == ActividadTipo.publico ? FontWeight.bold : null,
-                          ),
-                        ),
-                      ),
-                      const Expanded(child: Text("Cualquier usuario puede unirse a la actividad y entrar automáticamente al chat grupal.",
-                        style: TextStyle(fontSize: 12, color: constants.grey),
-                      ),),
-                    ], crossAxisAlignment: CrossAxisAlignment.start,),
-                  ),
-                  const SizedBox(height: 8,),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16,),
-                    child: Row(children: [
-                      SizedBox(
-                        width: 56,
                         child: Text("Privado:",
                           style: TextStyle(fontSize: 12, color: constants.blackGeneral,
                             fontWeight: _actividadTipo == ActividadTipo.privado ? FontWeight.bold : null,
@@ -1626,19 +1613,25 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
                       ),),
                     ], crossAxisAlignment: CrossAxisAlignment.start,),
                   ),
+                  const SizedBox(height: 8,),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16,),
+                    child: Row(children: [
+                      SizedBox(
+                        width: 56,
+                        child: Text("Público:",
+                          style: TextStyle(fontSize: 12, color: constants.blackGeneral,
+                            fontWeight: _actividadTipo == ActividadTipo.publico ? FontWeight.bold : null,
+                          ),
+                        ),
+                      ),
+                      const Expanded(child: Text("Cualquier usuario puede unirse a la actividad y entrar automáticamente al chat grupal.",
+                        style: TextStyle(fontSize: 12, color: constants.grey),
+                      ),),
+                    ], crossAxisAlignment: CrossAxisAlignment.start,),
+                  ),
                   const SizedBox(height: 24,),
 
-                  RadioListTile<ActividadTipo>(
-                    title: Text(_stringActividadTipo[0]),
-                    value: ActividadTipo.publico,
-                    groupValue: _actividadTipo,
-                    onChanged: (ActividadTipo? value) {
-                      _actividadTipo = value;
-                      _actividadTipoSelected = _stringActividadTipo[0];
-                      setStateDialog(() {});
-                      setState(() {});
-                    },
-                  ),
                   RadioListTile<ActividadTipo>(
                     title: Text(_stringActividadTipo[1]),
                     value: ActividadTipo.privado,
@@ -1646,6 +1639,17 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
                     onChanged: (ActividadTipo? value) {
                       _actividadTipo = value;
                       _actividadTipoSelected = _stringActividadTipo[1];
+                      setStateDialog(() {});
+                      setState(() {});
+                    },
+                  ),
+                  RadioListTile<ActividadTipo>(
+                    title: Text(_stringActividadTipo[0]),
+                    value: ActividadTipo.publico,
+                    groupValue: _actividadTipo,
+                    onChanged: (ActividadTipo? value) {
+                      _actividadTipo = value;
+                      _actividadTipoSelected = _stringActividadTipo[0];
                       setStateDialog(() {});
                       setState(() {});
                     },

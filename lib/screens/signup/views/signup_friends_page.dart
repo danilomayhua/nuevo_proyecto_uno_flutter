@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
@@ -14,6 +15,7 @@ import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/utilities/historial_usuario.dart';
 import 'package:tenfo/utilities/share_utils.dart';
+import 'package:tenfo/utilities/shared_preferences_keys.dart';
 
 class SignupFriendsPage extends StatefulWidget {
   const SignupFriendsPage({Key? key}) : super(key: key);
@@ -38,11 +40,15 @@ class _SignupFriendsPageState extends State<SignupFriendsPage> {
 
   bool _loadingContactosSugerencias = false;
 
+  bool _isAmigosAgregados = false;
+
   @override
   void initState() {
     super.initState();
 
-    _cargarTelefonoContactos();
+    _loadingContactosSugerencias = true;
+    _habilitarTelefonoContactos();
+    _cargarNumeroInvitaciones();
   }
 
   @override
@@ -51,7 +57,7 @@ class _SignupFriendsPageState extends State<SignupFriendsPage> {
       appBar: AppBar(
         elevation: 0,
         automaticallyImplyLeading: false,
-        title: const Text("Agrega a tus amigos"),
+        title: const Text("Agrega hasta 5 amigos"),
         centerTitle: true,
       ),
       backgroundColor: Colors.white,
@@ -60,11 +66,36 @@ class _SignupFriendsPageState extends State<SignupFriendsPage> {
         const SizedBox(height: 16,),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16,),
-          child: Text("Agrega a tus amigos para crear actividades con tu grupo",
+          child: Text("Agrega a tu grupo de amigos para crear e ingresar a actividades con tu grupo.",
             style: TextStyle(color: constants.grey,),
             textAlign: TextAlign.center,
           ),
         ),
+        const SizedBox(height: 16,),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16,),
+          child: Container(
+            constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: (){
+                // Envia historial del usuario
+                _enviarHistorialUsuario(HistorialUsuario.getContactosSugerenciasInvitarAmigosWhatsapp(isFromSignup: true,));
+
+                ShareUtils.shareProfileWhatsapp();
+
+                _isAmigosAgregados = true;
+              },
+              icon: const Icon(CupertinoIcons.share),
+              label: const Text("Compartir a grupo de compañeros"),
+              style: ElevatedButton.styleFrom(
+                shape: const StadiumBorder(),
+              ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+            ),
+          ),
+        ),
+
         const SizedBox(height: 16,),
 
         Padding(
@@ -96,13 +127,13 @@ class _SignupFriendsPageState extends State<SignupFriendsPage> {
 
 
         if(!_isPermisoTelefonoContactos)
-          Expanded(child: Column(children: [
+          Expanded(child: _loadingContactosSugerencias ? const Center(child: CircularProgressIndicator(),) : Column(children: [
             const SizedBox(height: 16,),
             const Icon(Icons.contacts_outlined, size: 40, color: constants.grey,),
             const SizedBox(height: 24,),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16,),
-              child: Text("Permite los contactos para poder sugerirte amigos y cocrear actividades fácilmente.",
+            Container(
+              width: 240,
+              child: Text("Permite los contactos para poder sugerirte amigos y agregarlos fácilmente.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14.0,
@@ -113,10 +144,10 @@ class _SignupFriendsPageState extends State<SignupFriendsPage> {
             const SizedBox(height: 24,),
             Container(
               constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
-              child: ElevatedButton(
+              child: OutlinedButton(
                 onPressed: () => _habilitarTelefonoContactos(),
                 child: const Text('Aceptar'),
-                style: ElevatedButton.styleFrom(
+                style: OutlinedButton.styleFrom(
                   shape: const StadiumBorder(),
                 ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
               ),
@@ -158,11 +189,11 @@ class _SignupFriendsPageState extends State<SignupFriendsPage> {
           width: double.infinity,
           child: ElevatedButton(
             onPressed: (){
-
-              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-                  builder: (context) => const SignupTutorialPage()
-              ), (root) => false);
-
+              if(_isAmigosAgregados){
+                _continuarRegistro();
+              } else {
+                _showDialogSinAmigos();
+              }
             },
             child: const Text("Finalizar"),
             style: ElevatedButton.styleFrom(
@@ -176,6 +207,20 @@ class _SignupFriendsPageState extends State<SignupFriendsPage> {
         const SizedBox(height: 16,),
       ],),),
     );
+  }
+
+  void _continuarRegistro(){
+    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+        builder: (context) => const SignupTutorialPage()
+    ), (root) => false);
+  }
+
+  Future<void> _cargarNumeroInvitaciones() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int invitaciones = prefs.getInt(SharedPreferencesKeys.totalInvitacionesAmigos) ?? 0;
+
+    _totalInvitaciones = invitaciones;
+    setState(() {});
   }
 
   Widget _buildCabeceraSugerencias(){
@@ -246,27 +291,30 @@ class _SignupFriendsPageState extends State<SignupFriendsPage> {
     ],);
   }
 
-  Widget _buildUsuario(UsuarioContactoSolicitud usuarioContactoSolicitudo){
+  Widget _buildUsuario(UsuarioContactoSolicitud usuarioContactoSolicitud){
     return ListTile(
-      title: Text(usuarioContactoSolicitudo.usuario.nombre,
+      title: Text(usuarioContactoSolicitud.usuario.nombre,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
-      subtitle: Text(usuarioContactoSolicitudo.usuario.username,
+      subtitle: Text(usuarioContactoSolicitud.usuario.username,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
       leading: CircleAvatar(
         backgroundColor: constants.greyBackgroundImage,
-        backgroundImage: CachedNetworkImageProvider(usuarioContactoSolicitudo.usuario.foto),
+        backgroundImage: CachedNetworkImageProvider(usuarioContactoSolicitud.usuario.foto),
       ),
       trailing: OutlinedButton(
-        onPressed: !usuarioContactoSolicitudo.isEnviando
-            ? () => !usuarioContactoSolicitudo.isSolicitudEnviado
-              ? _agregarContacto(usuarioContactoSolicitudo)
-              : _showDialogCancelarSolicitudContacto(usuarioContactoSolicitudo)
+        onPressed: !usuarioContactoSolicitud.isEnviando
+            ? !usuarioContactoSolicitud.isSolicitudEnviado
+              ? () {
+                _agregarContacto(usuarioContactoSolicitud);
+                _isAmigosAgregados = true;
+              }
+              : () => _showDialogCancelarSolicitudContacto(usuarioContactoSolicitud)
             : null,
-        child: Text(!usuarioContactoSolicitudo.isSolicitudEnviado ? "Agregar" : "Pendiente",
+        child: Text(!usuarioContactoSolicitud.isSolicitudEnviado ? "Agregar" : "Pendiente",
           style: const TextStyle(fontSize: 12),
         ),
         style: OutlinedButton.styleFrom(
@@ -294,7 +342,7 @@ class _SignupFriendsPageState extends State<SignupFriendsPage> {
         ),
       ),
       trailing: OutlinedButton(
-        onPressed: (){
+        onPressed: () async {
           // Envia historial del usuario
           _enviarHistorialUsuario(HistorialUsuario.getContactosSugerenciasInvitarAmigo(phone?.number ?? "", isFromSignup: true,));
 
@@ -303,6 +351,12 @@ class _SignupFriendsPageState extends State<SignupFriendsPage> {
 
           _totalInvitaciones++;
           setState(() {});
+
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          int totalIntentosFoto = prefs.getInt(SharedPreferencesKeys.totalInvitacionesAmigos) ?? 0;
+          prefs.setInt(SharedPreferencesKeys.totalInvitacionesAmigos, totalIntentosFoto + 1);
+
+          _isAmigosAgregados = true;
         },
         child: const Text("Invitar", style: TextStyle(fontSize: 12)),
         style: OutlinedButton.styleFrom(
@@ -326,9 +380,18 @@ class _SignupFriendsPageState extends State<SignupFriendsPage> {
     }
 
     if(!permisoTelefonoContactos){
+      // Envia historial del usuario
+      _enviarHistorialUsuario(HistorialUsuario.getContactosSugerenciasPermisoContactos(false));
+
       _showSnackBar("Los permisos están denegados. Permite los contactos desde Ajustes en la app.");
+
+      _loadingContactosSugerencias = false;
+      setState(() {});
       return;
     }
+
+    // Envia historial del usuario
+    _enviarHistorialUsuario(HistorialUsuario.getContactosSugerenciasPermisoContactos(true));
 
     _isPermisoTelefonoContactos = true;
     _cargarTelefonoContactos();
@@ -538,6 +601,41 @@ class _SignupFriendsPageState extends State<SignupFriendsPage> {
 
     setState(() {
       usuarioContactoSolicitud.isEnviando = false;
+    });
+  }
+
+  void _showDialogSinAmigos(){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(children: const [
+            Text("¿Estás seguro de continuar sin agregar a tu grupo de amigos?",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 16, height: 1.3, fontWeight: FontWeight.bold,),
+              textAlign: TextAlign.left,
+            ),
+            SizedBox(height: 16,),
+            Text("Tenfo es más divertido y útil cuando lo usas con tu grupo y conectan juntos con nuevos grupos.",
+              style: TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),
+              textAlign: TextAlign.left,
+            ),
+          ], mainAxisSize: MainAxisSize.min,),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Cancelar"),
+          ),
+          TextButton(
+            onPressed: (){
+              // Envia historial del usuario
+              _enviarHistorialUsuario(HistorialUsuario.getContactosSugerenciasOmitir());
+
+              _continuarRegistro();
+            },
+            child: const Text("Continuar sin grupo"),
+          ),
+        ],
+      );
     });
   }
 

@@ -64,7 +64,7 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
           child: _contenido(),
         )),
         GestureDetector(
-          child: const Text("¿Quién podrá ver esta visualización?",
+          child: const Text("¿Quién podrá ver este estado?",
             style: TextStyle(color: constants.grey, fontSize: 12, decoration: TextDecoration.underline,),
           ),
           onTap: (){
@@ -81,8 +81,8 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
       return AlertDialog(
         content: SingleChildScrollView(
           child: Column(children: const [
-            Text("La visualización estará durante 48 horas solamente.\n\n"
-                "Solo las personas cercanas a tu ubicación que hayan creado en las últimas 48 horas, una actividad o una visualización, podrán verla.\n\n"
+            Text("El estado estará durante 48 horas solamente.\n\n"
+                "Solo las personas cercanas a tu ubicación que hayan creado en las últimas 48 horas, una actividad o un estado, podrán verla.\n\n"
                 "Puedes tener hasta 3 estados visibles a la vez. Si creas más de 3, el nuevo estado reemplazará al más antiguo automáticamente.",
               style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
               textAlign: TextAlign.left,
@@ -107,7 +107,7 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
           focusNode: _titleFocusNode,
           controller: _titleController,
           decoration: const InputDecoration(
-            hintText: "Escribe un estado...",
+            hintText: "Escribe un estado... (opcional)",
             hintStyle: TextStyle(fontWeight: FontWeight.normal,),
             border: OutlineInputBorder(),
             counterText: "",

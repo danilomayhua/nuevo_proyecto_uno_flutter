@@ -406,29 +406,28 @@ class _ActividadPageState extends State<ActividadPage> {
                       ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
                     ),
                   )
-                  : Container(
-                    margin: const EdgeInsets.symmetric(vertical: 48,),
-                    child: InkWell(
-                      onTap: (){
-                        ShareUtils.shareActivity(widget.actividad!.id);
+                  : Column(children: [
+                    const SizedBox(height: 48,),
+                    const Text("Únete con tu grupo de amigos:", style: TextStyle(color: constants.blackGeneral, fontSize: 12,),),
+                    const SizedBox(height: 8,),
+                    Container(
+                      constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+                      child: ElevatedButton.icon(
+                        onPressed: (){
+                          ShareUtils.shareActivity(widget.actividad!.id);
 
-                        // Envia historial del usuario
-                        _enviarHistorialUsuario(HistorialUsuario.getActividadInvitarAmigo(widget.actividad!.id, isIntegrante: false,));
-                      },
-                      child: RichText(
-                        text: const TextSpan(
-                          style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
-                          text: "¿Aún no decides si unirte? ",
-                          children: [
-                            TextSpan(
-                              text: "Ingresa con un amigo.",
-                              style: TextStyle(color: constants.blueGeneral, decoration: TextDecoration.underline,),
-                            ),
-                          ],
-                        ),
+                          // Envia historial del usuario
+                          _enviarHistorialUsuario(HistorialUsuario.getActividadInvitarAmigo(widget.actividad!.id, isIntegrante: false,));
+                        },
+                        icon: const Icon(Icons.north, size: 20,),
+                        label: const Text("Compartir enlace de actividad"),
+                        style: ElevatedButton.styleFrom(
+                          shape: const StadiumBorder(),
+                        ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 48,),
+                  ]),
             ),
 
           if(widget.actividad!.isAutor)

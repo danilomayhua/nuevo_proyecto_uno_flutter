@@ -34,16 +34,10 @@ class _SeleccionarCrearTipoPageState extends State<SeleccionarCrearTipoPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Nuevo"),
-        leading: IconButton(
+        leading: widget.isFromSignup ? null : IconButton(
           icon: const Icon(Icons.clear),
           onPressed: (){
-            if(widget.isFromSignup){
-              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-                  builder: (context) => const PrincipalPage(isFromSignup: true,)
-              ), (root) => false);
-            } else {
-              Navigator.of(context).pop();
-            }
+            Navigator.of(context).pop();
           },
         ),
       ),
@@ -124,7 +118,7 @@ class _SeleccionarCrearTipoPageState extends State<SeleccionarCrearTipoPage> {
                         builder: (context) => const CrearDisponibilidadPage(),
                       ));
                     },
-                    child: const Text("Solo ver actividades"),
+                    child: const Text("Buscar actividades"),
                     style: OutlinedButton.styleFrom(
                       shape: const StadiumBorder(),
                     ),
@@ -140,7 +134,7 @@ class _SeleccionarCrearTipoPageState extends State<SeleccionarCrearTipoPage> {
                         builder: (context) => const CrearDisponibilidadPage(),
                       ));
                     },
-                    child: const Text("Solo ver actividades"),
+                    child: const Text("Buscar actividades"),
                     style: ElevatedButton.styleFrom(
                       shape: const StadiumBorder(),
                     ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
@@ -151,17 +145,20 @@ class _SeleccionarCrearTipoPageState extends State<SeleccionarCrearTipoPage> {
         ),),
 
         if(!widget.isFromSignup)
-          TextButton(
-            onPressed: (){
-              _showDialogComoFunciona();
-            },
-            child: const Text("Cómo funciona"),
-            style: TextButton.styleFrom(
-              primary: constants.blackGeneral,
+          ...[
+            TextButton(
+              onPressed: (){
+                _showDialogComoFunciona();
+              },
+              child: const Text("Cómo funciona"),
+              style: TextButton.styleFrom(
+                primary: constants.blackGeneral,
+              ),
             ),
-          ),
-
-        const SizedBox(height: 16,),
+            const SizedBox(height: 16,),
+          ],
+        if(widget.isFromSignup)
+          const SizedBox(height: 50,),
       ]),
     );
   }
@@ -216,7 +213,7 @@ class _SeleccionarCrearTipoPageState extends State<SeleccionarCrearTipoPage> {
                     style: TextStyle(color: constants.blackGeneral, fontSize: 15, height: 1.3,),
                     children: [
                       TextSpan(
-                        text: "Solo ver actividades:",
+                        text: "Buscar actividades:",
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16,),
                       ),
                       TextSpan(

@@ -53,7 +53,7 @@ class _ContactosPageState extends State<ContactosPage> {
         title: const Text("Amigos"),
         actions: [
           IconButton(
-            icon: const Icon(Icons.person_search_outlined),
+            icon: const Icon(Icons.search_rounded),
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const BuscadorPage()));
             },
@@ -70,7 +70,7 @@ class _ContactosPageState extends State<ContactosPage> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8,),
-            const Text("Agrega amigos para cocrear actividades juntos y para ver amigos en común con personas en actividades.",
+            const Text("Agrega a tus amigos para crear e ingresar a actividades con tu grupo de amigos.",
               style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
               textAlign: TextAlign.center,
             ),
@@ -81,7 +81,7 @@ class _ContactosPageState extends State<ContactosPage> {
 
       ) : ListView.builder(
         controller: _scrollController,
-        itemCount: _contactos.length + 2, // +1 mostrar texto cabecera, +1 mostrar cargando o boton
+        itemCount: _contactos.length + 2, // +1 mostrar texto cabecera, +1 mostrar cargando
         itemBuilder: (context, index){
           if(index == 0){
             return _buildTextoCabecera();
@@ -90,15 +90,7 @@ class _ContactosPageState extends State<ContactosPage> {
           index = index - 1;
 
           if(index == _contactos.length){
-            if(_loadingContactos){
-              return _buildLoadingContactos();
-            } else {
-              return Container(
-                alignment: Alignment.center,
-                padding: const EdgeInsets.only(top: 24,),
-                child: _buildBotonInvitar(),
-              );
-            }
+            return _buildLoadingContactos();
           }
 
           return _buildUsuario(_contactos[index]);
@@ -112,10 +104,6 @@ class _ContactosPageState extends State<ContactosPage> {
       constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
       child: OutlinedButton.icon(
         onPressed: (){
-          //ShareUtils.shareProfile();
-          // Envia historial del usuario
-          //_enviarHistorialUsuario(HistorialUsuario.getContactosInvitarAmigo());
-
           Navigator.push(context, MaterialPageRoute(
             builder: (context) => const ContactosSugerenciasPage(),
           ));
@@ -132,12 +120,19 @@ class _ContactosPageState extends State<ContactosPage> {
   }
 
   Widget _buildTextoCabecera(){
-    return const Padding(
-      padding: EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 12,),
-      child: Text("Solo tú puedes ver tu lista completa de amigos. Agrega amigos para cocrear actividades y para ver amigos en común con otras personas.",
-        style: TextStyle(color: constants.grey, fontSize: 12,),
+    return Column(children: [
+      const Padding(
+        padding: EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 24,),
+        child: Text("Agrega a tus amigos para crear e ingresar a actividades con tu grupo de amigos. Solo tú puedes ver tu lista completa de amigos.",
+          style: TextStyle(color: constants.grey, fontSize: 12,),
+        ),
       ),
-    );
+      Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.only(bottom: 24,),
+        child: _buildBotonInvitar(),
+      ),
+    ],);
   }
 
   Widget _buildUsuario(Usuario usuario){
@@ -159,6 +154,7 @@ class _ContactosPageState extends State<ContactosPage> {
           MaterialPageRoute(builder: (context) => UserPage(usuario: usuario,)),
         );
       },
+      /*
       trailing: IconButton(
         icon: const Icon(Icons.groups_outlined, color: constants.blackGeneral,),
         onPressed: (){
@@ -167,6 +163,7 @@ class _ContactosPageState extends State<ContactosPage> {
           ));
         },
       ),
+      */
     );
   }
 

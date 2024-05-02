@@ -110,7 +110,11 @@ class _SignupTutorialPageState extends State<SignupTutorialPage> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: (){
-                  _habilitarNotificacionesPush();
+                  //_habilitarNotificacionesPush();
+
+                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                      builder: (context) => const SeleccionarCrearTipoPage(isFromSignup: true,)
+                  ), (root) => false);
                 },
                 child: const Text("Comenzar"),
                 style: ElevatedButton.styleFrom(
@@ -146,9 +150,11 @@ class _SignupTutorialPageState extends State<SignupTutorialPage> {
       // Captura error, por si surge algun posible error con FirebaseMessaging
     }
 
+    /*
     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
         builder: (context) => const SeleccionarCrearTipoPage(isFromSignup: true,)
     ), (root) => false);
+    */
   }
 
   Future<void> _enviarHistorialUsuario(Map<String, dynamic> historialUsuario) async {

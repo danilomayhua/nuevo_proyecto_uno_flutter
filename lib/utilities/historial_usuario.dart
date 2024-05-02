@@ -12,6 +12,9 @@ class HistorialUsuario {
   static const String _contactosInvitarAmigo = "/contactos/invitar-amigo";
 
   static const String _contactosSugerenciasInvitarAmigo = "/contactos-sugerencias/invitar-amigo";
+  static const String _contactosSugerenciasInvitarAmigosWhatsapp = "/contactos-sugerencias/invitar-amigos-whatsapp";
+  static const String _contactosSugerenciasPermisoContactos = "/contactos-sugerencias/permiso-telefono-contactos";
+  static const String _contactosSugerenciasOmitir = "/contactos-sugerencias/omitir";
 
   static const String _perfilInvitarAmigo = "/perfil/invitar-amigo";
 
@@ -99,6 +102,34 @@ class HistorialUsuario {
         "telefono_contacto_numero" : numero,
         "enviado_desde": isFromSignup ? "registro" : "agregar-amigos",
       }
+    };
+  }
+
+  /// En ContactosSugerencias o en SignupFriends, cuando invita en general en whatsapp
+  static Map<String, dynamic> getContactosSugerenciasInvitarAmigosWhatsapp({bool isFromSignup = false}){
+    return {
+      "evento": _contactosSugerenciasInvitarAmigosWhatsapp,
+      "datos_adicionales": {
+        "enviado_desde": isFromSignup ? "registro" : "agregar-amigos",
+      }
+    };
+  }
+
+  /// En SignupFriends, cuando aparece popup permiso Contactos
+  static Map<String, dynamic> getContactosSugerenciasPermisoContactos(bool isAceptado){
+    return {
+      "evento": _contactosSugerenciasPermisoContactos,
+      "datos_adicionales": {
+        "permiso_telefono_contactos_aceptado": isAceptado ? "SI" : "NO",
+      }
+    };
+  }
+
+  /// En SignupFriends, cuando avanza sin invitar o agregar amigos
+  static Map<String, dynamic> getContactosSugerenciasOmitir(){
+    return {
+      "evento": _contactosSugerenciasOmitir,
+      "datos_adicionales": {}
     };
   }
 

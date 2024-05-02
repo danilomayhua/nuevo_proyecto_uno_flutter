@@ -17,4 +17,6 @@ class SharedPreferencesKeys {
 
   static const String totalIntentosAgregarFoto = "totalIntentosAgregarFoto";
 
+  static const String totalInvitacionesAmigos = "totalInvitacionesAmigos";
+
 }

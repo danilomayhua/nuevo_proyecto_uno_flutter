@@ -98,11 +98,13 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
               ],
             ),
           ),
+          /*
           SmoothPageIndicator(
             controller: _pageController,
             count: 3,
             effect: const WormEffect(activeDotColor: constants.blueGeneral,),
           ),
+          */
           const SizedBox(height: 16,),
         ],),
       ),
@@ -531,7 +533,7 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
       } else {
 
         if(datosJson['error_tipo'] == 'username_registrado'){
-          _usuarioErrorText = 'El nombre de usuario no está disponible.';
+          _usuarioErrorText = 'El nombre de usuario ya está en uso.';
         } else if(datosJson['error_tipo'] == 'telefono_registrado'){
           _showSnackBar("Se produjo un error inesperado con teléfono registrado");
         } else {

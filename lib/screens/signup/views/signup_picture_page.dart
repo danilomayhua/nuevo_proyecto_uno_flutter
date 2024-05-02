@@ -84,7 +84,7 @@ class _SignupPicturePageState extends State<SignupPicturePage> {
             const SizedBox(height: 24,),
             const Align(
               alignment: Alignment.centerLeft,
-              child: Text("Bienvenido a Tenfo. Vamos a completar tu perfil: ¡Agrega tu foto de perfil!",
+              child: Text("¡Listo para empezar! Completa tu perfil con una foto de perfil tuya.",
                 style: TextStyle(color: constants.grey,),
                 textAlign: TextAlign.left,
               ),

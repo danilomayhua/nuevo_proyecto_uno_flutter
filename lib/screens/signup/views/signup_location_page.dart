@@ -66,7 +66,7 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
 
           Expanded(
             child: Center(child: SingleChildScrollView(
-              child: _contenidoSolicitarUbicacionContactos(),
+              child: _contenidoSolicitarUbicacionNotificaciones(),
             ),),
           ),
 
@@ -102,7 +102,7 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
     setState(() {});
   }
 
-  Widget _contenidoConSolicitarNotificacionesPush(){
+  Widget _contenidoSolicitarUbicacionNotificaciones(){
     return Column(children: [
       Row(children: [
         const Icon(Icons.location_on, size: 40, color: constants.blackGeneral,),
@@ -138,9 +138,7 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
         constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
         width: double.infinity,
         child: ElevatedButton(
-          onPressed: () {
-            _habilitarUbicacion();
-          },
+          onPressed: _enviandoUbicacion ? null : () => _habilitarNotificacionesPush(),
           child: const Text('Continuar'),
           style: ElevatedButton.styleFrom(
             shape: const StadiumBorder(),
@@ -152,9 +150,7 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
         ...[
           const SizedBox(height: 16,),
           TextButton(
-            onPressed: (){
-              _continuarRegistro();
-            },
+            onPressed: _enviandoUbicacion ? null : () => _cargarUbicacion(),
             child: const Text("Omitir este paso"),
             style: TextButton.styleFrom(
               textStyle: const TextStyle(fontSize: 12,),
@@ -164,7 +160,7 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
     ], mainAxisAlignment: MainAxisAlignment.center,);
   }
 
-  Widget _contenidoSinSolicitarNotificacionesPush(){
+  Widget _contenidoSolicitarUbicacion(){
     return Column(children: [
       const Icon(Icons.location_on, size: 50.0, color: constants.grey,),
       const SizedBox(height: 15.0,),
@@ -182,9 +178,7 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
         constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
         width: double.infinity,
         child: ElevatedButton(
-          onPressed: () {
-            _habilitarUbicacion();
-          },
+          onPressed: _enviandoUbicacion ? null : () => (){},//_habilitarUbicacion(),,
           child: const Text('Permitir ubicación'),
           style: ElevatedButton.styleFrom(
             shape: const StadiumBorder(),
@@ -243,7 +237,7 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
         constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
         width: double.infinity,
         child: ElevatedButton(
-          onPressed: _enviandoUbicacion ? null : () => _habilitarUbicacion(),
+          onPressed: _enviandoUbicacion ? null : () => (){},//_habilitarUbicacion(),
           child: const Text('Continuar'),
           style: ElevatedButton.styleFrom(
             shape: const StadiumBorder(),
@@ -266,52 +260,42 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
   }
 
 
-  Future<void> _habilitarUbicacion() async {
+  Future<void> _habilitarUbicacion(bool isNotificacionesHabilitado) async {
+
+    bool isUbicacionAceptado = true;
+
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       _showSnackBar("Tienes los servicios de ubicación deshabilitados. Actívalo desde Ajustes.");
-      _habilitarTelefonoContactos(false);
-      return;
-    }
+      //_habilitarTelefonoContactos(false);
+      //return;
 
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
+      isUbicacionAceptado = false;
+
+    } else {
+      LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
-        _habilitarTelefonoContactos(false);
-        return;
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          //_habilitarTelefonoContactos(false);
+          //return;
+
+          isUbicacionAceptado = false;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        _showSnackBar("Los permisos están denegados. Permite la ubicación desde Ajustes en la app.");
+        //_habilitarTelefonoContactos(false);
+        //return;
+
+        isUbicacionAceptado = false;
       }
     }
 
-    if (permission == LocationPermission.deniedForever) {
-      _showSnackBar("Los permisos están denegados. Permite la ubicación desde Ajustes en la app.");
-      _habilitarTelefonoContactos(false);
-      return;
-    }
-
-    _habilitarTelefonoContactos(true);
-  }
-
-  Future<void> _habilitarNotificacionesPush(bool isUbicacionHabilitado) async {
-    try {
-      // Permisos para iOS y para Android 13+
-      NotificationSettings settings = await FirebaseMessaging.instance.requestPermission();
-
-      if(settings.authorizationStatus != AuthorizationStatus.authorized || !isUbicacionHabilitado){
-        _signupPermisosEstado.isPermisoUbicacionAceptado = isUbicacionHabilitado;
-        _signupPermisosEstado.isPermisoNotificacionesAceptado = settings.authorizationStatus == AuthorizationStatus.authorized;
-
-        _isAvailableBotonOmitir = true;
-        setState(() {});
-        return;
-      }
-    } catch(e){
-      // Captura error, por si surge algun posible error con FirebaseMessaging
-    }
-
-    if(!isUbicacionHabilitado){
-      _signupPermisosEstado.isPermisoUbicacionAceptado = false;
-      _signupPermisosEstado.isPermisoNotificacionesAceptado = true;
+    if(!isUbicacionAceptado || !isNotificacionesHabilitado){
+      _signupPermisosEstado.isPermisoUbicacionAceptado = isUbicacionAceptado;
+      _signupPermisosEstado.isPermisoNotificacionesAceptado = isNotificacionesHabilitado;
 
       _isAvailableBotonOmitir = true;
       setState(() {});
@@ -320,7 +304,30 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
 
     _signupPermisosEstado.isPermisoUbicacionAceptado = true;
     _signupPermisosEstado.isPermisoNotificacionesAceptado = true;
-    _continuarRegistro();
+
+    //_habilitarTelefonoContactos(true);
+    _cargarUbicacion();
+  }
+
+  Future<void> _habilitarNotificacionesPush() async {
+    if(_isNotificacionesPushHabilitado){
+      _habilitarUbicacion(true);
+      return;
+    }
+
+    try {
+      // Permisos para iOS y para Android 13+
+      NotificationSettings settings = await FirebaseMessaging.instance.requestPermission();
+
+      if(settings.authorizationStatus != AuthorizationStatus.authorized){
+        _habilitarUbicacion(false);
+        return;
+      }
+    } catch(e){
+      // Captura error, por si surge algun posible error con FirebaseMessaging
+    }
+
+    _habilitarUbicacion(true);
   }
 
   Future<void> _habilitarTelefonoContactos(bool isUbicacionHabilitado) async {
