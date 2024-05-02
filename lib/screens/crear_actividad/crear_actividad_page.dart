@@ -10,6 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:tenfo/models/actividad.dart';
 import 'package:tenfo/models/actividad_requisito.dart';
 import 'package:tenfo/models/actividad_sugerencia_titulo.dart';
+import 'package:tenfo/models/disponibilidad.dart';
 import 'package:tenfo/models/usuario.dart';
 import 'package:tenfo/models/usuario_cocreador_pendiente.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
@@ -26,9 +27,10 @@ import 'package:tenfo/utilities/shared_preferences_keys.dart';
 import 'package:tenfo/widgets/dialog_cambiar_intereses.dart';
 
 class CrearActividadPage extends StatefulWidget {
-  const CrearActividadPage({Key? key, this.cocreadorUsuario}) : super(key: key);
+  const CrearActividadPage({Key? key, this.cocreadorUsuario, this.fromDisponibilidad}) : super(key: key);
 
   final Usuario? cocreadorUsuario;
+  final Disponibilidad? fromDisponibilidad;
 
   @override
   State<CrearActividadPage> createState() => _CrearActividadPageState();
@@ -1947,6 +1949,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
         // Envia historial del usuario para analizar comportamiento
         "historiales_usuario_activo": _historialesUsuario,
+        "datos_enviado_desde": widget.fromDisponibilidad == null ? null : { "disponibilidad_id" : widget.fromDisponibilidad?.id },
       },
       usuarioSesion: usuarioSesion,
     );

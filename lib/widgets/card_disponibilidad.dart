@@ -52,8 +52,8 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
             shape: BoxShape.circle,
             border: Border.all(color: constants.greyLight, width: 0.5,),
           ),
-          height: 20,
-          width: 20,
+          height: 28,
+          width: 28,
           child: CircleAvatar(
             //backgroundColor: constants.greyBackgroundImage,
             backgroundColor: const Color(0xFFFAFAFA),
@@ -89,16 +89,30 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
 
           const SizedBox(height: 4,),
 
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(widget.disponibilidad.texto,
-              style: const TextStyle(color: constants.blackGeneral, fontSize: 14,
+          Row(children: [
+
+            Flexible(child: Text(widget.disponibilidad.texto,
+              style: const TextStyle(color: constants.blackGeneral, fontSize: 16,
                 height: 1.3, fontWeight: FontWeight.w500,),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.left,
-            ),
-          ),
+            ),),
+
+            if((widget.isCreadorActividadVisible ?? false) && !widget.disponibilidad.isAutor)
+              InkWell(
+                onTap: (){
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => InvitarActividadPage(invitacionDisponibilidadCreador: widget.disponibilidad.creador,),
+                  ));
+                },
+                child: const Padding(
+                  padding: EdgeInsets.only(left: 8, right: 8,),
+                  child: Icon(Icons.group_add_outlined, size: 24, color: constants.blueGeneral,),
+                ),
+              ),
+
+          ], mainAxisAlignment: MainAxisAlignment.spaceBetween,),
 
         ],)),
       ],),
@@ -212,9 +226,8 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
 
             if(!(widget.isCreadorActividadVisible ?? false) || widget.disponibilidad.isAutor)
               Text(widget.disponibilidad.isAutor
-                  ? "Esto es un estado de visualización."
-                  : "Esto es un estado de visualización. Crea una actividad para que "
-                  "otros usuarios como ${widget.disponibilidad.creador.nombre} puedan unirse.",
+                  ? "Esto es un estado."
+                  : "Esto es un estado. ¡Crea una actividad y envía una invitación a ${widget.disponibilidad.creador.nombre} para unirse!",
                 style: const TextStyle(color: constants.blackGeneral, fontSize: 12, height: 1.3,),
                 textAlign: TextAlign.center,
               ),
@@ -229,7 +242,7 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
                   child: ElevatedButton(
                     onPressed: (){
                       Navigator.push(context, MaterialPageRoute(
-                        builder: (context) => const CrearActividadPage(),
+                        builder: (context) => CrearActividadPage(fromDisponibilidad: widget.disponibilidad,),
                       ));
                     },
                     child: const Text("Crear actividad"),
@@ -252,7 +265,7 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
                         builder: (context) => InvitarActividadPage(invitacionDisponibilidadCreador: widget.disponibilidad.creador,),
                       ));
                     },
-                    icon: const Icon(Icons.person_add_alt_outlined),
+                    icon: const Icon(Icons.group_add_outlined),
                     label: const Text("Invitar a actividad"),
                     style: TextButton.styleFrom(
                       shape: const StadiumBorder(),

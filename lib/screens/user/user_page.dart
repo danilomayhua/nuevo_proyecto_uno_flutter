@@ -495,8 +495,10 @@ class _UserPageState extends State<UserPage> {
 
                 if(!widget.isFromProfile && !_isUsuarioSesion() && !_isUsuarioBloqueado() && _usuarioPerfil.contactosMutuos != null)
                   ...[
+                    /*
                     if(_usuarioPerfil.contactosMutuos!.isEmpty)
                       const Text("No hay amigos en común", style: TextStyle(color: constants.grey, fontSize: 12),),
+                    */
 
                     if(_usuarioPerfil.contactosMutuos!.isNotEmpty)
                       GestureDetector(
