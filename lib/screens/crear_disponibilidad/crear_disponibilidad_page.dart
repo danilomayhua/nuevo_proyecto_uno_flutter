@@ -4,13 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/models/actividad_sugerencia_titulo.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
+import 'package:tenfo/screens/crear_actividad/crear_actividad_page.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/services/location_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 
 class CrearDisponibilidadPage extends StatefulWidget {
-  const CrearDisponibilidadPage({Key? key}) : super(key: key);
+  const CrearDisponibilidadPage({Key? key, this.isFromSignup = false}) : super(key: key);
+
+  final bool isFromSignup;
 
   @override
   State<CrearDisponibilidadPage> createState() => _CrearDisponibilidadPageState();
@@ -50,8 +53,8 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Nueva visualización"),
-        leading: IconButton(
+        title: widget.isFromSignup ? const Text("Nuevo") : const Text("Nueva visualización"),
+        leading: widget.isFromSignup ? null : IconButton(
           icon: const Icon(Icons.clear),
           onPressed: (){
             Navigator.of(context).pop();
@@ -63,15 +66,36 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
         Expanded(child: SingleChildScrollView(
           child: _contenido(),
         )),
-        GestureDetector(
-          child: const Text("¿Quién podrá ver este estado?",
-            style: TextStyle(color: constants.grey, fontSize: 12, decoration: TextDecoration.underline,),
-          ),
-          onTap: (){
-            _showDialogAyudaVisualizacion();
-          },
-        ),
-        const SizedBox(height: 16,),
+
+        if(!widget.isFromSignup)
+          ...[
+            GestureDetector(
+              child: const Text("¿Quién podrá ver este estado?",
+                style: TextStyle(color: constants.grey, fontSize: 12, decoration: TextDecoration.underline,),
+              ),
+              onTap: (){
+                _showDialogAyudaVisualizacion();
+              },
+            ),
+            const SizedBox(height: 16,),
+          ],
+
+        if(widget.isFromSignup)
+          ...[
+            TextButton(
+              onPressed: (){
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => const CrearActividadPage(),
+                ));
+              },
+              child: const Text("Ir a Crear Actividad"),
+              style: TextButton.styleFrom(
+                textStyle: const TextStyle(fontSize: 12,),
+                shape: const StadiumBorder(),
+              ),
+            ),
+            const SizedBox(height: 16,),
+          ],
       ]),),
     );
   }
@@ -124,7 +148,7 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
 
         Container(
           width: double.infinity,
-          child: const Text("Opciones:", textAlign: TextAlign.left,
+          child: const Text("Sugerencias:", textAlign: TextAlign.left,
             style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
           ),
         ),

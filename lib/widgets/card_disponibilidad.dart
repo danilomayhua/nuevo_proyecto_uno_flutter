@@ -32,7 +32,7 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: (){
-        _showDialogDisponibilidad();
+        _showDialogDisponibilidad2();
       },
       child: _contenido(),
     );
@@ -52,8 +52,8 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
             shape: BoxShape.circle,
             border: Border.all(color: constants.greyLight, width: 0.5,),
           ),
-          height: 28,
-          width: 28,
+          height: 32,
+          width: 32,
           child: CircleAvatar(
             //backgroundColor: constants.greyBackgroundImage,
             backgroundColor: const Color(0xFFFAFAFA),
@@ -70,13 +70,13 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
             Flexible(child: Row(children: [
               Flexible(
                 child: Text(widget.disponibilidad.creador.nombre,
-                  style: const TextStyle(color: constants.blackGeneral, fontSize: 12,),
+                  style: const TextStyle(color: constants.blackGeneral, fontSize: 14,),
                   maxLines: 1,
                 ),
               ),
               const SizedBox(width: 4,),
               if(widget.disponibilidad.creador.isVerificadoUniversidad)
-                const IconUniversidadVerificada(size: 12),
+                const IconUniversidadVerificada(size: 14),
               const SizedBox(width: 4,),
             ],)),
 
@@ -87,7 +87,7 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
 
           ], mainAxisAlignment: MainAxisAlignment.spaceBetween,),
 
-          const SizedBox(height: 4,),
+          const SizedBox(height: 8,),
 
           Row(children: [
 
@@ -115,7 +115,7 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
           ], mainAxisAlignment: MainAxisAlignment.spaceBetween,),
 
         ],)),
-      ],),
+      ], crossAxisAlignment: CrossAxisAlignment.start,),
     );
   }
 
@@ -282,6 +282,139 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
     });
   }
 
+  void _showDialogDisponibilidad2(){
+    showDialog(context: context, builder: (context) {
+      return Dialog(
+          //insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 48,),
+          child: SingleChildScrollView(child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16,),
+            child: Column(children: [
+
+              if(widget.disponibilidad.isAutor)
+                ...[
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: InkWell(
+                      onTap: (){
+                        _showDialogOpciones();
+                      },
+                      child: const Icon(Icons.more_horiz, color: Colors.black54,),
+                    ),
+                  ),
+                ],
+
+              const SizedBox(height: 16,),
+
+              GestureDetector(
+                onTap: (){
+                  // TODO : obtener los datos completos del usuario en disponibilidad.creador
+                  Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => UserPage(
+                      usuario: Usuario(id: widget.disponibilidad.creador.id, nombre: "", username: "", foto: widget.disponibilidad.creador.foto,),
+                    )),
+                  );
+                },
+                child: CircleAvatar(
+                  radius: 40,
+                  backgroundImage: CachedNetworkImageProvider(widget.disponibilidad.creador.foto),
+                  backgroundColor: Colors.transparent,
+                ),
+              ),
+
+              const SizedBox(height: 16,),
+
+              GestureDetector(
+                onTap: (){
+                  // TODO : obtener los datos completos del usuario en disponibilidad.creador
+                  Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => UserPage(
+                      usuario: Usuario(id: widget.disponibilidad.creador.id, nombre: "", username: "", foto: widget.disponibilidad.creador.foto,),
+                    )),
+                  );
+                },
+                child: Row(children: [
+                  Flexible(
+                    child: Text(widget.disponibilidad.creador.nombre,
+                      style: const TextStyle(color: constants.blackGeneral, fontSize: 16,),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                    ),
+                  ),
+                  if(widget.disponibilidad.creador.isVerificadoUniversidad)
+                    ...[
+                      const SizedBox(width: 4,),
+                      const IconUniversidadVerificada(size: 16),
+                    ],
+                ], mainAxisSize: MainAxisSize.min,),
+              ),
+
+              const SizedBox(height: 24,),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(widget.disponibilidad.texto,
+                  style: const TextStyle(color: constants.blackGeneral, fontSize: 18, height: 1.3, fontWeight: FontWeight.bold,),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+
+              const SizedBox(height: 24,),
+
+
+              if(!(widget.isCreadorActividadVisible ?? false) && !widget.disponibilidad.isAutor)
+                ...[
+                  const SizedBox(height: 16,),
+                  const Text("Crea una actividad y envía invitaciones:",
+                    style: TextStyle(color: constants.grey, fontSize: 12, height: 1.3,),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16,),
+                  Container(
+                    constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+                    child: TextButton.icon(
+                      onPressed: (){
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (context) => CrearActividadPage(fromDisponibilidad: widget.disponibilidad,),
+                        ));
+                      },
+                      icon: const Icon(Icons.group_add_outlined),
+                      label: const Text("Invitar"),
+                      style: TextButton.styleFrom(
+                        shape: const StadiumBorder(),
+                      ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+                    ),
+                  ),
+                ],
+
+              if((widget.isCreadorActividadVisible ?? false) && !widget.disponibilidad.isAutor)
+                ...[
+                  Container(
+                    constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+                    child: TextButton.icon(
+                      onPressed: (){
+                        Navigator.pop(context);
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (context) => InvitarActividadPage(invitacionDisponibilidadCreador: widget.disponibilidad.creador,),
+                        ));
+                      },
+                      icon: const Icon(Icons.group_add_outlined),
+                      label: const Text("Invitar a mi actividad"),
+                      style: TextButton.styleFrom(
+                        shape: const StadiumBorder(),
+                      ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+                    ),
+                  ),
+                ],
+
+              const SizedBox(height: 16,),
+
+            ]),
+          ),)
+      );
+    });
+  }
+
 
   void _showDialogUniversidadVerificada(){
     showDialog(context: context, builder: (context){
@@ -394,7 +527,7 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
         contentPadding: const EdgeInsets.all(0),
         content: Column(children: [
           ListTile(
-            title: const Text("Eliminar visualización"),
+            title: const Text("Eliminar estado"),
             onTap: (){
               Navigator.of(context).pop();
               _showDialogEliminarActividad();
@@ -409,7 +542,7 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
     showDialog(context: context, builder: (context) {
       return StatefulBuilder(builder: (context, setStateDialog) {
         return AlertDialog(
-          title: const Text('¿Eliminar visualización?', style: TextStyle(fontSize: 16),),
+          title: const Text('¿Eliminar estado?', style: TextStyle(fontSize: 16),),
           // TODO : cambiar texto (si tiene otras publicaciones, este texto no tiene sentido)
           content: const Text('Al eliminar esta visualización, perderás la capacidad de ver las nuevas actividades que '
               'otros usuarios creen en el día. ¿Estás seguro de que deseas continuar?',

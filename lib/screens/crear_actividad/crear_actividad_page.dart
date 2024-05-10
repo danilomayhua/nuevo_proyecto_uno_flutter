@@ -69,8 +69,8 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
   String _numeroGenerarInvitacionCodigo = "";
 
   final List<String> _stringActividadTipo = ["Público","Privado","Requisitos"];
-  ActividadTipo? _actividadTipo = ActividadTipo.privado;
-  String _actividadTipoSelected = "Privado";
+  ActividadTipo? _actividadTipo = ActividadTipo.publico;
+  String _actividadTipoSelected = "Público";
   List<ActividadRequisito> _requisitoPreguntas = [];
   bool _preguntaNueva = false;
   final TextEditingController _preguntaNuevaController = TextEditingController();
@@ -1985,6 +1985,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
               creadoresPendientes: creadoresUsuario,
               creadoresPendientesExternosCodigo: creadoresExternoCodigo,
               invitacionCodigo: _invitacionCodigo,
+              fromDisponibilidad: widget.fromDisponibilidad,
             )
         )).then((value) => {
 

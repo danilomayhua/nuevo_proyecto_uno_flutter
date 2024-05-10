@@ -111,7 +111,7 @@ class _MisActividadesPageState extends State<MisActividadesPage> {
   Widget _buildTextoCabecera(){
     return const Padding(
       padding: EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 12,),
-      child: Text("Aquí se muestran las visualizaciones y actividades donde eres cocreador. Estarán visibles solo 48 horas.",
+      child: Text("Aquí se muestran los estados y actividades donde eres cocreador. Estarán visibles solo 48 horas.",
         style: TextStyle(color: constants.grey, fontSize: 12,),
       ),
     );

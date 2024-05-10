@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:tenfo/models/signup_permisos_estado.dart';
 import 'package:tenfo/screens/signup/views/signup_not_available_page.dart';
 import 'package:tenfo/screens/signup/views/signup_phone_page.dart';
@@ -285,7 +286,14 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
       }
 
       if (permission == LocationPermission.deniedForever) {
-        _showSnackBar("Los permisos están denegados. Permite la ubicación desde Ajustes en la app.");
+        _showSnackBarButton(
+          "Los permisos están denegados. Permite la ubicación desde Ajustes.",
+          "Abrir ajustes",
+          () {
+            openAppSettings();
+          },
+        );
+
         //_habilitarTelefonoContactos(false);
         //return;
 
@@ -293,7 +301,18 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
       }
     }
 
-    if(!isUbicacionAceptado || !isNotificacionesHabilitado){
+    if(!isUbicacionAceptado){
+      _signupPermisosEstado.isPermisoUbicacionAceptado = isUbicacionAceptado;
+      _signupPermisosEstado.isPermisoNotificacionesAceptado = isNotificacionesHabilitado;
+
+      //_isAvailableBotonOmitir = true;
+      setState(() {});
+      return;
+    }
+
+    if(!isNotificacionesHabilitado){
+      // Solo deja omitir si permitio la ubicacion
+
       _signupPermisosEstado.isPermisoUbicacionAceptado = isUbicacionAceptado;
       _signupPermisosEstado.isPermisoNotificacionesAceptado = isNotificacionesHabilitado;
 
@@ -437,6 +456,18 @@ class _SignupLocationPageState extends State<SignupLocationPage> {
           universidadId: widget.universidadId,
           signupPermisosEstado: _signupPermisosEstado,
         )
+    ));
+  }
+
+  void _showSnackBarButton(String texto, String botonTexto, void Function() onPressed){
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      behavior: SnackBarBehavior.floating,
+      content: Text(texto, textAlign: TextAlign.center,),
+      action: SnackBarAction(
+        label: botonTexto,
+        onPressed: onPressed,
+      ),
     ));
   }
 

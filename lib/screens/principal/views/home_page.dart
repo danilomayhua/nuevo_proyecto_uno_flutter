@@ -119,7 +119,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text("Actividades"),
+        title: const Text("Tenfo"),
         actions: [
           IconButton(
             icon: Container(
@@ -269,13 +269,45 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                 }
                               }
 
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                                child: CardDisponibilidad(
-                                  disponibilidad: _publicaciones[index].disponibilidad!,
-                                  isCreadorActividadVisible: _isCreadorActividadVisible,
+                              return Column(children: [
+                                if(index == 0 || _publicaciones[index-1].tipo == PublicacionTipo.ACTIVIDAD)
+                                  ...[
+                                    if(index != 0)
+                                      ...[
+                                        const SizedBox(height: 32,),
+                                        const Divider(color: constants.greyLight, height: 0.5,),
+                                        const SizedBox(height: 24,),
+                                      ],
+                                    if(index == 0)
+                                      const SizedBox(height: 8,),
+
+                                    const Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Padding(
+                                        padding: EdgeInsets.only(left: 8, right: 8, bottom: 16,),
+                                        child: Text("Buscando actividades:",
+                                          style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                                  child: CardDisponibilidad(
+                                    disponibilidad: _publicaciones[index].disponibilidad!,
+                                    isCreadorActividadVisible: _isCreadorActividadVisible,
+                                  ),
                                 ),
-                              );
+
+                                if(index < (_publicaciones.length-1) && _publicaciones[index+1].tipo == PublicacionTipo.ACTIVIDAD)
+                                  ...[
+                                    const SizedBox(height: 24,),
+                                    const Divider(color: constants.greyLight, height: 0.5,),
+                                    const SizedBox(height: 32,),
+                                  ],
+
+                              ],);
 
                             }
 

@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
+import 'package:tenfo/screens/crear_disponibilidad/crear_disponibilidad_page.dart';
 import 'package:tenfo/screens/seleccionar_crear_tipo/seleccionar_crear_tipo_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
@@ -113,7 +114,7 @@ class _SignupTutorialPageState extends State<SignupTutorialPage> {
                   //_habilitarNotificacionesPush();
 
                   Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-                      builder: (context) => const SeleccionarCrearTipoPage(isFromSignup: true,)
+                      builder: (context) => const CrearDisponibilidadPage(isFromSignup: true,)
                   ), (root) => false);
                 },
                 child: const Text("Comenzar"),

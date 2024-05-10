@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/models/actividad.dart';
 import 'package:tenfo/models/chat.dart';
+import 'package:tenfo/models/disponibilidad.dart';
 import 'package:tenfo/models/usuario.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/chat_solicitudes/chat_solicitudes_page.dart';
@@ -25,7 +26,7 @@ import 'package:tenfo/widgets/actividad_boton_like.dart';
 class ActividadPage extends StatefulWidget {
   ActividadPage({Key? key, required this.actividad, this.reload = true,
     this.creadoresPendientes = const [], this.creadoresPendientesExternosCodigo = const [],
-    this.onChangeIngreso,
+    this.onChangeIngreso, this.fromDisponibilidad,
     this.invitacionCodigo, this.routeInvitacionCreador, this.routeActividadId}) : super(key: key);
 
   Actividad? actividad;
@@ -33,6 +34,7 @@ class ActividadPage extends StatefulWidget {
   final List<Usuario> creadoresPendientes;
   final List<String> creadoresPendientesExternosCodigo;
   final void Function(Actividad)? onChangeIngreso;
+  final Disponibilidad? fromDisponibilidad;
   final String? invitacionCodigo;
   final String? routeInvitacionCreador;
   final String? routeActividadId;
@@ -57,6 +59,8 @@ class _ActividadPageState extends State<ActividadPage> {
   bool _isCreadorPendiente = false;
   List<Usuario> _creadoresPendientes = [];
   List<String> _creadoresPendientesExternosCodigo = [];
+
+  bool _enviandoInvitarDisponibilidad = false;
 
   String? _invitacionCodigo;
   bool _enviandoGenerarInvitacionCreador = false;
@@ -88,6 +92,11 @@ class _ActividadPageState extends State<ActividadPage> {
 
     if(widget.reload){
       _cargarActividad(null, null);
+    } else {
+
+      // Cuando viene de CrearActividad siempre es reload = false
+      if(widget.fromDisponibilidad != null) _showInvitarDisponibilidad(widget.fromDisponibilidad!);
+
     }
 
     SharedPreferences.getInstance().then((prefs){
@@ -988,6 +997,93 @@ class _ActividadPageState extends State<ActividadPage> {
 
     setState(() {
       _enviandoConfirmarCocreador = false;
+    });
+  }
+
+  Future<void> _showInvitarDisponibilidad(Disponibilidad disponibilidad) async {
+    await Future.delayed(const Duration(seconds: 1)); // Espera un momento para que vea su actividad creada
+    _showDialogInvitarDisponibilidad(disponibilidad);
+  }
+
+  void _showDialogInvitarDisponibilidad(Disponibilidad disponibilidad){
+    showDialog(context: context, builder: (context) {
+      return StatefulBuilder(builder: (context, setStateDialog) {
+        return AlertDialog(
+          content: SingleChildScrollView(
+            child: Column(children: [
+
+              Text("¿Quieres invitar a ${disponibilidad.creador.nombre} a esta actividad?",
+                style: const TextStyle(color: constants.blackGeneral, fontSize: 16, fontWeight: FontWeight.bold,),
+                textAlign: TextAlign.center,
+              ),
+
+              const SizedBox(height: 24,),
+
+              Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: constants.greyBackgroundImage,
+                    backgroundImage: CachedNetworkImageProvider(disponibilidad.creador.foto),
+                    radius: 16,
+                  ),
+                  const SizedBox(width: 12,),
+                  Text(disponibilidad.creador.nombre, style: const TextStyle(fontSize: 16),),
+                ],
+                mainAxisSize: MainAxisSize.min,
+              ),
+
+            ], mainAxisSize: MainAxisSize.min,),
+          ),
+          actions: [
+            TextButton(
+              child: const Text('Cancelar'),
+              onPressed: _enviandoInvitarDisponibilidad ? null : () => Navigator.pop(context),
+            ),
+            TextButton(
+              child: const Text('Invitar'),
+              onPressed: _enviandoInvitarDisponibilidad ? null : () => _invitarDisponibilidad(disponibilidad, setStateDialog),
+            ),
+          ],
+        );
+      });
+    });
+  }
+
+  Future<void> _invitarDisponibilidad(Disponibilidad disponibilidad, setStateDialog) async {
+    setStateDialog(() {
+      _enviandoInvitarDisponibilidad = true;
+    });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    var response = await HttpService.httpPost(
+      url: constants.urlActividadInvitacionInvitar,
+      body: {
+        "actividad_id": widget.actividad!.id,
+        "usuario_id": disponibilidad.creador.id,
+      },
+      usuarioSesion: usuarioSesion,
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+
+        Navigator.pop(context);
+        _showSnackBar("¡Invitación enviada!");
+
+      } else {
+
+        Navigator.pop(context);
+        _showSnackBar("Se produjo un error inesperado");
+
+      }
+    }
+
+    setStateDialog(() {
+      _enviandoInvitarDisponibilidad = false;
     });
   }
 
