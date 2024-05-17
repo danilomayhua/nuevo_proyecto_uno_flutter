@@ -233,6 +233,14 @@ class _VerificarUniversidadPageState extends State<VerificarUniversidadPage> {
                 ),
               ),
 
+            if(_universidadId == "1")
+              const Padding(
+                padding: EdgeInsets.only(left: 16, top: 24, bottom: 24,),
+                child: Text("• nombre@uade.edu.ar",
+                  style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
+                ),
+              ),
+
           ], mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start,),
         ),
         actions: [

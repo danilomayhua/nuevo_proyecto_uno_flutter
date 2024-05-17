@@ -3,10 +3,11 @@ class Universidades {
   static List<String> getListaUniversidades(){
     List<String> listUniversidades = [];
 
-    listUniversidades.add("4");
+    listUniversidades.add("1");
     listUniversidades.add("9");
-    listUniversidades.add("7");
+    listUniversidades.add("4");
     listUniversidades.add("8");
+    listUniversidades.add("7");
     listUniversidades.add("3");
 
     return listUniversidades;
@@ -14,6 +15,9 @@ class Universidades {
 
   static String getNombre(String universidadId){
     switch(universidadId){
+      case "1":
+        return "UADE";
+        break;
       case "3":
         return "UP";
         break;
@@ -36,6 +40,9 @@ class Universidades {
 
   static String getDescripcion(String universidadId){
     switch(universidadId){
+      case "1":
+        return "Universidad Argentina de la Empresa";
+        break;
       case "3":
         return "Universidad de Palermo";
         break;
