@@ -13,6 +13,7 @@ class SharedPreferencesKeys {
   static const String isShowedAyudaCrearActividadCocreadores = "isShowedAyudaCrearActividadCocreadores";
   static const String isShowedAyudaCrearActividadSugerencias = "isShowedAyudaCrearActividadSugerencias";
   static const String isShowedAyudaActividadUnirse = "isShowedAyudaActividadUnirse";
+  static const String isShowedAyudaActividadMatchLike = "isShowedAyudaActividadMatchLike";
   static const String isShowedAyudaGrupoEditarFecha = "isShowedAyudaGrupoEditarFecha";
 
   static const String totalIntentosAgregarFoto = "totalIntentosAgregarFoto";

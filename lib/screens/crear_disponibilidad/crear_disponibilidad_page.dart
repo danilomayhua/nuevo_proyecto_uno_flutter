@@ -53,7 +53,7 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: widget.isFromSignup ? const Text("Nuevo") : const Text("Nueva visualización"),
+        title: widget.isFromSignup ? const Text("Nuevo") : const Text("Nuevo"),
         leading: widget.isFromSignup ? null : IconButton(
           icon: const Icon(Icons.clear),
           onPressed: (){
@@ -106,8 +106,8 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
         content: SingleChildScrollView(
           child: Column(children: const [
             Text("El estado estará durante 48 horas solamente.\n\n"
-                "Solo las personas cercanas a tu ubicación que hayan creado en las últimas 48 horas, una actividad o un estado, podrán verla.\n\n"
-                "Puedes tener hasta 3 estados visibles a la vez. Si creas más de 3, el nuevo estado reemplazará al más antiguo automáticamente.",
+                "Solo las personas cercanas a tu ubicación que hayan creado en las últimas 48 horas, una actividad o un estado, podrán verlo.\n\n"
+                "Si ya tienes un estado visible, el nuevo estado lo reemplazará.",
               style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
               textAlign: TextAlign.left,
             ),

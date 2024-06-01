@@ -7,9 +7,13 @@ class DisponibilidadCreador {
   bool isVerificadoUniversidad = false;
   String? verificadoUniversidadNombre;
 
+  bool? isMatchLiked;
+  bool? isMatch;
+
   DisponibilidadCreador({required this.id, required this.foto, required this.nombre,
     required this.descripcion, required this.universidadNombre,
-    required this.isVerificadoUniversidad, required this.verificadoUniversidadNombre});
+    required this.isVerificadoUniversidad, required this.verificadoUniversidadNombre,
+    this.isMatchLiked, this.isMatch});
 }
 
 class Disponibilidad {

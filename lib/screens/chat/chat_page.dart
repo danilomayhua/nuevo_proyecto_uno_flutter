@@ -19,11 +19,12 @@ import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ChatPage extends StatefulWidget {
-  ChatPage({Key? key, required this.chat, this.chatIndividualUsuario, this.compartenGrupoChatId}) : super(key: key);
+  ChatPage({Key? key, required this.chat, this.chatIndividualUsuario, this.compartenGrupoChatId, this.isFromMatch = false}) : super(key: key);
 
   Chat? chat;
   final Usuario? chatIndividualUsuario;
   final String? compartenGrupoChatId;
+  final bool isFromMatch;
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -88,6 +89,15 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
             _updateUnreadPrivateMessages();
           }
       });
+
+
+    if(_isChatGroup && widget.isFromMatch){
+      // Se tiene que usar los snackBar despues de ejecutarse el widget
+      WidgetsBinding.instance?.addPostFrameCallback((_) {
+        _showSnackBar("El creador de esta actividad te seleccionó anteriormente ¡Te uniste a la actividad!");
+      });
+    }
+
 
     // Si es igual a null, cuando se crea widget.chat se actualiza chatAbiertoAhora
     if(widget.chat != null) FirebaseNotificaciones().chatAbiertoAhora = widget.chat;

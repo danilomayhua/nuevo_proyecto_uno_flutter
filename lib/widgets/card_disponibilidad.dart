@@ -15,10 +15,13 @@ import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/widgets/icon_universidad_verificada.dart';
 
 class CardDisponibilidad extends StatefulWidget {
-  CardDisponibilidad({Key? key, required this.disponibilidad, this.isCreadorActividadVisible}) : super(key: key);
+  CardDisponibilidad({Key? key, required this.disponibilidad, this.isCreadorActividadVisible,
+    this.isAutorActividadVisible, this.onOpen}) : super(key: key);
 
   Disponibilidad disponibilidad;
   bool? isCreadorActividadVisible;
+  bool? isAutorActividadVisible;
+  void Function()? onOpen;
 
   @override
   _CardDisponibilidadState createState() => _CardDisponibilidadState();
@@ -32,6 +35,11 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: (){
+        if(widget.onOpen != null){
+          widget.onOpen!();
+          return;
+        }
+
         _showDialogDisponibilidad2();
       },
       child: _contenido(),
@@ -99,6 +107,13 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
               textAlign: TextAlign.left,
             ),),
 
+            if((widget.isAutorActividadVisible ?? false) && !widget.disponibilidad.isAutor)
+              const Padding(
+                padding: EdgeInsets.only(left: 8, right: 8,),
+                child: Icon(Icons.thumb_up_off_alt, size: 18, color: Colors.lightGreen,),
+              ),
+
+            /*
             if((widget.isCreadorActividadVisible ?? false) && !widget.disponibilidad.isAutor)
               InkWell(
                 onTap: (){
@@ -111,6 +126,7 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
                   child: Icon(Icons.group_add_outlined, size: 24, color: constants.blueGeneral,),
                 ),
               ),
+              */
 
           ], mainAxisAlignment: MainAxisAlignment.spaceBetween,),
 

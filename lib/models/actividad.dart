@@ -19,6 +19,9 @@ class Actividad {
 
   final bool isAutor;
 
+  bool? isMatchLiked;
+  bool? isMatch;
+
   List<ActividadRequisito> requisitosPreguntas;
   bool requisitosEnviado;
 
@@ -28,6 +31,7 @@ class Actividad {
       required this.fecha, required this.privacidadTipo, required this.interes,
       required this.creadores, required this.ingresoEstado, required this.isLiked,
       required this.likesCount, required this.isAutor,
+      this.isMatchLiked, this.isMatch,
       this.chat, this.requisitosPreguntas = const [], this.requisitosEnviado = false});
 
   static ActividadPrivacidadTipo getActividadPrivacidadTipoFromString(String tipoString){

@@ -7,10 +7,11 @@ import 'package:tenfo/widgets/actividad_boton_entrar.dart';
 import 'package:tenfo/widgets/actividad_boton_like.dart';
 
 class CardActividad extends StatefulWidget {
-  CardActividad({Key? key, required this.actividad, this.showTooltipUnirse = false}) : super(key: key);
+  CardActividad({Key? key, required this.actividad, this.showTooltipUnirse = false, this.onOpen}) : super(key: key);
 
   Actividad actividad;
   bool showTooltipUnirse;
+  void Function()? onOpen;
 
   @override
   _CardActividadState createState() => _CardActividadState();
@@ -27,9 +28,12 @@ class _CardActividadState extends State<CardActividad> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: (){
+        if(widget.onOpen != null){
+          widget.onOpen!();
+          return;
+        }
 
         // TODO : eliminar onChangeIngreso y usar provider (o algo parecido) para actualizar los estados globalmente
-
         Navigator.push(context, MaterialPageRoute(
             builder: (context) => ActividadPage(
               actividad: widget.actividad,
@@ -41,7 +45,6 @@ class _CardActividadState extends State<CardActividad> {
               },
             )
         ));
-
       },
       child: _contenido(),
     );
@@ -155,7 +158,7 @@ class _CardActividadState extends State<CardActividad> {
               ),
               constraints: const BoxConstraints(maxWidth: 200,),
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8,),
-              child: const Text("Únete y forma parte del chat grupal para conocer a los demás asistentes.",
+              child: const Text("Únete y forma parte del chat grupal para conocer a los participantes.",
                 style: TextStyle(color: Colors.white,),
               ),
             ),

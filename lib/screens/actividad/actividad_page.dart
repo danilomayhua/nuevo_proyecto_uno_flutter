@@ -22,6 +22,7 @@ import 'package:tenfo/widgets/actividad_boton_entrar.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/widgets/actividad_boton_like.dart';
+import 'package:tenfo/widgets/scrollsnap_card_disponibilidad.dart';
 
 class ActividadPage extends StatefulWidget {
   ActividadPage({Key? key, required this.actividad, this.reload = true,
@@ -66,6 +67,13 @@ class _ActividadPageState extends State<ActividadPage> {
   bool _enviandoGenerarInvitacionCreador = false;
 
   bool _isFromInvitacionCreador = false;
+
+
+  List<Disponibilidad> _disponibilidades = [];
+  bool _loadingDisponibilidades = false;
+  bool _verMasDisponibilidades = false;
+  String _ultimoDisponibilidades = "false";
+
 
   @override
   void initState() {
@@ -199,7 +207,7 @@ class _ActividadPageState extends State<ActividadPage> {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
               decoration: BoxDecoration(
-                border: Border.all(color: constants.grey, width: 0.5,),
+                border: Border.all(color: constants.greyLight, width: 0.5,),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Row(children: [
@@ -211,35 +219,40 @@ class _ActividadPageState extends State<ActividadPage> {
               ], mainAxisSize: MainAxisSize.min,),
             ),
             const Spacer(),
-            RichText(
-              text: TextSpan(
-                style: const TextStyle(color: constants.grey, fontSize: 14,),
-                text: widget.actividad!.getPrivacidadTipoString(),
-                children: [
-                  WidgetSpan(
-                    alignment: PlaceholderAlignment.middle,
-                    child: Container(
-                      width: 24,
-                      height: 24,
-                      child: IconButton(
-                        onPressed: (){
-                          _showDialogAyudaTiposActividad();
-                        },
-                        icon: Icon(Icons.help_outline, color: constants.grey, size: 18,),
-                        padding: EdgeInsets.all(0),
+            GestureDetector(
+              onTap: (){
+                _showDialogAyudaTiposActividad();
+              },
+              child: RichText(
+                text: TextSpan(
+                  style: const TextStyle(color: constants.greyLight, fontSize: 14, decoration: TextDecoration.underline,),
+                  text: widget.actividad!.getPrivacidadTipoString(),
+                  /*children: [
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.middle,
+                      child: Container(
+                        width: 24,
+                        height: 24,
+                        child: IconButton(
+                          onPressed: (){
+                            _showDialogAyudaTiposActividad();
+                          },
+                          icon: Icon(Icons.help_outline, color: constants.grey, size: 18,),
+                          padding: EdgeInsets.all(0),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],*/
+                ),
               ),
             ),
             Text(" • " + widget.actividad!.fecha,
-              style: TextStyle(color: constants.greyLight, fontSize: 14,),
+              style: const TextStyle(color: constants.greyLight, fontSize: 14,),
             ),
             const SizedBox(width: 16,),
           ],),
 
-          const SizedBox(height: 24,),
+          const SizedBox(height: 40,),
 
           Container(
             constraints: const BoxConstraints(minHeight: 40),
@@ -250,17 +263,8 @@ class _ActividadPageState extends State<ActividadPage> {
                 height: 1.3, fontWeight: FontWeight.w500,),
             ),
           ),
-          /*
-          Container(
-            constraints: BoxConstraints(minHeight: 64),
-            alignment: Alignment.centerLeft,
-            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16,),
-            child: Text(widget.actividad.descripcion ?? "",
-              style: TextStyle(color: constants.blackGeneral, fontSize: 16, height: 1.4,),
-            ),
-          ),
-          */
-          const SizedBox(height: 24,),
+
+          const SizedBox(height: 40,),
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16,),
@@ -288,7 +292,7 @@ class _ActividadPageState extends State<ActividadPage> {
             ],),
           ),
 
-          const SizedBox(height: 16,),
+          const SizedBox(height: 24,),
 
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
@@ -440,6 +444,38 @@ class _ActividadPageState extends State<ActividadPage> {
             ),
 
           if(widget.actividad!.isAutor)
+            ...[
+              const SizedBox(height: 24,),
+              Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 16,),
+                child: const Text('Selecciona a usuarios, que están buscando actividades, como permitidos para tu actividad sin ser notificados. '
+                    'Estos podrán ingresar a la actividad cuando presionen "Unirme si estoy seleccionado":',
+                  style: TextStyle(color: constants.grey, fontSize: 12,),
+                ),
+              ),
+              const SizedBox(height: 16,),
+              Align(
+                alignment: Alignment.center,
+                child: Container(
+                  constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+                  child: ElevatedButton.icon(
+                    onPressed: (){
+                      _showDialogPublicacionesJuego();
+                    },
+                    icon: const Icon(Icons.thumb_up_rounded, size: 18,),
+                    label: const Text("Seleccionar permitidos"),
+                    style: ElevatedButton.styleFrom(
+                      shape: const StadiumBorder(),
+                      primary: Colors.lightGreen,
+                    ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16,),
+            ],
+          /*
+          if(widget.actividad!.isAutor)
             Align(
               alignment: Alignment.center,
               child: Container(
@@ -455,6 +491,7 @@ class _ActividadPageState extends State<ActividadPage> {
                 ),
               ),
             ),
+          */
 
           if(_isFromInvitacionCreador && !widget.actividad!.getIsCreador(_usuarioSesion?.id ?? "" ) && !_isCreadorPendiente)
             Container(
@@ -546,6 +583,95 @@ class _ActividadPageState extends State<ActividadPage> {
       ),
       backgroundColor: Colors.white,
     );
+  }
+
+
+  StateSetter? _dialogSetState;
+  void _showDialogPublicacionesJuego(){
+
+    PageController pageController = PageController(
+      viewportFraction: 0.8,
+      initialPage: 0,
+    );
+
+    pageController.addListener(() {
+      if (pageController.position.pixels >= pageController.position.maxScrollExtent - 50) {
+        if(!_loadingDisponibilidades && _verMasDisponibilidades){
+          _cargarDisponibilidades();
+        }
+      }
+    });
+
+    if(_disponibilidades.isEmpty && !_loadingDisponibilidades){
+      _cargarDisponibilidades();
+    }
+
+    showDialog(context: context, builder: (context) {
+      return StatefulBuilder(builder: (context, setStateDialog) {
+        _dialogSetState = setStateDialog;
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Container(
+            child: PageView.builder(
+              scrollDirection: Axis.vertical,
+              controller: pageController,
+              itemCount: !_loadingDisponibilidades ? _disponibilidades.length : _disponibilidades.length + 1, // +1 mostrar cargando
+              itemBuilder: (context, index) {
+
+                if(_loadingDisponibilidades && index == _disponibilidades.length){
+                  return Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16,),
+                    margin: const EdgeInsets.symmetric(vertical: 10.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+
+                return AnimatedBuilder(
+                  animation: pageController,
+                  builder: (context, child) {
+                    double value = 1.0;
+                    if (pageController.position.haveDimensions) {
+                      value = pageController.page! - index;
+                      value = (1 - (value.abs() * 0.2)).clamp(0.0, 1.0);
+                    }
+
+                    return Opacity(
+                      opacity: value,
+                      child: ScrollsnapCardDisponibilidad(
+                        disponibilidad: _disponibilidades[index],
+                        isAutorActividadVisible: true,
+                        autorActividad: widget.actividad!,
+                        onNextItem: (){
+                          pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut,);
+                        },
+                        onChangeDisponibilidad: (Disponibilidad disponibilidad){
+                          setState(() {
+                            _disponibilidades[index] = disponibilidad;
+                          });
+                        },
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        );
+      });
+    }).then((value) {
+      //pageController.dispose();
+      _dialogSetState = null;
+      setState(() {});
+    });
   }
 
   void _compartirActividad(){
@@ -747,6 +873,8 @@ class _ActividadPageState extends State<ActividadPage> {
           creadores: creadores,
           ingresoEstado: Actividad.getActividadIngresoEstadoFromString(datosActividad['ingreso_estado']),
           isAutor: datosActividad['autor_usuario_id'] == usuarioSesion.id,
+          isMatchLiked: datosActividad['is_match_liked'],
+          isMatch: datosActividad['is_match'],
         );
 
         if(datosActividad['chat'] != null){
@@ -775,7 +903,9 @@ class _ActividadPageState extends State<ActividadPage> {
           _showSnackBar("La actividad fue eliminada.");
         } else if(datosJson['error_tipo'] == 'no_disponible'){
           _showSnackBar("Actividad no disponible.");
-        } else{
+        } else if(datosJson['error_tipo'] == 'limite_tiempo'){
+          _showSnackBar("La actividad ya no está visible.");
+        } else {
           _showSnackBar("Se produjo un error inesperado");
         }
 
@@ -1002,7 +1132,9 @@ class _ActividadPageState extends State<ActividadPage> {
 
   Future<void> _showInvitarDisponibilidad(Disponibilidad disponibilidad) async {
     await Future.delayed(const Duration(seconds: 1)); // Espera un momento para que vea su actividad creada
-    _showDialogInvitarDisponibilidad(disponibilidad);
+
+    // TODO : crear dialog para enviar match like a disponibilidad
+    //_showDialogInvitarDisponibilidad(disponibilidad);
   }
 
   void _showDialogInvitarDisponibilidad(Disponibilidad disponibilidad){
@@ -1086,6 +1218,86 @@ class _ActividadPageState extends State<ActividadPage> {
       _enviandoInvitarDisponibilidad = false;
     });
   }
+
+
+  Future<void> _cargarDisponibilidades() async {
+    _loadingDisponibilidades = true;
+    setState(() {});
+    if(_dialogSetState != null){
+      _dialogSetState!(() {});
+    }
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    var response = await HttpService.httpGet(
+      url: constants.urlActividadVerDisponibilidadesParaMatchLike,
+      queryParams: {
+        "actividad_id": widget.actividad!.id,
+        "ultimo_id": _ultimoDisponibilidades
+      },
+      usuarioSesion: usuarioSesion,
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = await jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+
+        _ultimoDisponibilidades = datosJson['data']['ultimo_id'].toString();
+        _verMasDisponibilidades = datosJson['data']['ver_mas'];
+
+        List<dynamic> disponibilidades = datosJson['data']['disponibilidades'];
+        for (var element in disponibilidades) {
+
+          _disponibilidades.add(Disponibilidad(
+            id: element['id'],
+            creador: DisponibilidadCreador(
+              id: element['creador']['id'],
+              foto: constants.urlBase + element['creador']['foto_url'],
+              nombre: element['creador']['nombre'],
+              descripcion: element['creador']['descripcion'],
+              universidadNombre: element['creador']['universidad_nombre'],
+              isVerificadoUniversidad: element['creador']['is_verificado_universidad'],
+              verificadoUniversidadNombre: element['creador']['verificado_universidad_nombre'],
+              isMatchLiked: element['creador']['is_match_liked'],
+              isMatch: element['creador']['is_match'],
+            ),
+            texto: element['texto'],
+            fecha: element['fecha_texto'],
+            isAutor: element['creador']['id'] == usuarioSesion.id,
+          ));
+        }
+
+
+        if(_disponibilidades.isEmpty){
+          _dialogSetState = null;
+          Navigator.pop(context);
+
+          _showSnackBar("No hay nuevos estados para seleccionar actualmente.");
+        }
+
+      } else {
+        if(datosJson['error_tipo'] == 'limite_tiempo'){
+
+          _dialogSetState = null;
+          Navigator.pop(context);
+
+          _showSnackBar("Esta actividad ya no está visible en Inicio. ¡Crea una nueva actividad para seleccionar permitidos!");
+
+        } else {
+          _showSnackBar("Se produjo un error inesperado");
+        }
+      }
+    }
+
+    _loadingDisponibilidades = false;
+    setState(() {});
+    if(_dialogSetState != null){
+      _dialogSetState!(() {});
+    }
+  }
+
 
   Future<void> _enviarHistorialUsuario(Map<String, dynamic> historialUsuario) async {
     //setState(() {});

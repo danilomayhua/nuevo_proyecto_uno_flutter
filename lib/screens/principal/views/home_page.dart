@@ -26,6 +26,8 @@ import 'package:tenfo/widgets/card_actividad.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/widgets/card_disponibilidad.dart';
 import 'package:tenfo/widgets/dialog_cambiar_intereses.dart';
+import 'package:tenfo/widgets/scrollsnap_card_actividad.dart';
+import 'package:tenfo/widgets/scrollsnap_card_disponibilidad.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key, required this.showBadgeNotificaciones, required this.setShowBadge}) : super(key: key);
@@ -48,6 +50,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   List<Publicacion> _publicaciones = [];
   bool _isActividadesPermitido = true;
   bool _isCreadorActividadVisible = false;
+  bool _isAutorActividadVisible = false;
 
   List<PrevisualizacionActividad> _previsualizacionActividades = [];
 
@@ -83,7 +86,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     _scrollController.addListener(() {
       if (_scrollController.offset >= _scrollController.position.maxScrollExtent && !_scrollController.position.outOfRange) {
         if(!_loadingActividades && _verMasActividades){
-          _cargarActividades();
+          _cargarActividades(setState);
         }
       }
     });
@@ -203,7 +206,13 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                 return Column(children: [
                                   Padding(
                                     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                                    child: CardActividad(actividad: _publicaciones[index].actividad!, showTooltipUnirse: index == 0 && _isAvailableTooltipUnirse,),
+                                    child: CardActividad(
+                                      actividad: _publicaciones[index].actividad!,
+                                      showTooltipUnirse: index == 0 && _isAvailableTooltipUnirse,
+                                      onOpen: (){
+                                        _showDialogPublicacionesJuego(index);
+                                      },
+                                    ),
                                   ),
                                   const SizedBox(height: 40,),
                                   Container(
@@ -223,7 +232,13 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
                               return Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                                child: CardActividad(actividad: _publicaciones[index].actividad!, showTooltipUnirse: index == 0 && _isAvailableTooltipUnirse,),
+                                child: CardActividad(
+                                  actividad: _publicaciones[index].actividad!,
+                                  showTooltipUnirse: index == 0 && _isAvailableTooltipUnirse,
+                                  onOpen: (){
+                                    _showDialogPublicacionesJuego(index);
+                                  },
+                                ),
                               );
 
                             } else {
@@ -263,6 +278,10 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                       child: CardDisponibilidad(
                                         disponibilidad: _publicaciones[index].disponibilidad!,
                                         isCreadorActividadVisible: _isCreadorActividadVisible,
+                                        isAutorActividadVisible: _isAutorActividadVisible,
+                                        onOpen: (){
+                                          _showDialogPublicacionesJuego(index);
+                                        },
                                       ),
                                     ),
                                   ],);
@@ -297,6 +316,10 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                   child: CardDisponibilidad(
                                     disponibilidad: _publicaciones[index].disponibilidad!,
                                     isCreadorActividadVisible: _isCreadorActividadVisible,
+                                    isAutorActividadVisible: _isAutorActividadVisible,
+                                    onOpen: (){
+                                      _showDialogPublicacionesJuego(index);
+                                    },
                                   ),
                                 ),
 
@@ -320,6 +343,123 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
       ),
       backgroundColor: constants.greyBackgroundScreen,
     );
+  }
+
+  bool _hasShownTooltipMatchLike = false;
+  int _currentPage = 0;
+
+  void _showDialogPublicacionesJuego(int index){
+    _currentPage = index;
+
+    StateSetter? dialogSetState;
+
+    PageController pageController = PageController(
+      viewportFraction: 0.8,
+      initialPage: index,
+    );
+
+    pageController.addListener(() {
+      if (pageController.position.pixels >= pageController.position.maxScrollExtent - 50) {
+        if(!_loadingActividades && _verMasActividades){
+          if(dialogSetState != null) _cargarActividades(dialogSetState!);
+        }
+      }
+
+      final int page = pageController.page?.round() ?? 0;
+      if (page != _currentPage && pageController.position.haveDimensions) {
+        setState(() {
+          _currentPage = page;
+        });
+      }
+    });
+
+    showDialog(context: context, builder: (context) {
+      return StatefulBuilder(builder: (context, setStateDialog) {
+        dialogSetState = setStateDialog;
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Container(
+            //height: MediaQuery.of(context).size.height * 0.8,
+            child: PageView.builder(
+              scrollDirection: Axis.vertical,
+              controller: pageController,
+              itemCount: !_loadingActividades ? _publicaciones.length : _publicaciones.length + 1, // +1 mostrar cargando
+              itemBuilder: (context, index) {
+
+                if(_loadingActividades && index == _publicaciones.length){
+                  return Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16,),
+                    margin: const EdgeInsets.symmetric(vertical: 10.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: _buildLoadingActividades(),
+                  );
+                }
+
+                return AnimatedBuilder(
+                  animation: pageController,
+                  builder: (context, child) {
+                    double value = 1.0;
+                    if (pageController.position.haveDimensions) {
+                      value = pageController.page! - index;
+                      value = (1 - (value.abs() * 0.2)).clamp(0.0, 1.0);
+                    }
+
+                    if(_publicaciones[index].tipo == PublicacionTipo.DISPONIBILIDAD){
+                      return Opacity(
+                        opacity: value,
+                        child: ScrollsnapCardDisponibilidad(
+                          disponibilidad: _publicaciones[index].disponibilidad!,
+                          isAutorActividadVisible: _isAutorActividadVisible,
+                          onNextItem: (){
+                            pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut,);
+                          },
+                          onChangeDisponibilidad: (Disponibilidad disponibilidad){
+                            setState(() {
+                              _publicaciones[index].disponibilidad = disponibilidad;
+                            });
+                          },
+                        ),
+                      );
+                    }
+
+                    bool showTooltipMatchLike = !_hasShownTooltipMatchLike && _currentPage == index;
+                    if (showTooltipMatchLike) {
+                      _hasShownTooltipMatchLike = true;
+                    }
+
+                    return Opacity(
+                      opacity: value,
+                      child: ScrollsnapCardActividad(
+                        actividad: _publicaciones[index].actividad!,
+                        onNextItem: (){
+                          pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut,);
+                        },
+                        onChangeActividad: (Actividad actividad){
+                          setState(() {
+                            _publicaciones[index].actividad = actividad;
+                          });
+                        },
+                        showTooltipMatchLike: showTooltipMatchLike,
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        );
+      });
+    }).then((value) {
+      //pageController.dispose();
+      dialogSetState = null;
+      setState(() {});
+    });
   }
 
   Future<void> _verificarNotificacionesPush() async {
@@ -381,7 +521,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if(_permissionStatus == LocationServicePermissionStatus.permitted){
 
       _locationServicePosition = await _locationService.obtenerUbicacion();
-      _cargarActividades();
+      _cargarActividades(setState);
 
     } else {
       _loadingActividades = false;
@@ -389,8 +529,8 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _cargarActividades() async {
-    setState(() {
+  Future<void> _cargarActividades(StateSetter setStateActual) async {
+    setStateActual(() {
       _loadingActividades = true;
     });
 
@@ -400,7 +540,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if(usuarioSesion.interesesId.isEmpty){
       _showDialogCambiarIntereses();
       _isActividadesPermitido = false; // Puede que si tenga permitido, si acepto ser cocreador y nunca eligió sus intereses
-      setState(() {_loadingActividades = false;});
+      setStateActual(() {_loadingActividades = false;});
       return;
     }
     String interesesIdString = usuarioSesion.interesesId.join(",");
@@ -463,6 +603,8 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
               creadores: creadores,
               ingresoEstado: Actividad.getActividadIngresoEstadoFromString(actividadDatos['ingreso_estado']),
               isAutor: actividadDatos['autor_usuario_id'] == usuarioSesion.id,
+              isMatchLiked: actividadDatos['is_match_liked'],
+              isMatch: actividadDatos['is_match'],
             );
 
             if(actividadDatos['chat'] != null){
@@ -492,6 +634,8 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 universidadNombre: disponibilidadDatos['creador']['universidad_nombre'],
                 isVerificadoUniversidad: disponibilidadDatos['creador']['is_verificado_universidad'],
                 verificadoUniversidadNombre: disponibilidadDatos['creador']['verificado_universidad_nombre'],
+                isMatchLiked: disponibilidadDatos['creador']['is_match_liked'],
+                isMatch: disponibilidadDatos['creador']['is_match'],
               ),
               texto: disponibilidadDatos['texto'],
               fecha: disponibilidadDatos['fecha_texto'],
@@ -508,6 +652,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
         _isActividadesPermitido = datosJson['is_permitido_ver_actividades'];
         _isCreadorActividadVisible = datosJson['is_creador_actividad_visible'];
+        _isAutorActividadVisible = datosJson['is_autor_actividad_visible'];
 
         if(!_isActividadesPermitido && datosJson['previsualizacion_actividades'] != null){
           List<dynamic> previsualizacionActividades = datosJson['previsualizacion_actividades'];
@@ -535,6 +680,10 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
         _lastTimeCargarActividades = DateTime.now();
 
+
+        // Tooltip de ayuda a los usuarios nuevos para enviar match like a actividad.
+        _hasShownTooltipMatchLike = prefs.getBool(SharedPreferencesKeys.isShowedAyudaActividadMatchLike) ?? false;
+
       } else {
 
         if(datosJson['error_tipo'] == 'ubicacion_no_disponible'){
@@ -554,7 +703,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
       return;
     }
 
-    setState(() {
+    setStateActual(() {
       _loadingActividades = false;
     });
   }

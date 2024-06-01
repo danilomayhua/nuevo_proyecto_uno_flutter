@@ -72,6 +72,10 @@ const String urlActividadConfirmarCocreador = "/api/actividad/confirmar-cocreado
 const String urlActividadConfirmarCocreadorInvitacion = "/api/actividad/confirmar-cocreador-invitacion";
 const String urlActividadSolicitudes = "/api/actividad/solicitudes";
 
+const String urlActividadEnviarMatchLikeActividad = "/api/actividad/enviar-match-like-actividad";
+const String urlActividadEnviarMatchLikeIntegrante = "/api/actividad/enviar-match-like-integrante";
+const String urlActividadVerDisponibilidadesParaMatchLike = "/api/actividad/ver-disponibilidades-para-match-like";
+
 const String urlActividadInvitacionActividadesParaInvitar = "/api/actividad-invitacion/actividades-para-invitar";
 const String urlActividadInvitacionInvitar = "/api/actividad-invitacion/invitar";
 

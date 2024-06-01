@@ -13,6 +13,10 @@ enum NotificacionTipo {
   AVISO_PERSONALIZADO,
   ACTIVIDAD_INVITACION,
   ACTIVIDAD_LIKE,
+  ACTIVIDAD_MATCH_LIKE_ENVIADO,
+  USUARIO_MATCH_LIKE_ENVIADO,
+  ACTIVIDAD_MATCH_LIKE_EXITO,
+  USUARIO_MATCH_LIKE_EXITO,
 }
 
 class Notificacion {
@@ -23,12 +27,14 @@ class Notificacion {
   final Actividad? actividad;
   final Chat? chat;
 
+  final int? cantidadMatchLike;
+
   final String? avisoPersonalizado;
 
   bool isNuevo;
 
   Notificacion({required this.id, required this.tipo, required this.autorUsuario, required this.fecha,
-      this.actividad, this.chat, this.avisoPersonalizado, this.isNuevo = false});
+      this.actividad, this.chat,  this.cantidadMatchLike, this.avisoPersonalizado, this.isNuevo = false});
 
   static NotificacionTipo getNotificacionTipoFromString(String tipoString){
     if(tipoString == "ACTIVIDAD_INGRESO_SOLICITUD"){
@@ -49,6 +55,14 @@ class Notificacion {
       return NotificacionTipo.ACTIVIDAD_INVITACION;
     } else if(tipoString == "ACTIVIDAD_LIKE"){
       return NotificacionTipo.ACTIVIDAD_LIKE;
+    } else if(tipoString == "ACTIVIDAD_MATCH_LIKE_ENVIADO"){
+      return NotificacionTipo.ACTIVIDAD_MATCH_LIKE_ENVIADO;
+    } else if(tipoString == "USUARIO_MATCH_LIKE_ENVIADO"){
+      return NotificacionTipo.USUARIO_MATCH_LIKE_ENVIADO;
+    } else if(tipoString == "ACTIVIDAD_MATCH_LIKE_EXITO"){
+      return NotificacionTipo.ACTIVIDAD_MATCH_LIKE_EXITO;
+    } else if(tipoString == "USUARIO_MATCH_LIKE_EXITO"){
+      return NotificacionTipo.USUARIO_MATCH_LIKE_EXITO;
     } else {
       return NotificacionTipo.INDEFINIDO;
     }

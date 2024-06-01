@@ -118,7 +118,7 @@ class _SeleccionarCrearTipoPageState extends State<SeleccionarCrearTipoPage> {
                         builder: (context) => const CrearDisponibilidadPage(),
                       ));
                     },
-                    child: const Text("Explorar actividades"),
+                    child: const Text("Ver actividades"),
                     style: OutlinedButton.styleFrom(
                       shape: const StadiumBorder(),
                     ),
@@ -134,7 +134,7 @@ class _SeleccionarCrearTipoPageState extends State<SeleccionarCrearTipoPage> {
                         builder: (context) => const CrearDisponibilidadPage(),
                       ));
                     },
-                    child: const Text("Explorar actividades"),
+                    child: const Text("Ver actividades"),
                     style: ElevatedButton.styleFrom(
                       shape: const StadiumBorder(),
                     ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
@@ -213,7 +213,7 @@ class _SeleccionarCrearTipoPageState extends State<SeleccionarCrearTipoPage> {
                     style: TextStyle(color: constants.blackGeneral, fontSize: 15, height: 1.3,),
                     children: [
                       TextSpan(
-                        text: "Explorar actividades:",
+                        text: "Ver actividades:",
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16,),
                       ),
                       TextSpan(

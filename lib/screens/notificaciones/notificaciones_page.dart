@@ -11,6 +11,7 @@ import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/actividad/actividad_page.dart';
 import 'package:tenfo/screens/chat/chat_page.dart';
 import 'package:tenfo/screens/chat_solicitudes/chat_solicitudes_page.dart';
+import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/screens/user/user_page.dart';
 import 'package:tenfo/services/firebase_notificaciones.dart';
 import 'package:tenfo/services/http_service.dart';
@@ -172,6 +173,54 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
         );
       };
 
+    } else if(notificacion.tipo == NotificacionTipo.ACTIVIDAD_MATCH_LIKE_ENVIADO){
+
+      if(notificacion.cantidadMatchLike! <= 1){
+        texto = 'Hay 1 persona que te seleccionó como permitido en su actividad. Mira las actividades y únete.';
+      } else {
+        texto = 'Hay ${notificacion.cantidadMatchLike} personas que te seleccionaron como permitido en su actividad. Mira las actividades y únete.';
+      }
+
+      iconFoto = const Icon(Icons.thumb_up_off_alt, color: Colors.lightGreen,);
+
+      onTap = (){
+        _showDialogActividadMatchLikeEnviado();
+      };
+
+    } else if(notificacion.tipo == NotificacionTipo.USUARIO_MATCH_LIKE_ENVIADO){
+
+      if(notificacion.cantidadMatchLike! <= 1){
+        texto = 'Hay 1 persona que eligió tu actividad para ingresar si lo seleccionas. ¡Selecciona más permitidos!';
+      } else {
+        texto = 'Hay ${notificacion.cantidadMatchLike} personas que eligieron tu actividad para ingresar si los seleccionas. ¡Selecciona más permitidos!';
+      }
+
+      iconFoto = const Icon(Icons.thumb_up_off_alt, color: Colors.lightGreen,);
+
+      onTap = (){
+        Navigator.push(context,
+          MaterialPageRoute(builder: (context) => ActividadPage(actividad: notificacion.actividad!,)),
+        );
+      };
+
+    } else if(notificacion.tipo == NotificacionTipo.ACTIVIDAD_MATCH_LIKE_EXITO){
+
+      texto = '${notificacion.autorUsuario!.nombre} te seleccionó para su actividad, la cual ya habías elegido. ¡Ya formas parte de la actividad!';
+      onTap = (){
+        Navigator.push(context,
+          MaterialPageRoute(builder: (context) => ActividadPage(actividad: notificacion.actividad!,)),
+        );
+      };
+
+    } else if(notificacion.tipo == NotificacionTipo.USUARIO_MATCH_LIKE_EXITO){
+
+      texto = '${notificacion.autorUsuario!.nombre} seleccionó tu actividad, la cual ya habías aprobado. ¡Ya forma parte de la actividad!';
+      onTap = (){
+        Navigator.push(context,
+          MaterialPageRoute(builder: (context) => ActividadPage(actividad: notificacion.actividad!,)),
+        );
+      };
+
     } else {
       texto = 'Tienes que actualizar la versión para ver esta notificación.';
     }
@@ -190,8 +239,10 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
           overflow: TextOverflow.ellipsis,
         ),
         leading: CircleAvatar(
-          backgroundColor: constants.greyBackgroundImage,
-          backgroundImage: iconFoto == null ? CachedNetworkImageProvider(notificacion.autorUsuario!.foto) : null,
+          backgroundColor: (notificacion.tipo == NotificacionTipo.ACTIVIDAD_MATCH_LIKE_ENVIADO || notificacion.tipo == NotificacionTipo.USUARIO_MATCH_LIKE_ENVIADO)
+              ? Colors.white54
+              : constants.greyBackgroundImage,
+          backgroundImage: (iconFoto == null && notificacion.autorUsuario != null) ? CachedNetworkImageProvider(notificacion.autorUsuario!.foto) : null,
           child: iconFoto == null ? null : iconFoto,
         ),
         trailing: Column(
@@ -308,6 +359,11 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
             );
           }
 
+          int? cantidadMatchLike;
+          if(element['cantidad_match_like'] != null){
+            cantidadMatchLike = element['cantidad_match_like'];
+          }
+
           String? avisoPersonalizado;
           if(element['aviso_personalizado'] != null){
             avisoPersonalizado = element['aviso_personalizado'];
@@ -331,6 +387,7 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
             fecha: element['fecha_texto'],
             actividad: actividad,
             chat: chat,
+            cantidadMatchLike: cantidadMatchLike,
             avisoPersonalizado: avisoPersonalizado,
             isNuevo: element['is_nuevo'],
           ));
@@ -358,6 +415,35 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text("Entendido"),
+          ),
+        ],
+      );
+    });
+  }
+
+  void _showDialogActividadMatchLikeEnviado(){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(children: const [
+            Text('Mira las actividades en Inicio y toca "Unirme si estoy seleccionado" para conocer en qué actividades has sido elegido. '
+                'Esa acción no se notificará al creador de la actividad si aún no estás seleccionado.',
+              style: TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),
+            ),
+          ], mainAxisSize: MainAxisSize.min,),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Cancelar"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                  builder: (context) => const PrincipalPage()
+              ), (route) => false);
+            },
+            child: const Text("Ir a Inicio"),
           ),
         ],
       );

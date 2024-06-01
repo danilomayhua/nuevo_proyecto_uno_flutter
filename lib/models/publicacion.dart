@@ -8,8 +8,8 @@ enum PublicacionTipo {
 
 class Publicacion {
   final PublicacionTipo tipo;
-  final Actividad? actividad;
-  final Disponibilidad? disponibilidad;
+  Actividad? actividad;
+  Disponibilidad? disponibilidad;
 
   Publicacion({required this.tipo, this.actividad, this.disponibilidad});
 
