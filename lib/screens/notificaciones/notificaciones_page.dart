@@ -426,7 +426,7 @@ class _NotificacionesPageState extends State<NotificacionesPage> {
       return AlertDialog(
         content: SingleChildScrollView(
           child: Column(children: const [
-            Text('Mira las actividades en Inicio y toca "Unirme si estoy seleccionado" para conocer en qué actividades has sido elegido. '
+            Text('Mira las actividades en Inicio y toca "Verificar seleccionado" para conocer en qué actividades has sido elegido. '
                 'Esa acción no se notificará al creador de la actividad si aún no estás seleccionado.',
               style: TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),
             ),

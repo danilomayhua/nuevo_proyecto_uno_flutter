@@ -16,12 +16,13 @@ import 'package:tenfo/widgets/icon_universidad_verificada.dart';
 
 class CardDisponibilidad extends StatefulWidget {
   CardDisponibilidad({Key? key, required this.disponibilidad, this.isCreadorActividadVisible,
-    this.isAutorActividadVisible, this.onOpen}) : super(key: key);
+    this.isAutorActividadVisible, this.onOpen, this.onChangeDisponibilidad}) : super(key: key);
 
   Disponibilidad disponibilidad;
   bool? isCreadorActividadVisible;
   bool? isAutorActividadVisible;
   void Function()? onOpen;
+  void Function(Disponibilidad)? onChangeDisponibilidad;
 
   @override
   _CardDisponibilidadState createState() => _CardDisponibilidadState();
@@ -30,6 +31,8 @@ class CardDisponibilidad extends StatefulWidget {
 class _CardDisponibilidadState extends State<CardDisponibilidad> {
 
   bool _enviandoEliminarDisponibilidad = false;
+
+  bool _enviandoMatchLike = false;
 
   @override
   Widget build(BuildContext context) {
@@ -48,24 +51,36 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
 
   Widget _contenido(){
     return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: constants.grey, width: 0.5,),
+      decoration: const BoxDecoration(
+        //borderRadius: BorderRadius.circular(10),
+        //border: Border.all(color: constants.grey, width: 0.5,),
         color: Colors.white,
       ),
-      padding: const EdgeInsets.only(left: 8, top: 12, right: 8, bottom: 12,),
+      padding: widget.disponibilidad.isAutor
+          ? const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16,)
+          : const EdgeInsets.only(left: 16, top: 28, right: 16, bottom: 28,),
       child: Row(children: [
-        Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: constants.greyLight, width: 0.5,),
-          ),
-          height: 32,
-          width: 32,
-          child: CircleAvatar(
-            //backgroundColor: constants.greyBackgroundImage,
-            backgroundColor: const Color(0xFFFAFAFA),
-            backgroundImage: CachedNetworkImageProvider(widget.disponibilidad.creador.foto),
+        GestureDetector(
+          onTap: (){
+            // TODO : obtener los datos completos del usuario en disponibilidad.creador
+            Navigator.push(context,
+              MaterialPageRoute(builder: (context) => UserPage(
+                usuario: Usuario(id: widget.disponibilidad.creador.id, nombre: "", username: "", foto: widget.disponibilidad.creador.foto,),
+              )),
+            );
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: constants.greyLight, width: 0.5,),
+            ),
+            height: 32,
+            width: 32,
+            child: CircleAvatar(
+              //backgroundColor: constants.greyBackgroundImage,
+              backgroundColor: const Color(0xFFFAFAFA),
+              backgroundImage: CachedNetworkImageProvider(widget.disponibilidad.creador.foto),
+            ),
           ),
         ),
 
@@ -75,18 +90,28 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
 
           Row(children: [
 
-            Flexible(child: Row(children: [
-              Flexible(
-                child: Text(widget.disponibilidad.creador.nombre,
-                  style: const TextStyle(color: constants.blackGeneral, fontSize: 14,),
-                  maxLines: 1,
+            Flexible(child: GestureDetector(
+              onTap: (){
+                // TODO : obtener los datos completos del usuario en disponibilidad.creador
+                Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => UserPage(
+                    usuario: Usuario(id: widget.disponibilidad.creador.id, nombre: "", username: "", foto: widget.disponibilidad.creador.foto,),
+                  )),
+                );
+              },
+              child: Row(children: [
+                Flexible(
+                  child: Text(widget.disponibilidad.creador.nombre,
+                    style: const TextStyle(color: constants.blackGeneral, fontSize: 14,),
+                    maxLines: 1,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 4,),
-              if(widget.disponibilidad.creador.isVerificadoUniversidad)
-                const IconUniversidadVerificada(size: 14),
-              const SizedBox(width: 4,),
-            ],)),
+                const SizedBox(width: 4,),
+                if(widget.disponibilidad.creador.isVerificadoUniversidad)
+                  const IconUniversidadVerificada(size: 14),
+                const SizedBox(width: 4,),
+              ],),
+            ),),
 
             Text(widget.disponibilidad.fecha,
               style: const TextStyle(color: constants.greyLight, fontSize: 12,),
@@ -107,12 +132,6 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
               textAlign: TextAlign.left,
             ),),
 
-            if((widget.isAutorActividadVisible ?? false) && !widget.disponibilidad.isAutor)
-              const Padding(
-                padding: EdgeInsets.only(left: 8, right: 8,),
-                child: Icon(Icons.thumb_up_off_alt, size: 18, color: Colors.lightGreen,),
-              ),
-
             /*
             if((widget.isCreadorActividadVisible ?? false) && !widget.disponibilidad.isAutor)
               InkWell(
@@ -126,9 +145,55 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
                   child: Icon(Icons.group_add_outlined, size: 24, color: constants.blueGeneral,),
                 ),
               ),
-              */
+             */
 
           ], mainAxisAlignment: MainAxisAlignment.spaceBetween,),
+
+          const SizedBox(height: 8,),
+
+          if(!(widget.isAutorActividadVisible ?? false) && !widget.disponibilidad.isAutor)
+            Align(
+              alignment: Alignment.centerRight,
+              child: OutlinedButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => CrearActividadPage(fromDisponibilidad: widget.disponibilidad,),
+                  ));
+                },
+                child: Row(mainAxisSize: MainAxisSize.min, children: const [
+                  Icon(Icons.add_rounded, size: 16,),
+                  SizedBox(width: 4),
+                  Text("Crear", style: TextStyle(fontSize: 12,),),
+                ],),
+                style: OutlinedButton.styleFrom(
+                  shape: const StadiumBorder(),
+                  padding: const EdgeInsets.symmetric(horizontal: 12,),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+              ),
+            ),
+
+          if((widget.isAutorActividadVisible ?? false) && !widget.disponibilidad.isAutor)
+            Align(
+              alignment: Alignment.centerRight,
+              child: OutlinedButton(
+                onPressed: (widget.disponibilidad.creador.isMatchLiked ?? false)
+                    ? (){}
+                    : _enviandoMatchLike ? null : () => _enviarMatchLike(),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Icon((widget.disponibilidad.creador.isMatchLiked ?? false)
+                      ? Icons.thumb_up
+                      : Icons.thumb_up_off_alt,
+                    size: 16, color: Colors.lightGreen,),
+                ],),
+                style: OutlinedButton.styleFrom(
+                  shape: const StadiumBorder(),
+                  padding: const EdgeInsets.symmetric(horizontal: 0,),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  minimumSize: const Size(48, 36),
+                ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+              ),
+            ),
 
         ],)),
       ], crossAxisAlignment: CrossAxisAlignment.start,),
@@ -618,6 +683,193 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
       _enviandoEliminarDisponibilidad = false;
     });
   }
+
+
+  Future<void> _enviarMatchLike() async {
+    widget.disponibilidad.creador.isMatchLiked = true;
+
+    setState(() {
+      _enviandoMatchLike = true;
+    });
+
+    // Actualiza la disponibilidad que abrio este widget
+    if(widget.onChangeDisponibilidad != null) widget.onChangeDisponibilidad!(widget.disponibilidad);
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    var response = await HttpService.httpPost(
+      url: constants.urlActividadEnviarMatchLikeIntegrante,
+      body: {
+        "usuario_id": widget.disponibilidad.creador.id,
+        "disponibilidad_id": widget.disponibilidad.id,
+      },
+      usuarioSesion: usuarioSesion,
+    );
+
+    if(response.statusCode == 200) {
+      var datosJson = jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+
+        bool isMatch = datosJson['data']['is_match'];
+
+        if(isMatch){
+          widget.disponibilidad.creador.isMatch = true;
+
+          String chatId = datosJson['data']['chat']['id'].toString();
+          _showDialogMatchExito(chatId);
+
+          // Actualiza la disponibilidad que abrio este widget
+          if(widget.onChangeDisponibilidad != null) widget.onChangeDisponibilidad!(widget.disponibilidad);
+
+        } else {
+
+          // Los cambios ya fueron agregados al principio de la funcion
+
+        }
+
+      } else {
+        if(datosJson['error_tipo'] == 'tiene_match_like'){
+
+          // widget.disponibilidad.creador.isMatchLiked = true;
+
+        } else if(datosJson['error_tipo'] == 'limite_match_likes'){
+
+          widget.disponibilidad.creador.isMatchLiked = false;
+          // Actualiza la disponibilidad que abrio este widget
+          if(widget.onChangeDisponibilidad != null) widget.onChangeDisponibilidad!(widget.disponibilidad);
+
+          //Navigator.pop(context);
+          _showSnackBar("Alcanzaste el límite de usuarios para seleccionar por hoy.");
+
+        } else if(datosJson['error_tipo'] == 'limite_integrantes'){
+
+          _showDialogLimiteIntegrantes();
+
+        } else if(datosJson['error_tipo'] == 'integrante'){
+
+          _showDialogIntegranteActual();
+
+        } else if(datosJson['error_tipo'] == 'ingreso_no_permitido'){
+
+          widget.disponibilidad.creador.isMatchLiked = false;
+          // Actualiza la disponibilidad que abrio este widget
+          if(widget.onChangeDisponibilidad != null) widget.onChangeDisponibilidad!(widget.disponibilidad);
+
+          _showDialogIntegranteExpulsado();
+
+        } else {
+          widget.disponibilidad.creador.isMatchLiked = false;
+          _showSnackBar("Se produjo un error inesperado");
+
+          // Actualiza la disponibilidad que abrio este widget
+          if(widget.onChangeDisponibilidad != null) widget.onChangeDisponibilidad!(widget.disponibilidad);
+        }
+      }
+    }
+
+    setState(() {
+      _enviandoMatchLike = false;
+    });
+  }
+
+  void _showDialogMatchExito(String chatId){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text("${widget.disponibilidad.creador.nombre} seleccionó anteriormente tu actividad ¡Ahora forma parte de la actividad!",
+                style: const TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: (){
+              Navigator.of(context).pop();
+            },
+            child: const Text("Continuar seleccionando"),
+          ),
+        ],
+      );
+    });
+  }
+
+  void _showDialogLimiteIntegrantes(){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text("${widget.disponibilidad.creador.nombre} seleccionó anteriormente tu actividad, pero el chat grupal ya está lleno. No pueden unirse más usuarios.",
+                style: const TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: (){
+              Navigator.of(context).pop();
+            },
+            child: const Text("Entendido"),
+          ),
+        ],
+      );
+    });
+  }
+
+  void _showDialogIntegranteActual(){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text("¡${widget.disponibilidad.creador.nombre} ya está en tu actividad!",
+                style: const TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: (){
+              Navigator.of(context).pop();
+            },
+            child: const Text("Entendido"),
+          ),
+        ],
+      );
+    });
+  }
+
+  void _showDialogIntegranteExpulsado(){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text("No puedes seleccionar a ${widget.disponibilidad.creador.nombre} porque fue eliminado de tu actividad.",
+                style: const TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: (){
+              Navigator.of(context).pop();
+            },
+            child: const Text("Entendido"),
+          ),
+        ],
+      );
+    });
+  }
+
 
   void _showSnackBar(String texto){
     ScaffoldMessenger.of(context).removeCurrentSnackBar();

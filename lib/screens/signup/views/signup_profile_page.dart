@@ -526,6 +526,9 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
         prefs.setString(SharedPreferencesKeys.usuarioSesion, jsonEncode(usuarioSesion));
         prefs.setBool(SharedPreferencesKeys.isLoggedIn, true);
 
+        // Este valor es false solo para usuarios nuevos
+        prefs.setBool(SharedPreferencesKeys.isShowedScreenSignupTutorial, false);
+
         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
             builder: (context) => SignupPicturePage(isFromSignup: true, signupPermisosEstado: widget.signupPermisosEstado,)
         ), (root) => false);

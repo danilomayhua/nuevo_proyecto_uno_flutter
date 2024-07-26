@@ -8,6 +8,7 @@ import 'package:tenfo/models/chat.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/actividad/actividad_page.dart';
 import 'package:tenfo/screens/chat/chat_page.dart';
+import 'package:tenfo/screens/user/user_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/shared_preferences_keys.dart';
@@ -68,10 +69,16 @@ class _ScrollsnapCardActividadState extends State<ScrollsnapCardActividad> {
           const Text('Actividad',
             style: TextStyle(fontSize: 12, color: constants.greyLight,),
           ),
-          Text(widget.actividad.fecha,
-            style: const TextStyle(color: constants.greyLight, fontSize: 12,),
-            maxLines: 1,
-          ),
+          Row(children: [
+            if(widget.actividad.distanciaTexto != null)
+              Text("${widget.actividad.distanciaTexto ?? '' } • ",
+                style: const TextStyle(color: constants.greyLight, fontSize: 12,),
+              ),
+            Text(widget.actividad.fecha,
+              style: const TextStyle(color: constants.greyLight, fontSize: 12,),
+              maxLines: 1,
+            ),
+          ],),
         ], mainAxisAlignment: MainAxisAlignment.spaceBetween,),
 
         Expanded(
@@ -111,39 +118,63 @@ class _ScrollsnapCardActividadState extends State<ScrollsnapCardActividad> {
 
                   Row(children: [
                     const SizedBox(width: 8,),
-                    SizedBox(
-                      width: (15 * widget.actividad.creadores.length) + 10,
-                      height: 20,
-                      child: Stack(
-                        children: [
-                          Container(),
-                          for (int i=(widget.actividad.creadores.length-1); i>=0; i--)
-                            Positioned(
-                              left: (15 * i).toDouble(),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: constants.greyLight, width: 0.5,),
-                                ),
-                                height: 20,
-                                width: 20,
-                                child: CircleAvatar(
-                                  backgroundColor: const Color(0xFFFAFAFA),
-                                  backgroundImage: CachedNetworkImageProvider(widget.actividad.creadores[i].foto),
-                                  //radius: 10,
+                    GestureDetector(
+                      onTap: (){
+                        Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => UserPage(usuario: widget.actividad.creadores[0].toUsuario(),)),
+                        );
+                      },
+                      child: SizedBox(
+                        width: (15 * widget.actividad.creadores.length) + 18,
+                        height: 24,
+                        child: Stack(
+                          children: [
+                            Container(),
+                            for (int i=(widget.actividad.creadores.length-1); i>=0; i--)
+                              Positioned(
+                                left: (15 * i).toDouble(),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: constants.greyLight, width: 0.5,),
+                                  ),
+                                  height: 24,
+                                  width: 24,
+                                  child: CircleAvatar(
+                                    backgroundColor: const Color(0xFFFAFAFA),
+                                    backgroundImage: CachedNetworkImageProvider(widget.actividad.creadores[i].foto),
+                                    //radius: 10,
+                                  ),
                                 ),
                               ),
-                            ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                    Expanded(
-                      child: Text(_getTextCocreadores(widget.actividad),
-                        style: const TextStyle(color: constants.grey, fontSize: 12,),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+
+                    if(widget.actividad.creadores.length == 1)
+                      Flexible(
+                        child: GestureDetector(
+                          onTap: (){
+                            Navigator.push(context,
+                              MaterialPageRoute(builder: (context) => UserPage(usuario: widget.actividad.creadores[0].toUsuario(),)),
+                            );
+                          },
+                          child: Text(_getTextCocreadores(widget.actividad),
+                            style: const TextStyle(color: constants.grey, fontSize: 12,),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ),
-                    ),
+                    if(widget.actividad.creadores.length != 1)
+                      Flexible(
+                        child: Text(_getTextCocreadores(widget.actividad),
+                          style: const TextStyle(color: constants.grey, fontSize: 12,),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                   ],),
 
                   Row(children: [
@@ -206,15 +237,15 @@ class _ScrollsnapCardActividadState extends State<ScrollsnapCardActividad> {
 
     if(actividad.creadores.length == 1){
 
-      creadoresNombre = actividad.creadores[0].username;
+      creadoresNombre = actividad.creadores[0].nombre;
 
     } else if(actividad.creadores.length >= 1){
 
-      creadoresNombre = actividad.creadores[0].username;
+      creadoresNombre = actividad.creadores[0].nombre;
       for(int i = 1; i < (actividad.creadores.length-1); i++){
-        creadoresNombre += ", " + actividad.creadores[i].username;
+        creadoresNombre += ", " + actividad.creadores[i].nombre;
       }
-      creadoresNombre += " y " + actividad.creadores[actividad.creadores.length-1].username;
+      creadoresNombre += " y " + actividad.creadores[actividad.creadores.length-1].nombre;
 
     }
 
@@ -226,8 +257,8 @@ class _ScrollsnapCardActividadState extends State<ScrollsnapCardActividad> {
 
       OutlinedButton.icon(
         onPressed: _enviando ? null : () => _enviarMatchLike(),
-        icon: const Icon(Icons.thumb_up_rounded, size: 16,),
-        label: const Text("Unirme si estoy seleccionado", style: TextStyle(fontSize: 12),),
+        icon: const Icon(Icons.thumb_up_outlined, size: 16,),
+        label: const Text("Verificar seleccionado", style: TextStyle(fontSize: 8),),
         style: OutlinedButton.styleFrom(
           shape: const StadiumBorder(),
           primary: Colors.lightGreen,
@@ -256,9 +287,10 @@ class _ScrollsnapCardActividadState extends State<ScrollsnapCardActividad> {
   }
 
   Widget _buildMatchExito(){
-    return TextButton(
+    return TextButton.icon(
       onPressed: (){},
-      child: const Text("🤝 Seleccionados", style: TextStyle(fontSize: 14),),
+      icon: const Icon(Icons.check, size: 16,),
+      label: const Text("Fuiste seleccionado", style: TextStyle(fontSize: 8),),
       style: TextButton.styleFrom(
         //shape: const StadiumBorder(),
         primary: Colors.lightGreen,
@@ -270,7 +302,7 @@ class _ScrollsnapCardActividadState extends State<ScrollsnapCardActividad> {
     return TextButton.icon(
       onPressed: (){},
       icon: const Icon(Icons.thumb_up_rounded, size: 16,),
-      label: const Text("Te unirás si estás seleccionado", style: TextStyle(fontSize: 12),),
+      label: const Text("Te unirás si estás seleccionado", style: TextStyle(fontSize: 8),),
       style: TextButton.styleFrom(
         //shape: const StadiumBorder(),
         primary: Colors.lightGreen,

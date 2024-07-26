@@ -4,33 +4,28 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/models/actividad.dart';
-import 'package:tenfo/models/chat.dart';
-import 'package:tenfo/models/disponibilidad.dart';
-import 'package:tenfo/models/usuario.dart';
+import 'package:tenfo/models/sugerencia_usuario.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
-import 'package:tenfo/screens/chat/chat_page.dart';
 import 'package:tenfo/screens/crear_actividad/crear_actividad_page.dart';
 import 'package:tenfo/screens/user/user_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/widgets/icon_universidad_verificada.dart';
 
-class ScrollsnapCardDisponibilidad extends StatefulWidget {
-  ScrollsnapCardDisponibilidad({Key? key, required this.disponibilidad,
-    this.isAutorActividadVisible = false, this.autorActividad,
-    this.onNextItem, this.onChangeDisponibilidad}) : super(key: key);
+class ScrollsnapCardSugerenciaUsuario extends StatefulWidget {
+  ScrollsnapCardSugerenciaUsuario({Key? key, required this.sugerenciaUsuario,
+    this.isAutorActividadVisible = false, this.onNextItem, this.onChangeSugerenciaUsuario}) : super(key: key);
 
-  Disponibilidad disponibilidad;
+  SugerenciaUsuario sugerenciaUsuario;
   bool isAutorActividadVisible;
-  Actividad? autorActividad;
   void Function()? onNextItem;
-  void Function(Disponibilidad)? onChangeDisponibilidad;
+  void Function(SugerenciaUsuario)? onChangeSugerenciaUsuario;
 
   @override
-  _ScrollsnapCardDisponibilidadState createState() => _ScrollsnapCardDisponibilidadState();
+  _ScrollsnapCardSugerenciaUsuarioState createState() => _ScrollsnapCardSugerenciaUsuarioState();
 }
 
-class _ScrollsnapCardDisponibilidadState extends State<ScrollsnapCardDisponibilidad> {
+class _ScrollsnapCardSugerenciaUsuarioState extends State<ScrollsnapCardSugerenciaUsuario> {
 
   bool _enviando = false;
 
@@ -45,15 +40,11 @@ class _ScrollsnapCardDisponibilidadState extends State<ScrollsnapCardDisponibili
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
-        Row(children: [
-          const Text('Estado',
+        Row(children: const [
+          Text('Sugerencia',
             style: TextStyle(fontSize: 12, color: constants.greyLight,),
           ),
-          Text(widget.disponibilidad.fecha,
-            style: const TextStyle(color: constants.greyLight, fontSize: 12,),
-            maxLines: 1,
-          ),
-        ], mainAxisAlignment: MainAxisAlignment.spaceBetween,),
+        ], mainAxisAlignment: MainAxisAlignment.start,),
         Expanded(
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
 
@@ -61,40 +52,38 @@ class _ScrollsnapCardDisponibilidadState extends State<ScrollsnapCardDisponibili
 
             GestureDetector(
               onTap: (){
-                // TODO : obtener los datos completos del usuario en disponibilidad.creador
                 Navigator.push(context,
                   MaterialPageRoute(builder: (context) => UserPage(
-                    usuario: Usuario(id: widget.disponibilidad.creador.id, nombre: "", username: "", foto: widget.disponibilidad.creador.foto,),
+                    usuario: widget.sugerenciaUsuario.toUsuario(),
                   )),
                 );
               },
               child: CircleAvatar(
                 radius: 40,
-                backgroundImage: CachedNetworkImageProvider(widget.disponibilidad.creador.foto),
+                backgroundImage: CachedNetworkImageProvider(widget.sugerenciaUsuario.foto),
                 backgroundColor: Colors.transparent,
               ),
             ),
 
-            const SizedBox(height: 16,),
+            const SizedBox(height: 24,),
 
             GestureDetector(
               onTap: (){
-                // TODO : obtener los datos completos del usuario en disponibilidad.creador
                 Navigator.push(context,
                   MaterialPageRoute(builder: (context) => UserPage(
-                    usuario: Usuario(id: widget.disponibilidad.creador.id, nombre: "", username: "", foto: widget.disponibilidad.creador.foto,),
+                    usuario: widget.sugerenciaUsuario.toUsuario(),
                   )),
                 );
               },
               child: Row(children: [
                 Flexible(
-                  child: Text(widget.disponibilidad.creador.nombre,
-                    style: const TextStyle(color: constants.blackGeneral, fontSize: 16,),
+                  child: Text(widget.sugerenciaUsuario.nombre,
+                    style: const TextStyle(color: constants.blackGeneral, fontSize: 20,),
                     textAlign: TextAlign.center,
                     maxLines: 1,
                   ),
                 ),
-                if(widget.disponibilidad.creador.isVerificadoUniversidad)
+                if(widget.sugerenciaUsuario.isVerificadoUniversidad)
                   ...[
                     const SizedBox(width: 4,),
                     const IconUniversidadVerificada(size: 16),
@@ -104,19 +93,7 @@ class _ScrollsnapCardDisponibilidadState extends State<ScrollsnapCardDisponibili
 
             const SizedBox(height: 24,),
 
-            Flexible(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(widget.disponibilidad.texto,
-                  style: const TextStyle(color: constants.blackGeneral, fontSize: 18, height: 1.3, fontWeight: FontWeight.bold,),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 48,),
-
-            if(!(widget.isAutorActividadVisible) && !widget.disponibilidad.isAutor)
+            if(!(widget.isAutorActividadVisible))
               ...[
                 const SizedBox(height: 16,),
                 const Text("Crea una actividad y jugá con invitaciones anónimas:",
@@ -129,7 +106,7 @@ class _ScrollsnapCardDisponibilidadState extends State<ScrollsnapCardDisponibili
                   child: ElevatedButton.icon(
                     onPressed: (){
                       Navigator.push(context, MaterialPageRoute(
-                        builder: (context) => CrearActividadPage(fromDisponibilidad: widget.disponibilidad,),
+                        builder: (context) => CrearActividadPage(fromSugerenciaUsuario: widget.sugerenciaUsuario,),
                       ));
                     },
                     icon: const Icon(Icons.add),
@@ -141,7 +118,7 @@ class _ScrollsnapCardDisponibilidadState extends State<ScrollsnapCardDisponibili
                 ),
               ],
 
-            if((widget.isAutorActividadVisible) && !widget.disponibilidad.isAutor)
+            if((widget.isAutorActividadVisible))
               ...[
                 const SizedBox(height: 16,),
                 const Text("Elige en anónimo como integrante permitido para tu actividad:",
@@ -151,9 +128,9 @@ class _ScrollsnapCardDisponibilidadState extends State<ScrollsnapCardDisponibili
                 const SizedBox(height: 16,),
                 Container(
                   constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
-                  child: (widget.disponibilidad.creador.isMatch ?? false)
+                  child: (widget.sugerenciaUsuario.isMatch ?? false)
                       ? _buildMatchExito()
-                      : (widget.disponibilidad.creador.isMatchLiked ?? false)
+                      : (widget.sugerenciaUsuario.isMatchLiked ?? false)
                       ? _buildMatchLikeEnviado()
                       : _buildBotonMatchLike(),
                 ),
@@ -203,14 +180,14 @@ class _ScrollsnapCardDisponibilidadState extends State<ScrollsnapCardDisponibili
   }
 
   Future<void> _enviarMatchLike() async {
-    widget.disponibilidad.creador.isMatchLiked = true;
+    widget.sugerenciaUsuario.isMatchLiked = true;
 
     setState(() {
       _enviando = true;
     });
 
-    // Actualiza la disponibilidad que abrio este widget
-    if(widget.onChangeDisponibilidad != null) widget.onChangeDisponibilidad!(widget.disponibilidad);
+    // Actualiza sugerenciaUsuario que abrio este widget
+    if(widget.onChangeSugerenciaUsuario != null) widget.onChangeSugerenciaUsuario!(widget.sugerenciaUsuario);
 
     if(widget.onNextItem != null){
       widget.onNextItem!();
@@ -222,9 +199,7 @@ class _ScrollsnapCardDisponibilidadState extends State<ScrollsnapCardDisponibili
     var response = await HttpService.httpPost(
       url: constants.urlActividadEnviarMatchLikeIntegrante,
       body: {
-        "actividad_id": widget.autorActividad?.id,
-        "usuario_id": widget.disponibilidad.creador.id,
-        "disponibilidad_id": widget.disponibilidad.id,
+        "usuario_id": widget.sugerenciaUsuario.id,
       },
       usuarioSesion: usuarioSesion,
     );
@@ -237,13 +212,13 @@ class _ScrollsnapCardDisponibilidadState extends State<ScrollsnapCardDisponibili
         bool isMatch = datosJson['data']['is_match'];
 
         if(isMatch){
-          widget.disponibilidad.creador.isMatch = true;
+          widget.sugerenciaUsuario.isMatch = true;
 
           String chatId = datosJson['data']['chat']['id'].toString();
           _showDialogMatchExito(chatId);
 
-          // Actualiza la disponibilidad que abrio este widget
-          if(widget.onChangeDisponibilidad != null) widget.onChangeDisponibilidad!(widget.disponibilidad);
+          // Actualiza sugerenciaUsuario que abrio este widget
+          if(widget.onChangeSugerenciaUsuario != null) widget.onChangeSugerenciaUsuario!(widget.sugerenciaUsuario);
 
         } else {
 
@@ -254,13 +229,13 @@ class _ScrollsnapCardDisponibilidadState extends State<ScrollsnapCardDisponibili
       } else {
         if(datosJson['error_tipo'] == 'tiene_match_like'){
 
-          // widget.disponibilidad.creador.isMatchLiked = true;
+          // widget.onChangeSugerenciaUsuario.isMatchLiked = true;
 
         } else if(datosJson['error_tipo'] == 'limite_match_likes'){
 
-          widget.disponibilidad.creador.isMatchLiked = false;
-          // Actualiza la disponibilidad que abrio este widget
-          if(widget.onChangeDisponibilidad != null) widget.onChangeDisponibilidad!(widget.disponibilidad);
+          widget.sugerenciaUsuario.isMatchLiked = false;
+          // Actualiza sugerenciaUsuario que abrio este widget
+          if(widget.onChangeSugerenciaUsuario != null) widget.onChangeSugerenciaUsuario!(widget.sugerenciaUsuario);
 
           Navigator.pop(context);
           _showSnackBar("Alcanzaste el límite de usuarios para seleccionar por hoy.");
@@ -275,18 +250,18 @@ class _ScrollsnapCardDisponibilidadState extends State<ScrollsnapCardDisponibili
 
         } else if(datosJson['error_tipo'] == 'ingreso_no_permitido'){
 
-          widget.disponibilidad.creador.isMatchLiked = false;
-          // Actualiza la disponibilidad que abrio este widget
-          if(widget.onChangeDisponibilidad != null) widget.onChangeDisponibilidad!(widget.disponibilidad);
+          widget.sugerenciaUsuario.isMatchLiked = false;
+          // Actualiza sugerenciaUsuario que abrio este widget
+          if(widget.onChangeSugerenciaUsuario != null) widget.onChangeSugerenciaUsuario!(widget.sugerenciaUsuario);
 
           _showDialogIntegranteExpulsado();
 
         } else {
-          widget.disponibilidad.creador.isMatchLiked = false;
+          widget.sugerenciaUsuario.isMatchLiked = false;
           _showSnackBar("Se produjo un error inesperado");
 
-          // Actualiza la disponibilidad que abrio este widget
-          if(widget.onChangeDisponibilidad != null) widget.onChangeDisponibilidad!(widget.disponibilidad);
+          // Actualiza sugerenciaUsuario que abrio este widget
+          if(widget.onChangeSugerenciaUsuario != null) widget.onChangeSugerenciaUsuario!(widget.sugerenciaUsuario);
         }
       }
     }
@@ -297,23 +272,13 @@ class _ScrollsnapCardDisponibilidadState extends State<ScrollsnapCardDisponibili
   }
 
   void _showDialogMatchExito(String chatId){
-    if(widget.autorActividad != null){
-      widget.autorActividad!.ingresoEstado = ActividadIngresoEstado.INTEGRANTE;
-      widget.autorActividad!.chat = Chat(
-          id: chatId,
-          tipo: ChatTipo.GRUPAL,
-          numMensajesPendientes: null,
-          actividadChat: widget.autorActividad!
-      );
-    }
-
     showDialog(context: context, builder: (context){
       return AlertDialog(
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text("${widget.disponibilidad.creador.nombre} seleccionó anteriormente tu actividad ¡Ahora forma parte de la actividad!",
+              Text("${widget.sugerenciaUsuario.nombre} seleccionó anteriormente tu actividad ¡Ahora forma parte de la actividad!",
                 style: const TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),),
             ],
           ),
@@ -325,15 +290,6 @@ class _ScrollsnapCardDisponibilidadState extends State<ScrollsnapCardDisponibili
             },
             child: const Text("Continuar seleccionando"),
           ),
-          if(widget.autorActividad != null)
-            TextButton(
-              onPressed: (){
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => ChatPage(chat: widget.autorActividad!.chat,),
-                ));
-              },
-              child: const Text("Ir al chat"),
-            ),
         ],
       );
     });
@@ -346,7 +302,7 @@ class _ScrollsnapCardDisponibilidadState extends State<ScrollsnapCardDisponibili
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text("${widget.disponibilidad.creador.nombre} seleccionó anteriormente tu actividad, pero el chat grupal ya está lleno. No pueden unirse más usuarios.",
+              Text("${widget.sugerenciaUsuario.nombre} seleccionó anteriormente tu actividad, pero el chat grupal ya está lleno. No pueden unirse más usuarios.",
                 style: const TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),),
             ],
           ),
@@ -370,7 +326,7 @@ class _ScrollsnapCardDisponibilidadState extends State<ScrollsnapCardDisponibili
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text("¡${widget.disponibilidad.creador.nombre} ya está en tu actividad!",
+              Text("¡${widget.sugerenciaUsuario.nombre} ya está en tu actividad!",
                 style: const TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),),
             ],
           ),
@@ -394,7 +350,7 @@ class _ScrollsnapCardDisponibilidadState extends State<ScrollsnapCardDisponibili
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text("No puedes seleccionar a ${widget.disponibilidad.creador.nombre} porque fue eliminado de tu actividad.",
+              Text("No puedes seleccionar a ${widget.sugerenciaUsuario.nombre} porque fue eliminado de tu actividad.",
                 style: const TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),),
             ],
           ),
@@ -410,6 +366,7 @@ class _ScrollsnapCardDisponibilidadState extends State<ScrollsnapCardDisponibili
       );
     });
   }
+
 
   void _showSnackBar(String texto){
     ScaffoldMessenger.of(context).removeCurrentSnackBar();

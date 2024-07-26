@@ -129,11 +129,12 @@ class _MisActividadesAntiguasPageState extends State<MisActividadesAntiguasPage>
         List<dynamic> actividades = datosJson['data']['actividades'];
         for (var element in actividades) {
 
-          List<Usuario> creadores = [];
+          List<ActividadCreador> creadores = [];
           element['creadores'].forEach((usuario) {
-            creadores.add(Usuario(
+            creadores.add(ActividadCreador(
               id: usuario['id'],
-              nombre: usuario['nombre_completo'],
+              nombre: usuario['nombre'],
+              nombreCompleto: usuario['nombre_completo'],
               username: usuario['username'],
               foto: constants.urlBase + usuario['foto_url'],
             ));

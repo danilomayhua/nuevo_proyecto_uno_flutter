@@ -5,6 +5,21 @@ import 'package:tenfo/models/usuario.dart';
 enum ActividadPrivacidadTipo {PUBLICO, PRIVADO, REQUISITOS}
 enum ActividadIngresoEstado {NO_INTEGRANTE, PENDIENTE, REQUISITO_RECHAZADO, INTEGRANTE, EXPULSADO}
 
+class ActividadCreador {
+  final String id;
+  final String nombre;
+  final String nombreCompleto;
+  final String username;
+  final String foto;
+
+  ActividadCreador({required this.id, required this.nombre, required this.nombreCompleto,
+    required this.username, required this.foto,});
+
+  Usuario toUsuario(){
+    return Usuario(id: id, nombre: nombreCompleto, username: username, foto: foto);
+  }
+}
+
 class Actividad {
   final String id;
   final String titulo;
@@ -14,13 +29,15 @@ class Actividad {
   final String interes;
   bool isLiked;
   int likesCount;
-  final List<Usuario> creadores;
+  final List<ActividadCreador> creadores;
   ActividadIngresoEstado ingresoEstado;
 
   final bool isAutor;
 
   bool? isMatchLiked;
   bool? isMatch;
+
+  String? distanciaTexto;
 
   List<ActividadRequisito> requisitosPreguntas;
   bool requisitosEnviado;
@@ -31,7 +48,7 @@ class Actividad {
       required this.fecha, required this.privacidadTipo, required this.interes,
       required this.creadores, required this.ingresoEstado, required this.isLiked,
       required this.likesCount, required this.isAutor,
-      this.isMatchLiked, this.isMatch,
+      this.isMatchLiked, this.isMatch, this.distanciaTexto,
       this.chat, this.requisitosPreguntas = const [], this.requisitosEnviado = false});
 
   static ActividadPrivacidadTipo getActividadPrivacidadTipoFromString(String tipoString){
@@ -83,7 +100,7 @@ class Actividad {
   bool getIsCreador(String sessionId){
     bool isCreador = false;
 
-    for(Usuario creador in creadores){
+    for(ActividadCreador creador in creadores){
       if(sessionId == creador.id){
         isCreador = true;
         break;

@@ -11,6 +11,7 @@ import 'package:tenfo/models/actividad.dart';
 import 'package:tenfo/models/actividad_requisito.dart';
 import 'package:tenfo/models/actividad_sugerencia_titulo.dart';
 import 'package:tenfo/models/disponibilidad.dart';
+import 'package:tenfo/models/sugerencia_usuario.dart';
 import 'package:tenfo/models/usuario.dart';
 import 'package:tenfo/models/usuario_cocreador_pendiente.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
@@ -27,10 +28,11 @@ import 'package:tenfo/utilities/shared_preferences_keys.dart';
 import 'package:tenfo/widgets/dialog_cambiar_intereses.dart';
 
 class CrearActividadPage extends StatefulWidget {
-  const CrearActividadPage({Key? key, this.cocreadorUsuario, this.fromDisponibilidad}) : super(key: key);
+  const CrearActividadPage({Key? key, this.cocreadorUsuario, this.fromDisponibilidad, this.fromSugerenciaUsuario}) : super(key: key);
 
   final Usuario? cocreadorUsuario;
   final Disponibilidad? fromDisponibilidad;
+  final SugerenciaUsuario? fromSugerenciaUsuario;
 
   @override
   State<CrearActividadPage> createState() => _CrearActividadPageState();
@@ -95,9 +97,12 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
       // Muestra los intereses en orden
       List<String> listIntereses = Intereses.getListaIntereses();
       listIntereses.forEach((element) {
-        if(usuarioSesion.interesesId.contains(element)){
+        /*if(usuarioSesion.interesesId.contains(element)){
           _intereses.add(element);
-        }
+        }*/
+
+        // Muestra todos los intereses
+        _intereses.add(element);
       });
 
       setState(() {});
@@ -182,6 +187,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
             contenidoDos(),
           ],
         )),
+        /*
         if(_pageCurrent == 0)
           ...[
             GestureDetector(
@@ -194,6 +200,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
             ),
             const SizedBox(height: 8,),
           ],
+         */
       ]),),
     );
 
@@ -282,7 +289,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
             },
           ),
           const SizedBox(width: 4,),
-          const Text("Opciones:", textAlign: TextAlign.left,
+          const Text("Sugerencias:", textAlign: TextAlign.left,
             style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
           ),
         ],),
@@ -352,7 +359,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         const SizedBox(height: 24,),
 
         Row(children: [
-          const Text("Interés:", textAlign: TextAlign.left,
+          const Text("Categoría:", textAlign: TextAlign.left,
             style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
           ),
           const SizedBox(width: 4,),
@@ -360,7 +367,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
             Tooltip(
               key: _keyTooltipSugerencias,
               triggerMode: TooltipTriggerMode.manual,
-              message: "Presiona en un interés para\ncambiar las opciones\nmostradas", // Tiene saltos de linea para modificar el ancho
+              message: "Presiona en una categoría para\ncambiar las sugerencias\nmostradas", // Tiene saltos de linea para modificar el ancho
               preferBelow: false,
               verticalOffset: 18,
               padding: const EdgeInsets.all(8),
@@ -387,7 +394,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
           height: 70,
           child: ListView.builder(itemBuilder: (context, index){
 
-            if(index == _intereses.length){
+            /*if(index == _intereses.length){
               return InkWell(
                 onTap: (){
                   _showDialogCambiarIntereses();
@@ -397,7 +404,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
                     child: const Icon(Icons.settings_suggest_rounded, color: constants.blackGeneral, size: 28,),
                 ),
               );
-            }
+            }*/
 
             return GestureDetector(
               onTap: (){
@@ -444,7 +451,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
               ),
             );
 
-          }, scrollDirection: Axis.horizontal, itemCount: _intereses.length + 1, shrinkWrap: true,),
+          }, scrollDirection: Axis.horizontal, itemCount: _intereses.length, shrinkWrap: true,),
         ),
 
         const SizedBox(height: 24,),
@@ -1039,7 +1046,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
     }
 
     if(_selectedInteresId == null){
-      _showSnackBar("Selecciona a qué interés pertenece");
+      _showSnackBar("Selecciona a qué categoría pertenece");
       return;
     }
 
@@ -1949,7 +1956,9 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
         // Envia historial del usuario para analizar comportamiento
         "historiales_usuario_activo": _historialesUsuario,
-        "datos_enviado_desde": widget.fromDisponibilidad == null ? null : { "disponibilidad_id" : widget.fromDisponibilidad?.id },
+        "datos_enviado_desde": (widget.fromDisponibilidad == null && widget.fromSugerenciaUsuario == null)
+            ? null
+            : { "disponibilidad_id" : widget.fromDisponibilidad?.id, "sugerencia_usuario_id" : widget.fromSugerenciaUsuario?.id, },
       },
       usuarioSesion: usuarioSesion,
     );
@@ -1972,9 +1981,10 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
                 interes: datosActividad['interes_id'].toString(),
                 isLiked: datosActividad['like'] == "SI",
                 likesCount: datosActividad['likes_count'],
-                creadores: [Usuario(
+                creadores: [ActividadCreador(
                   id: usuarioSesion.id,
-                  nombre: usuarioSesion.nombre_completo,
+                  nombre: usuarioSesion.nombre,
+                  nombreCompleto: usuarioSesion.nombre_completo,
                   username: usuarioSesion.username,
                   foto: usuarioSesion.foto,
                 )],

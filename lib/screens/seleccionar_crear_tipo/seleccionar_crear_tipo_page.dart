@@ -118,7 +118,7 @@ class _SeleccionarCrearTipoPageState extends State<SeleccionarCrearTipoPage> {
                         builder: (context) => const CrearDisponibilidadPage(),
                       ));
                     },
-                    child: const Text("Ver actividades"),
+                    child: const Text("Crear estado"),
                     style: OutlinedButton.styleFrom(
                       shape: const StadiumBorder(),
                     ),
@@ -134,7 +134,7 @@ class _SeleccionarCrearTipoPageState extends State<SeleccionarCrearTipoPage> {
                         builder: (context) => const CrearDisponibilidadPage(),
                       ));
                     },
-                    child: const Text("Ver actividades"),
+                    child: const Text("Crear estado"),
                     style: ElevatedButton.styleFrom(
                       shape: const StadiumBorder(),
                     ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
@@ -172,12 +172,22 @@ class _SeleccionarCrearTipoPageState extends State<SeleccionarCrearTipoPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              const Text("Para desbloquear lo que otros están compartiendo, puedes elegir entre dos opciones.",
-                style: TextStyle(color: constants.blackGeneral, fontSize: 15, height: 1.3,),
-                textAlign: TextAlign.center,
+
+              const Text("¿Cómo funciona Tenfo? 👋",
+                style: TextStyle(color: constants.blackGeneral, fontSize: 20,),
               ),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 32,),
+
+              const Align(
+                alignment: Alignment.center,
+                child: Text("Publica una actividad o estado para desbloquear lo que otros están compartiendo.",
+                  style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
+                  textAlign: TextAlign.left,
+                ),
+              ),
+
+              const SizedBox(height: 56,),
 
               Row(children: [
                 Container(
@@ -189,51 +199,51 @@ class _SeleccionarCrearTipoPageState extends State<SeleccionarCrearTipoPage> {
                     style: TextStyle(color: constants.blackGeneral, fontSize: 15, height: 1.3,),
                     children: [
                       TextSpan(
-                        text: "Crear actividad:",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16,),
+                        text: "Actividad:",
+                        style: TextStyle(color: constants.blackGeneral, fontWeight: FontWeight.bold, fontSize: 16,),
                       ),
                       TextSpan(
-                        text: " Crea una actividad para que otros usuarios puedan unirse. En esta opción, puedes "
-                            "proponer o sugerir una actividad para realizar y participar en un chat con los demás miembros.",
+                        text: " Sugiere o invita a realizar una actividad y otros usuarios pueden unirse en un chat grupal.",
                       )
                     ],
                   ),
                 ),),
               ], crossAxisAlignment: CrossAxisAlignment.start,),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 48,),
 
               Row(children: [
                 Container(
                   width: 50,
-                  child: const Icon(Icons.visibility_outlined),
+                  child: const Icon(Icons.person),
                 ),
                 Expanded(child: RichText(
                   text: const TextSpan(
                     style: TextStyle(color: constants.blackGeneral, fontSize: 15, height: 1.3,),
                     children: [
                       TextSpan(
-                        text: "Ver actividades:",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16,),
+                        text: "Estado:",
+                        style: TextStyle(color: constants.blackGeneral, fontWeight: FontWeight.bold, fontSize: 16,),
                       ),
                       TextSpan(
-                        text: " Esto es un estado e indica que estás buscando actividades, pero aún no has creado ninguna. "
-                            "Elige esta opción si solo quieres ver lo que otros están compartiendo.",
+                        text: " Indica que solo estás viendo actividades para unirte.",
                       )
                     ],
                   ),
                 ),),
               ], crossAxisAlignment: CrossAxisAlignment.start,),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 56,),
 
-              const Text("En ambas opciones, puedes unirte a las actividades que estén disponibles.",
-                style: TextStyle(color: constants.blackGeneral, fontSize: 15, height: 1.3,),
-                textAlign: TextAlign.center,
+              const Align(
+                alignment: Alignment.center,
+                child: Text("Todas las publicaciones desaparecen después de 48 horas, obteniendo más espontaneidad y privacidad 😊.",
+                  style: TextStyle(color: constants.blackGeneral,),
+                  textAlign: TextAlign.left,
+                ),
               ),
 
-              const SizedBox(height: 16),
-
+              const SizedBox(height: 24),
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Text("Entendido"),

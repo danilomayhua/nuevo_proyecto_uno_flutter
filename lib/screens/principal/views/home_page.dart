@@ -10,9 +10,11 @@ import 'package:tenfo/models/actividad.dart';
 import 'package:tenfo/models/chat.dart';
 import 'package:tenfo/models/previsualizacion_actividad.dart';
 import 'package:tenfo/models/publicacion.dart';
+import 'package:tenfo/models/sugerencia_usuario.dart';
 import 'package:tenfo/models/usuario.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/models/disponibilidad.dart';
+import 'package:tenfo/screens/crear_disponibilidad/crear_disponibilidad_page.dart';
 import 'package:tenfo/screens/notificaciones/notificaciones_page.dart';
 import 'package:tenfo/screens/principal/views/mis_actividades_page.dart';
 import 'package:tenfo/screens/seleccionar_crear_tipo/seleccionar_crear_tipo_page.dart';
@@ -25,9 +27,11 @@ import 'package:tenfo/utilities/shared_preferences_keys.dart';
 import 'package:tenfo/widgets/card_actividad.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/widgets/card_disponibilidad.dart';
+import 'package:tenfo/widgets/card_sugerencia_usuario.dart';
 import 'package:tenfo/widgets/dialog_cambiar_intereses.dart';
 import 'package:tenfo/widgets/scrollsnap_card_actividad.dart';
 import 'package:tenfo/widgets/scrollsnap_card_disponibilidad.dart';
+import 'package:tenfo/widgets/scrollsnap_card_sugerencia_usuario.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key, required this.showBadgeNotificaciones, required this.setShowBadge}) : super(key: key);
@@ -46,6 +50,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   bool _showBadgeNotificaciones = false;
 
   List<String> _intereses = [];
+  String? _interesSeleccionado;
 
   List<Publicacion> _publicaciones = [];
   bool _isActividadesPermitido = true;
@@ -78,7 +83,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     _showBadgeNotificaciones = widget.showBadgeNotificaciones;
 
-    _mostrarIntereses();
+    _mostrarInteresesYTutorial();
 
     _recargarActividades();
 
@@ -185,7 +190,8 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
                   if(_isActividadesPermitido)
                     ...[
-                      _buildSeccionIntereses(),
+                      //_buildSeccionIntereses(),
+                      _buildSeccionInteresesTabs(),
 
                       (_publicaciones.isEmpty)
                         ? SliverFillRemaining(
@@ -201,110 +207,119 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
                             if(_publicaciones[index].tipo == PublicacionTipo.ACTIVIDAD){
 
-                              if(_publicaciones[index].actividad!.id == _ultimoActividadIdMostrado
-                                  && _ultimosId['actividades_ultimo_id'] == null){
-                                return Column(children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                                    child: CardActividad(
-                                      actividad: _publicaciones[index].actividad!,
-                                      showTooltipUnirse: index == 0 && _isAvailableTooltipUnirse,
-                                      onOpen: (){
-                                        _showDialogPublicacionesJuego(index);
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(height: 40,),
+                              return Column(children: [
+
+                                if(index == 0 || _publicaciones[index-1].tipo != PublicacionTipo.ACTIVIDAD)
                                   Container(
-                                    alignment: Alignment.center,
-                                    padding: const EdgeInsets.symmetric(horizontal: 16,),
-                                    child: const Text("No hay más actividades cerca disponibles según tus intereses.",
-                                      style: TextStyle(color: constants.blackGeneral, fontSize: 14,
-                                        height: 1.3, fontWeight: FontWeight.bold,),
-                                      textAlign: TextAlign.center,
+                                    alignment: Alignment.centerLeft,
+                                    child: const Padding(
+                                      padding: EdgeInsets.only(left: 16, right: 8, bottom: 8,),
+                                      child: Text("Actividades:",
+                                        style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
+                                      ),
                                     ),
                                   ),
-                                  const SizedBox(height: 40,),
-                                  const Divider(color: constants.greyLight, height: 0.5,),
-                                  const SizedBox(height: 24,),
-                                ],);
-                              }
 
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                                child: CardActividad(
-                                  actividad: _publicaciones[index].actividad!,
-                                  showTooltipUnirse: index == 0 && _isAvailableTooltipUnirse,
-                                  onOpen: (){
-                                    _showDialogPublicacionesJuego(index);
-                                  },
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                                  child: CardActividad(
+                                    actividad: _publicaciones[index].actividad!,
+                                    showTooltipUnirse: index == 0 && _isAvailableTooltipUnirse,
+                                    onOpen: (){
+                                      _showDialogPublicacionesJuego(index);
+                                    },
+                                    onChangeActividad: (Actividad actividad){
+                                      setState(() {
+                                        _publicaciones[index].actividad = actividad;
+                                      });
+                                    },
+                                  ),
                                 ),
-                              );
 
-                            } else {
-
-                              if(_ultimosId['actividades_ultimo_id'] == null){
-                                if((index == 0 && _ultimoActividadIdMostrado == "") ||
-                                    (index != 0 && _ultimoActividadIdMostrado != "" && (_publicaciones[index-1].actividad?.id ?? "") == _ultimoActividadIdMostrado)){
-                                  return Column(children: [
-                                    if(index == 0)
-                                      ...[
-                                        const SizedBox(height: 40,),
-                                        Container(
-                                          alignment: Alignment.center,
-                                          padding: const EdgeInsets.symmetric(horizontal: 16,),
-                                          child: const Text("No hay actividades cerca disponibles según tus intereses.",
-                                            style: TextStyle(color: constants.blackGeneral, fontSize: 14,
-                                              height: 1.3, fontWeight: FontWeight.bold,),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 48,),
-                                        const Divider(color: constants.greyLight, height: 0.5,),
-                                        const SizedBox(height: 24,),
-                                      ],
-
-                                    const Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Padding(
-                                        padding: EdgeInsets.only(left: 8, right: 8, bottom: 16,),
-                                        child: Text("Buscando actividades:",
-                                          style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
-                                        ),
+                                if(_publicaciones[index].actividad!.id == _ultimoActividadIdMostrado && _ultimosId['actividades_ultimo_id'] == null)
+                                  ...[
+                                    const SizedBox(height: 40,),
+                                    Container(
+                                      alignment: Alignment.center,
+                                      padding: const EdgeInsets.symmetric(horizontal: 16,),
+                                      child: Text(_interesSeleccionado == null
+                                          ? "No hay más actividades cerca disponibles actualmente."
+                                          : "No hay más actividades cerca disponibles actualmente en ${Intereses.getNombre(_interesSeleccionado!)}.",
+                                        style: const TextStyle(color: constants.blackGeneral, fontSize: 14,
+                                          height: 1.3, fontWeight: FontWeight.bold,),
+                                        textAlign: TextAlign.center,
                                       ),
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                                      child: CardDisponibilidad(
-                                        disponibilidad: _publicaciones[index].disponibilidad!,
-                                        isCreadorActividadVisible: _isCreadorActividadVisible,
-                                        isAutorActividadVisible: _isAutorActividadVisible,
-                                        onOpen: (){
-                                          _showDialogPublicacionesJuego(index);
-                                        },
-                                      ),
-                                    ),
-                                  ],);
-                                }
-                              }
+                                    const SizedBox(height: 24,),
+                                  ],
+
+                                if(index < (_publicaciones.length-1) && _publicaciones[index+1].tipo != PublicacionTipo.ACTIVIDAD)
+                                  ...[
+                                    const SizedBox(height: 16,),
+                                  ],
+
+                              ],);
+
+                            } else if(_publicaciones[index].tipo == PublicacionTipo.DISPONIBILIDAD){
 
                               return Column(children: [
-                                if(index == 0 || _publicaciones[index-1].tipo == PublicacionTipo.ACTIVIDAD)
+                                if(index == 0 || _publicaciones[index-1].tipo != PublicacionTipo.DISPONIBILIDAD)
                                   ...[
+                                    if(index == 0)
+                                      ...[
+                                        if(_ultimosId['actividades_ultimo_id'] == null && _ultimoActividadIdMostrado == "")
+                                          ...[
+                                            const SizedBox(height: 24,),
+                                            Container(
+                                              alignment: Alignment.center,
+                                              padding: const EdgeInsets.symmetric(horizontal: 16,),
+                                              child: Text(_interesSeleccionado == null
+                                                  ? "No hay actividades cerca disponibles actualmente."
+                                                  : "No hay actividades cerca disponibles actualmente en ${Intereses.getNombre(_interesSeleccionado!)}.",
+                                                style: const TextStyle(color: constants.blackGeneral, fontSize: 14,
+                                                  height: 1.3, fontWeight: FontWeight.bold,),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 48,),
+                                            Container(
+                                              decoration: const BoxDecoration(color: Colors.white),
+                                              child: Column(mainAxisSize: MainAxisSize.min, children: const [
+                                                Divider(color: constants.greyLight, height: 0.5,),
+                                                SizedBox(height: 16,),
+                                              ],),
+                                            ),
+                                          ],
+
+                                        if(_ultimosId['actividades_ultimo_id'] != null || _ultimoActividadIdMostrado != "")
+                                          ...[
+                                            Container(
+                                              decoration: const BoxDecoration(color: Colors.white),
+                                              child: Column(mainAxisSize: MainAxisSize.min, children: const [
+                                                Divider(color: constants.greyLight, height: 0.5,),
+                                                SizedBox(height: 16,),
+                                              ],),
+                                            ),
+                                          ],
+                                      ],
+
                                     if(index != 0)
                                       ...[
-                                        const SizedBox(height: 32,),
-                                        const Divider(color: constants.greyLight, height: 0.5,),
-                                        const SizedBox(height: 24,),
+                                        Container(
+                                          decoration: const BoxDecoration(color: Colors.white),
+                                          child: Column(mainAxisSize: MainAxisSize.min, children: const [
+                                            Divider(color: constants.grey, height: 0.5,),
+                                            SizedBox(height: 28,),
+                                          ],),
+                                        ),
                                       ],
-                                    if(index == 0)
-                                      const SizedBox(height: 8,),
 
-                                    const Align(
+                                    Container(
                                       alignment: Alignment.centerLeft,
-                                      child: Padding(
-                                        padding: EdgeInsets.only(left: 8, right: 8, bottom: 16,),
-                                        child: Text("Buscando actividades:",
+                                      decoration: const BoxDecoration(color: Colors.white),
+                                      child: const Padding(
+                                        padding: EdgeInsets.only(left: 16, right: 8,),
+                                        child: Text("Personas buscando actividades:",
                                           style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
                                         ),
                                       ),
@@ -312,7 +327,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                   ],
 
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                                  padding: const EdgeInsets.all(0),
                                   child: CardDisponibilidad(
                                     disponibilidad: _publicaciones[index].disponibilidad!,
                                     isCreadorActividadVisible: _isCreadorActividadVisible,
@@ -320,17 +335,147 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                     onOpen: (){
                                       _showDialogPublicacionesJuego(index);
                                     },
+                                    onChangeDisponibilidad: (Disponibilidad disponibilidad){
+                                      setState(() {
+                                        _publicaciones[index].disponibilidad = disponibilidad;
+                                      });
+                                    },
                                   ),
                                 ),
 
-                                if(index < (_publicaciones.length-1) && _publicaciones[index+1].tipo == PublicacionTipo.ACTIVIDAD)
+                                if(index < (_publicaciones.length-1) && _publicaciones[index+1].tipo == PublicacionTipo.DISPONIBILIDAD)
+                                  const Divider(color: constants.greyLight, height: 1, indent: 56, endIndent: 16,),
+
+                                if(index < (_publicaciones.length-1) && _publicaciones[index+1].tipo != PublicacionTipo.DISPONIBILIDAD)
                                   ...[
+                                    Container(
+                                      decoration: const BoxDecoration(color: Colors.white),
+                                      child: Column(mainAxisSize: MainAxisSize.min, children: const [
+                                        Divider(color: constants.grey, height: 0.5,),
+                                      ],),
+                                    ),
                                     const SizedBox(height: 24,),
-                                    const Divider(color: constants.greyLight, height: 0.5,),
+                                  ],
+
+                                if(index == (_publicaciones.length-1))
+                                  Container(
+                                    decoration: const BoxDecoration(color: Colors.white),
+                                    child: Column(mainAxisSize: MainAxisSize.min, children: const [
+                                      Divider(color: constants.grey, height: 0.5,),
+                                    ],),
+                                  ),
+
+                              ],);
+
+                            } else if(_publicaciones[index].tipo == PublicacionTipo.SUGERENCIA_USUARIO){
+
+                              return Column(children: [
+                                if(index == 0 || _publicaciones[index-1].tipo != PublicacionTipo.SUGERENCIA_USUARIO)
+                                  ...[
+                                    if(index == 0)
+                                      ...[
+                                        if(_ultimosId['actividades_ultimo_id'] == null && _ultimoActividadIdMostrado == "")
+                                          ...[
+                                            const SizedBox(height: 24,),
+                                            Container(
+                                              alignment: Alignment.center,
+                                              padding: const EdgeInsets.symmetric(horizontal: 16,),
+                                              child: Text(_interesSeleccionado == null
+                                                  ? "No hay actividades cerca disponibles actualmente."
+                                                  : "No hay actividades cerca disponibles actualmente en ${Intereses.getNombre(_interesSeleccionado!)}.",
+                                                style: const TextStyle(color: constants.blackGeneral, fontSize: 14,
+                                                  height: 1.3, fontWeight: FontWeight.bold,),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 48,),
+                                            Container(
+                                              decoration: const BoxDecoration(color: Colors.white),
+                                              child: Column(mainAxisSize: MainAxisSize.min, children: const [
+                                                Divider(color: constants.greyLight, height: 0.5,),
+                                                SizedBox(height: 16,),
+                                              ],),
+                                            ),
+                                          ],
+
+                                        if(_ultimosId['actividades_ultimo_id'] != null || _ultimoActividadIdMostrado != "")
+                                          ...[
+                                            Container(
+                                              decoration: const BoxDecoration(color: Colors.white),
+                                              child: Column(mainAxisSize: MainAxisSize.min, children: const [
+                                                Divider(color: constants.greyLight, height: 0.5,),
+                                                SizedBox(height: 16,),
+                                              ],),
+                                            ),
+                                          ],
+                                      ],
+
+                                    if(index != 0)
+                                      ...[
+                                        Container(
+                                          decoration: const BoxDecoration(color: Colors.white),
+                                          child: Column(mainAxisSize: MainAxisSize.min, children: const [
+                                            Divider(color: constants.grey, height: 0.5,),
+                                            SizedBox(height: 28,),
+                                          ],),
+                                        ),
+                                      ],
+
+                                    Container(
+                                      alignment: Alignment.centerLeft,
+                                      decoration: const BoxDecoration(color: Colors.white),
+                                      child: const Padding(
+                                        padding: EdgeInsets.only(left: 16, right: 8,),
+                                        child: Text("Sugerencias de estudiantes:",
+                                          style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+
+                                Padding(
+                                  padding: const EdgeInsets.all(0),
+                                  child: CardSugerenciaUsuario(
+                                    sugerenciaUsuario: _publicaciones[index].sugerenciaUsuario!,
+                                    isAutorActividadVisible: _isAutorActividadVisible,
+                                    onOpen: (){
+                                      _showDialogPublicacionesJuego(index);
+                                    },
+                                    onChangeSugerenciaUsuario: (SugerenciaUsuario sugerenciaUsuario){
+                                      setState(() {
+                                        _publicaciones[index].sugerenciaUsuario = sugerenciaUsuario;
+                                      });
+                                    },
+                                  ),
+                                ),
+
+                                if(index < (_publicaciones.length-1) && _publicaciones[index+1].tipo == PublicacionTipo.SUGERENCIA_USUARIO)
+                                  const Divider(color: constants.greyLight, height: 1, indent: 24, endIndent: 16,),
+
+                                if(index < (_publicaciones.length-1) && _publicaciones[index+1].tipo != PublicacionTipo.SUGERENCIA_USUARIO)
+                                  ...[
+                                    Container(
+                                      decoration: const BoxDecoration(color: Colors.white),
+                                      child: Column(mainAxisSize: MainAxisSize.min, children: const [
+                                        Divider(color: constants.grey, height: 0.5,),
+                                      ],),
+                                    ),
                                     const SizedBox(height: 32,),
                                   ],
 
+                                if(index == (_publicaciones.length-1))
+                                  Container(
+                                    decoration: const BoxDecoration(color: Colors.white),
+                                    child: Column(mainAxisSize: MainAxisSize.min, children: const [
+                                      Divider(color: constants.grey, height: 0.5,),
+                                    ],),
+                                  ),
+
                               ],);
+
+                            } else {
+
+                              return Container();
 
                             }
 
@@ -428,26 +573,48 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       );
                     }
 
-                    bool showTooltipMatchLike = !_hasShownTooltipMatchLike && _currentPage == index;
-                    if (showTooltipMatchLike) {
-                      _hasShownTooltipMatchLike = true;
+                    if(_publicaciones[index].tipo == PublicacionTipo.SUGERENCIA_USUARIO){
+                      return Opacity(
+                        opacity: value,
+                        child: ScrollsnapCardSugerenciaUsuario(
+                          sugerenciaUsuario: _publicaciones[index].sugerenciaUsuario!,
+                          isAutorActividadVisible: _isAutorActividadVisible,
+                          onNextItem: (){
+                            pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut,);
+                          },
+                          onChangeSugerenciaUsuario: (SugerenciaUsuario sugerenciaUsuario){
+                            setState(() {
+                              _publicaciones[index].sugerenciaUsuario = sugerenciaUsuario;
+                            });
+                          },
+                        ),
+                      );
                     }
 
-                    return Opacity(
-                      opacity: value,
-                      child: ScrollsnapCardActividad(
-                        actividad: _publicaciones[index].actividad!,
-                        onNextItem: (){
-                          pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut,);
-                        },
-                        onChangeActividad: (Actividad actividad){
-                          setState(() {
-                            _publicaciones[index].actividad = actividad;
-                          });
-                        },
-                        showTooltipMatchLike: showTooltipMatchLike,
-                      ),
-                    );
+                    if(_publicaciones[index].tipo == PublicacionTipo.ACTIVIDAD){
+                      bool showTooltipMatchLike = !_hasShownTooltipMatchLike && _currentPage == index;
+                      if (showTooltipMatchLike) {
+                        _hasShownTooltipMatchLike = true;
+                      }
+
+                      return Opacity(
+                        opacity: value,
+                        child: ScrollsnapCardActividad(
+                          actividad: _publicaciones[index].actividad!,
+                          onNextItem: (){
+                            pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut,);
+                          },
+                          onChangeActividad: (Actividad actividad){
+                            setState(() {
+                              _publicaciones[index].actividad = actividad;
+                            });
+                          },
+                          showTooltipMatchLike: showTooltipMatchLike,
+                        ),
+                      );
+                    }
+
+                    return Container();
                   },
                 );
               },
@@ -485,7 +652,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _mostrarIntereses() async {
+  Future<void> _mostrarInteresesYTutorial() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
 
@@ -500,6 +667,13 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
 
     setState(() {});
+
+
+    // Muestra pantalla Tutorial a los usuarios nuevos que no lo vieron (se muestra hasta que presione "Comenzar")
+    bool isShowed = prefs.getBool(SharedPreferencesKeys.isShowedScreenSignupTutorial) ?? true; // Por defecto si lo vieron, para versiones anteriores de la app
+    if(!isShowed){
+      _showDialogComoFunciona(isFromTutorial: true,);
+    }
   }
 
   Future<void> _recargarActividades() async {
@@ -543,7 +717,10 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
       setStateActual(() {_loadingActividades = false;});
       return;
     }
-    String interesesIdString = usuarioSesion.interesesId.join(",");
+    //String interesesIdString = usuarioSesion.interesesId.join(",");
+
+    // Si no tiene un interes seleccionado, muestra todos los intereses
+    String interesesIdString = _interesSeleccionado ?? Intereses.getListaIntereses().join(",");
 
     // Se usa POST porque envia datos privados (ubicacion)
     var response = await HttpService.httpPost(
@@ -581,11 +758,12 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
           if(element['actividad'] != null){
             var actividadDatos = element['actividad'];
 
-            List<Usuario> creadores = [];
+            List<ActividadCreador> creadores = [];
             actividadDatos['creadores'].forEach((usuario) {
-              creadores.add(Usuario(
+              creadores.add(ActividadCreador(
                 id: usuario['id'],
-                nombre: usuario['nombre_completo'],
+                nombre: usuario['nombre'],
+                nombreCompleto: usuario['nombre_completo'],
                 username: usuario['username'],
                 foto: constants.urlBase + usuario['foto_url'],
               ));
@@ -605,6 +783,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
               isAutor: actividadDatos['autor_usuario_id'] == usuarioSesion.id,
               isMatchLiked: actividadDatos['is_match_liked'],
               isMatch: actividadDatos['is_match'],
+              distanciaTexto: actividadDatos['distancia_texto'],
             );
 
             if(actividadDatos['chat'] != null){
@@ -643,10 +822,29 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
             );
           }
 
+          SugerenciaUsuario? sugerenciaUsuario;
+          if(element['sugerencia_usuario'] != null){
+            var sugerenciaUsuarioDatos = element['sugerencia_usuario'];
+
+            sugerenciaUsuario = SugerenciaUsuario(
+              id: sugerenciaUsuarioDatos['id'],
+              nombre: sugerenciaUsuarioDatos['nombre'],
+              nombreCompleto: sugerenciaUsuarioDatos['nombre_completo'],
+              username: sugerenciaUsuarioDatos['nombre'],
+              foto: constants.urlBase + sugerenciaUsuarioDatos['foto_url'],
+              universidadNombre: sugerenciaUsuarioDatos['universidad_nombre'],
+              isVerificadoUniversidad: sugerenciaUsuarioDatos['is_verificado_universidad'],
+              verificadoUniversidadNombre: sugerenciaUsuarioDatos['verificado_universidad_nombre'],
+              isMatchLiked: sugerenciaUsuarioDatos['is_match_liked'],
+              isMatch: sugerenciaUsuarioDatos['is_match'],
+            );
+          }
+
           _publicaciones.add(Publicacion(
             tipo: Publicacion.getPublicacionTipoFromString(element['tipo']),
             actividad: actividad,
             disponibilidad: disponibilidad,
+            sugerenciaUsuario: sugerenciaUsuario,
           ));
         }
 
@@ -838,33 +1036,41 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
             ),
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16,),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 24, bottom: 12,),
               child: Column(children: [
 
-                Text("Crea tu actividad o estado para desbloquear las actividades disponibles.",
-                  style: TextStyle(color: Colors.grey[800], fontSize: 14,),
+                const Text("Accede con tu estado o actividad para desbloquear lo que otros están compartiendo.",
+                  style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 8,),
-                Text("Esto solo lo podrán ver personas que también crearon en este momento.",
-                  style: TextStyle(color: Colors.grey[800], fontSize: 14,),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 32,),
+
+                const SizedBox(height: 24,),
 
                 Container(
                   constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
                   child: ElevatedButton.icon(
                     onPressed: (){
                       Navigator.push(context, MaterialPageRoute(
-                        builder: (context) => const SeleccionarCrearTipoPage(),
+                        builder: (context) => const CrearDisponibilidadPage(isFromHome: true,),
                       ));
                     },
-                    icon: const Icon(Icons.add_rounded, size: 24,),
-                    label: const Text("Nuevo", style: TextStyle(fontSize: 18,),),
+                    icon: const Icon(Icons.add_rounded, size: 18,),
+                    label: const Text("Acceder", style: TextStyle(fontSize: 16,),),
                     style: ElevatedButton.styleFrom(
                       shape: const StadiumBorder(),
                     ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+                  ),
+                ),
+
+                const SizedBox(height: 16,),
+
+                TextButton(
+                  onPressed: (){
+                    _showDialogComoFunciona();
+                  },
+                  child: const Text("Cómo funciona", style: TextStyle(fontSize: 14,),),
+                  style: TextButton.styleFrom(
+                    primary: constants.blackGeneral,
                   ),
                 ),
 
@@ -897,6 +1103,135 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return creadoresNombre;
   }
 
+  void _showDialogComoFunciona({bool isFromTutorial = false}){
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context){
+        return SingleChildScrollView(child: Container(
+          height: !isFromTutorial
+              ? null
+              : MediaQuery.of(context).size.height
+                - MediaQuery.of(context).padding.top
+                - MediaQuery.of(context).padding.bottom
+                - kToolbarHeight,
+          padding: const EdgeInsets.only(left: 16, top: 32, right: 16, bottom: 32,),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+
+              const Text("¿Cómo funciona Tenfo? 👋",
+                style: TextStyle(color: constants.blackGeneral, fontSize: 20,),
+              ),
+
+              const SizedBox(height: 32,),
+
+              const Align(
+                alignment: Alignment.center,
+                child: Text("Publica una actividad o estado para desbloquear lo que otros están compartiendo.",
+                  style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
+                  textAlign: TextAlign.left,
+                ),
+              ),
+
+              const SizedBox(height: 56,),
+
+              Row(children: [
+                Container(
+                  width: 50,
+                  child: const Icon(Icons.groups),
+                ),
+                Expanded(child: RichText(
+                  text: const TextSpan(
+                    style: TextStyle(color: constants.blackGeneral, fontSize: 15, height: 1.3,),
+                    children: [
+                      TextSpan(
+                        text: "Actividad:",
+                        style: TextStyle(color: constants.blackGeneral, fontWeight: FontWeight.bold, fontSize: 16,),
+                      ),
+                      TextSpan(
+                        text: " Sugiere o invita a realizar una actividad y otros usuarios pueden unirse en un chat grupal.",
+                      )
+                    ],
+                  ),
+                ),),
+              ], crossAxisAlignment: CrossAxisAlignment.start,),
+
+              const SizedBox(height: 48,),
+
+              Row(children: [
+                Container(
+                  width: 50,
+                  child: const Icon(Icons.person),
+                ),
+                Expanded(child: RichText(
+                  text: const TextSpan(
+                    style: TextStyle(color: constants.blackGeneral, fontSize: 15, height: 1.3,),
+                    children: [
+                      TextSpan(
+                        text: "Estado:",
+                        style: TextStyle(color: constants.blackGeneral, fontWeight: FontWeight.bold, fontSize: 16,),
+                      ),
+                      TextSpan(
+                        text: " Indica que solo estás viendo actividades para unirte.",
+                      )
+                    ],
+                  ),
+                ),),
+              ], crossAxisAlignment: CrossAxisAlignment.start,),
+
+              const SizedBox(height: 56,),
+
+              const Align(
+                alignment: Alignment.center,
+                child: Text("Todas las publicaciones desaparecen después de 48 horas, obteniendo más espontaneidad y privacidad 😊.",
+                  style: TextStyle(color: constants.blackGeneral,),
+                  textAlign: TextAlign.left,
+                ),
+              ),
+
+              if(!isFromTutorial)
+                ...[
+                  const SizedBox(height: 24),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text("Entendido"),
+                  ),
+                ],
+
+              if(isFromTutorial)
+                ...[
+                  const SizedBox(height: 32,),
+                  Container(
+                    constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: (){
+                        // No muestra el tutorial cuando vuelva a abrir la app
+                        SharedPreferences.getInstance().then((prefs){
+                          prefs.setBool(SharedPreferencesKeys.isShowedScreenSignupTutorial, true);
+                        });
+
+                        Navigator.pop(context);
+                      },
+                      child: const Text("Comenzar"),
+                      style: ElevatedButton.styleFrom(
+                        shape: const StadiumBorder(),
+                      ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+                    ),
+                  ),
+                ],
+            ],
+          ),
+        ));
+      },
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0),),
+      ),
+      isScrollControlled: true,
+    );
+  }
+
   Widget _buildActividadesVacio(){
 
     if(!_isCiudadDisponible){
@@ -918,11 +1253,81 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
       alignment: Alignment.center,
       // Lo hace ver más centrado (bottom es una altura aproximada de la seccion "Intereses")
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 64,),
-      child: const Text("No hay actividades cerca disponibles según tus intereses.",
-        style: TextStyle(color: constants.blackGeneral, fontSize: 16,),
+      child: Text(_interesSeleccionado == null
+          ? "No hay actividades cerca disponibles actualmente."
+          : "No hay actividades cerca disponibles actualmente en ${Intereses.getNombre(_interesSeleccionado!)}.",
+        style: const TextStyle(color: constants.blackGeneral, fontSize: 16,),
         textAlign: TextAlign.center,
       ),
     );
+  }
+
+  Widget _buildSeccionInteresesTabs(){
+    List<String> intereses = Intereses.getListaIntereses();
+
+    return SliverPadding(
+      padding: const EdgeInsets.only(left: 8, right: 8, top: 8,),
+      sliver: SliverToBoxAdapter(
+        child: Container(
+          alignment: Alignment.centerLeft,
+          height: 40,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: intereses.length + 1,
+            shrinkWrap: true,
+            itemBuilder: (context, index){
+              if(index == 0){
+                return _buildTabInteres(null);
+              }
+
+              index = index - 1;
+
+              return _buildTabInteres(intereses[index]);
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTabInteres(String? interesId){
+    // Si interesId es null, es "Para ti" (todos los intereses)
+
+    return Column(children: [
+      InkWell(
+        onTap: (){
+          String? actualInteresId = _interesSeleccionado;
+
+          setState(() {
+            _interesSeleccionado = interesId;
+          });
+
+          if(interesId != actualInteresId){
+            _recargarActividades();
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+          margin: const EdgeInsets.only(right: 8,),
+          height: 28,
+          decoration: BoxDecoration(
+            color: interesId == _interesSeleccionado ? Colors.grey : Colors.transparent,
+            border: Border.all(color: constants.grey, width: 0.5,),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(children: [
+            if(interesId != null)
+              ...[
+                Intereses.getIcon(interesId, size: 14, color: interesId == _interesSeleccionado ? Colors.white : null,),
+                const SizedBox(width: 4,),
+              ],
+            Text(interesId == null ? "Para ti" : Intereses.getNombre(interesId),
+              style: TextStyle(color: interesId == _interesSeleccionado ? Colors.white : constants.blackGeneral, fontSize: 12,),
+            ),
+          ], mainAxisSize: MainAxisSize.min,),
+        ),
+      ),
+    ], mainAxisAlignment: MainAxisAlignment.center,);
   }
 
   Widget _buildSeccionIntereses(){

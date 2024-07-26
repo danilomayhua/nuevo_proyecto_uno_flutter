@@ -46,22 +46,22 @@ class Intereses {
     }
   }
 
-  static Icon getIcon(String interesId, {double? size}){
+  static Icon getIcon(String interesId, {double? size, Color? color}){
     switch(interesId){
       case "1":
-        return Icon(Icons.emoji_objects_outlined, color: Colors.amber, size: size,);
+        return Icon(Icons.emoji_objects_outlined, color: color ?? Colors.amber, size: size,);
         break;
       case "2":
-        return Icon(Icons.laptop_chromebook_rounded, color: Colors.purple, size: size,);
+        return Icon(Icons.laptop_chromebook_rounded, color: color ?? Colors.purple, size: size,);
         break;
       case "3":
-        return Icon(Icons.sports_outlined, color: Colors.blueGrey, size: size,);
+        return Icon(Icons.sports_outlined, color: color ?? Colors.blueGrey, size: size,);
         break;
       case "4":
-        return Icon(Icons.sports_esports, color: Colors.indigoAccent, size: size,);
+        return Icon(Icons.sports_esports, color: color ?? Colors.indigoAccent, size: size,);
         break;
       case "5":
-        return Icon(Icons.local_bar_outlined, color: Colors.deepOrangeAccent, size: size,);
+        return Icon(Icons.local_bar_outlined, color: color ?? Colors.deepOrangeAccent, size: size,);
         break;
       /*case "6":
         return Icon(Icons.color_lens_outlined, color: Colors.black,);

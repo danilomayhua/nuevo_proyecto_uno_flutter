@@ -318,7 +318,7 @@ class _ActividadPageState extends State<ActividadPage> {
               ),
               onTap: (){
                 Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => UserPage(usuario: widget.actividad!.creadores[index],)),
+                  MaterialPageRoute(builder: (context) => UserPage(usuario: widget.actividad!.creadores[index].toUsuario(),)),
                 );
               },
             ),
@@ -449,8 +449,8 @@ class _ActividadPageState extends State<ActividadPage> {
               Container(
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(horizontal: 16,),
-                child: const Text('Selecciona a usuarios, que están buscando actividades, como permitidos para tu actividad sin ser notificados. '
-                    'Estos podrán ingresar a la actividad cuando presionen "Unirme si estoy seleccionado":',
+                child: const Text('Elige en anónimo a usuarios de preferencia para tu actividad. Estos podrán ingresar a la actividad '
+                    'cuando presionen "Verificar seleccionado":',
                   style: TextStyle(color: constants.grey, fontSize: 12,),
                 ),
               ),
@@ -834,7 +834,7 @@ class _ActividadPageState extends State<ActividadPage> {
         _creadoresPendientes = [];
         _creadoresPendientesExternosCodigo = [];
 
-        List<Usuario> creadores = [];
+        List<ActividadCreador> creadores = [];
         datosActividad['creadores'].forEach((usuario) {
 
           if(usuario['creador_estado'] != null && usuario['creador_estado'] == 'CREADOR_PENDIENTE'){
@@ -845,9 +845,10 @@ class _ActividadPageState extends State<ActividadPage> {
               foto: constants.urlBase + usuario['foto_url'],
             ));
           } else {
-            creadores.add(Usuario(
+            creadores.add(ActividadCreador(
               id: usuario['id'],
-              nombre: usuario['nombre_completo'],
+              nombre: usuario['nombre'],
+              nombreCompleto: usuario['nombre_completo'],
               username: usuario['username'],
               foto: constants.urlBase + usuario['foto_url'],
             ));

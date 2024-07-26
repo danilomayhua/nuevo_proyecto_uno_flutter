@@ -11,9 +11,10 @@ import 'package:tenfo/services/location_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 
 class CrearDisponibilidadPage extends StatefulWidget {
-  const CrearDisponibilidadPage({Key? key, this.isFromSignup = false}) : super(key: key);
+  const CrearDisponibilidadPage({Key? key, this.isFromSignup = false, this.isFromHome = false}) : super(key: key);
 
   final bool isFromSignup;
+  final bool isFromHome;
 
   @override
   State<CrearDisponibilidadPage> createState() => _CrearDisponibilidadPageState();
@@ -53,7 +54,7 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: widget.isFromSignup ? const Text("Nuevo") : const Text("Nuevo"),
+        title: widget.isFromSignup ? const Text("Nuevo") :  widget.isFromHome ? const Text("Acceso") : const Text("Actualizar estado"),
         leading: widget.isFromSignup ? null : IconButton(
           icon: const Icon(Icons.clear),
           onPressed: (){
@@ -67,6 +68,7 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
           child: _contenido(),
         )),
 
+        /*
         if(!widget.isFromSignup)
           ...[
             GestureDetector(
@@ -79,8 +81,9 @@ class _CrearDisponibilidadPageState extends State<CrearDisponibilidadPage> {
             ),
             const SizedBox(height: 16,),
           ],
+        */
 
-        if(widget.isFromSignup)
+        if(widget.isFromSignup || widget.isFromHome)
           ...[
             TextButton(
               onPressed: (){

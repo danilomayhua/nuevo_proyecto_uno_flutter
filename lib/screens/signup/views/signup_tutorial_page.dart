@@ -9,6 +9,7 @@ import 'package:tenfo/screens/seleccionar_crear_tipo/seleccionar_crear_tipo_page
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/historial_usuario.dart';
+import 'package:tenfo/utilities/shared_preferences_keys.dart';
 
 class SignupTutorialPage extends StatefulWidget {
   const SignupTutorialPage({Key? key}) : super(key: key);
@@ -112,6 +113,11 @@ class _SignupTutorialPageState extends State<SignupTutorialPage> {
               child: ElevatedButton(
                 onPressed: (){
                   //_habilitarNotificacionesPush();
+
+                  // No muestra el tutorial cuando vuelva a abrir la app
+                  SharedPreferences.getInstance().then((prefs){
+                    prefs.setBool(SharedPreferencesKeys.isShowedScreenSignupTutorial, true);
+                  });
 
                   Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
                       builder: (context) => const CrearDisponibilidadPage(isFromSignup: true,)

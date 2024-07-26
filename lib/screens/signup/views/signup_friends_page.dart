@@ -77,8 +77,7 @@ class _SignupFriendsPageState extends State<SignupFriendsPage> {
           padding: const EdgeInsets.symmetric(horizontal: 16,),
           child: Container(
             constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
-            width: double.infinity,
-            child: ElevatedButton.icon(
+            child: OutlinedButton.icon(
               onPressed: (){
                 // Envia historial del usuario
                 _enviarHistorialUsuario(HistorialUsuario.getContactosSugerenciasInvitarAmigosWhatsapp(isFromSignup: true,));
@@ -88,8 +87,8 @@ class _SignupFriendsPageState extends State<SignupFriendsPage> {
                 _isAmigosAgregados = true;
               },
               icon: const Icon(CupertinoIcons.share),
-              label: const Text("Compartir a grupo de compañeros"),
-              style: ElevatedButton.styleFrom(
+              label: const Text("Compartir a mis amigos"),
+              style: OutlinedButton.styleFrom(
                 shape: const StadiumBorder(),
               ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
             ),
@@ -198,9 +197,9 @@ class _SignupFriendsPageState extends State<SignupFriendsPage> {
             child: const Text("Finalizar"),
             style: ElevatedButton.styleFrom(
               shape: const StadiumBorder(),
-              primary: (_totalInvitaciones == 0) ? Colors.white : null,
-              onPrimary: (_totalInvitaciones == 0) ? constants.blueGeneral : null,
-              side: (_totalInvitaciones == 0) ? const BorderSide(color: constants.blueGeneral, width: 0.5,) : null,
+              //primary: (_totalInvitaciones == 0) ? Colors.white : null,
+              //onPrimary: (_totalInvitaciones == 0) ? constants.blueGeneral : null,
+              //side: (_totalInvitaciones == 0) ? const BorderSide(color: constants.blueGeneral, width: 0.5,) : null,
             ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
           ),
         ),
@@ -383,7 +382,7 @@ class _SignupFriendsPageState extends State<SignupFriendsPage> {
       // Envia historial del usuario
       _enviarHistorialUsuario(HistorialUsuario.getContactosSugerenciasPermisoContactos(false));
 
-      _showSnackBar("Los permisos están denegados. Permite los contactos desde Ajustes en la app.");
+      _showSnackBarMarginBottom("Los permisos están denegados. Permite los contactos desde Ajustes en la app.");
 
       _loadingContactosSugerencias = false;
       setState(() {});
@@ -665,6 +664,18 @@ class _SignupFriendsPageState extends State<SignupFriendsPage> {
     }
 
     //setState(() {});
+  }
+
+  void _showSnackBarMarginBottom(String texto){
+    // El SnackBar no tiene que tapar el boton Continuar (aun no se puede tocar Continuar hasta que desaparezca el SnackBar, por eso dura poco segundos)
+
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      behavior: SnackBarBehavior.floating,
+      content: Text(texto, textAlign: TextAlign.center,),
+      margin: const EdgeInsets.only(left: 15, right: 15, bottom: 56,),
+      duration: const Duration(seconds: 2,),
+    ));
   }
 
   void _showSnackBar(String texto){

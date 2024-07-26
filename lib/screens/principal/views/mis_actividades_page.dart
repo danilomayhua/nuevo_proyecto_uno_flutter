@@ -93,14 +93,24 @@ class _MisActividadesPageState extends State<MisActividadesPage> {
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
               child: CardActividad(actividad: _publicaciones[index].actividad!),
             );
-          } else {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-              child: CardDisponibilidad(
-                disponibilidad: _publicaciones[index].disponibilidad!,
-                isCreadorActividadVisible: true, // No importa este valor real, ya que es el autor
+          } else if(_publicaciones[index].tipo == PublicacionTipo.DISPONIBILIDAD){
+
+            return Column(children: [
+              const SizedBox(height: 16,),
+              const Divider(color: constants.greyLight, height: 0.5,),
+              Padding(
+                padding: const EdgeInsets.all(0),
+                child: CardDisponibilidad(
+                  disponibilidad: _publicaciones[index].disponibilidad!,
+                  isCreadorActividadVisible: true, // No importa este valor real, ya que es el autor
+                ),
               ),
-            );
+              const Divider(color: constants.greyLight, height: 0.5,),
+              const SizedBox(height: 16,),
+            ],);
+
+          } else {
+            return Container();
           }
 
         },
@@ -111,7 +121,7 @@ class _MisActividadesPageState extends State<MisActividadesPage> {
   Widget _buildTextoCabecera(){
     return const Padding(
       padding: EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 12,),
-      child: Text("Aquí se muestran los estados y actividades donde eres cocreador. Estarán visibles solo 48 horas.",
+      child: Text("Aquí se muestran tu estado y actividades donde eres cocreador. Estarán visibles solo 48 horas.",
         style: TextStyle(color: constants.grey, fontSize: 12,),
       ),
     );
@@ -198,11 +208,12 @@ class _MisActividadesPageState extends State<MisActividadesPage> {
         List<dynamic> actividades = datosJson['data']['actividades'];
         for (var element in actividades) {
 
-          List<Usuario> creadores = [];
+          List<ActividadCreador> creadores = [];
           element['creadores'].forEach((usuario) {
-            creadores.add(Usuario(
+            creadores.add(ActividadCreador(
               id: usuario['id'],
-              nombre: usuario['nombre_completo'],
+              nombre: usuario['nombre'],
+              nombreCompleto: usuario['nombre_completo'],
               username: usuario['username'],
               foto: constants.urlBase + usuario['foto_url'],
             ));
