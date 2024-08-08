@@ -109,7 +109,7 @@ class _ComprarSuscripcionPageState extends State<ComprarSuscripcionPage> {
             print('purchase restore');
           }
 
-          bool valid = true;//await _verifyPurchase(purchaseDetails);
+          bool valid = await _verifyPurchase(purchaseDetails);
           if (valid) {
 
             //_deliverProduct(purchaseDetails);
@@ -153,9 +153,11 @@ class _ComprarSuscripcionPageState extends State<ComprarSuscripcionPage> {
     UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
 
     var response = await HttpService.httpPost(
-      url: constants.urlEnviarSolicitudContacto, // TODO : agregar url nueva
+      url: constants.urlCompraIapVerificarSuscripcion,
       body: {
-        //"usuario_id": _usuarioPerfil.id,
+        "source": purchaseDetails.verificationData.source,
+        "productId": purchaseDetails.productID,
+        "verificationData": purchaseDetails.verificationData.serverVerificationData,
       },
       usuarioSesion: usuarioSesion,
     );

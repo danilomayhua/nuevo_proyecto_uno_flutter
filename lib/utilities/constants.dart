@@ -113,6 +113,8 @@ const String urlEliminarContacto = "/api/usuario/eliminar-contacto";
 const String urlBloquearUsuario = "/api/usuario/bloquear";
 const String urlDesbloquearUsuario = "/api/usuario/desbloquear";
 
+const String urlCompraIapVerificarSuscripcion = "/api/compra-iap/verificar-suscripcion";
+
 const String urlStickersEnVenta = "/api/compra/ver-stickers-disponibles";
 const String urlCrearCompra = "/api/compra/crear";
 const String urlVerificarCompra = "/api/compra/verificar-pagado";
