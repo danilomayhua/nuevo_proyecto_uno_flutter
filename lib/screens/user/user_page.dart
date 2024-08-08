@@ -13,6 +13,7 @@ import 'package:tenfo/models/usuario_perfil.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/canjear_stickers/canjear_stickers_page.dart';
 import 'package:tenfo/screens/chat/chat_page.dart';
+import 'package:tenfo/screens/comprar_suscripcion/comprar_suscripcion_page.dart';
 import 'package:tenfo/screens/contactos_mutuos/contactos_mutuos_page.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/screens/settings/settings_page.dart';
@@ -150,6 +151,17 @@ class _UserPageState extends State<UserPage> {
 
           if(widget.isFromProfile)
             ...[
+
+              if(_usuarioSesion != null && _usuarioSesion!.isAdmin)
+                IconButton(
+                  icon: const Icon(Icons.store_outlined),
+                  onPressed: () async {
+                    Navigator.push(context, MaterialPageRoute(
+                        builder: (context) => const ComprarSuscripcionPage()
+                    ));
+                  },
+                ),
+
               // Solo puede verificar si no tiene email
               if(_usuarioSesion != null && _usuarioSesion!.email == null)
                 IconButton(
