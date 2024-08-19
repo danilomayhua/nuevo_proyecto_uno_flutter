@@ -104,6 +104,7 @@ class _CardActividadState extends State<CardActividad> {
           const SizedBox(height: 28,),
 
           Row(children: [
+            const SizedBox(width: 4,),
             GestureDetector(
               onTap: (){
                 Navigator.push(context,
@@ -167,6 +168,20 @@ class _CardActividadState extends State<CardActividad> {
                 ),
               ),
 
+            /*ActividadBotonLike(
+              actividad: widget.actividad,
+              onChange: (){
+                setState(() {});
+              },
+            ),
+            Text(widget.actividad.likesCount > 0 ? "${widget.actividad.likesCount}" : "",
+              style: const TextStyle(color: constants.blackGeneral, fontSize: 14,),
+            ),*/
+          ],),
+
+          const SizedBox(height: 16,),
+
+          Row(children: [
             ActividadBotonLike(
               actividad: widget.actividad,
               onChange: (){
@@ -176,11 +191,37 @@ class _CardActividadState extends State<CardActividad> {
             Text(widget.actividad.likesCount > 0 ? "${widget.actividad.likesCount}" : "",
               style: const TextStyle(color: constants.blackGeneral, fontSize: 14,),
             ),
+
+            const Spacer(),
+
+            Stack(children: [
+              /*Container(
+                width: 120,
+                child: ActividadBotonEntrar(actividad: widget.actividad),
+              ),*/
+              ActividadBotonEntrar(actividad: widget.actividad,),
+
+              if(widget.showTooltipUnirse && widget.actividad.ingresoEstado == ActividadIngresoEstado.NO_INTEGRANTE && !widget.actividad.isAutor)
+                Positioned(
+                  child: Container(
+                    decoration: ShapeDecoration(
+                      shape: _CustomShapeBorder(),
+                      color: Colors.grey[700]?.withOpacity(0.9),
+                    ),
+                    constraints: const BoxConstraints(maxWidth: 200,),
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8,),
+                    child: const Text("Únete y forma parte del chat grupal para conocer a los participantes.",
+                      style: TextStyle(color: Colors.white, fontSize: 12,),
+                    ),
+                  ),
+                  bottom: 56,
+                  right: 0,
+                ),
+            ], clipBehavior: Clip.none,),
+            const SizedBox(width: 8,),
           ],),
 
-          const SizedBox(height: 16,),
-
-          Row(children: [
+          /*Row(children: [
             Flexible(
               fit: FlexFit.loose,
               child: Container(
@@ -214,7 +255,7 @@ class _CardActividadState extends State<CardActividad> {
                   ),
               ], clipBehavior: Clip.none,),
             ),
-          ], mainAxisAlignment: MainAxisAlignment.spaceEvenly,),
+          ], mainAxisAlignment: MainAxisAlignment.spaceEvenly,),*/
 
         ],
         crossAxisAlignment: CrossAxisAlignment.start,),

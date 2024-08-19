@@ -443,7 +443,7 @@ class _ActividadPageState extends State<ActividadPage> {
                   ]),
             ),
 
-          if(widget.actividad!.isAutor)
+          /*if(widget.actividad!.isAutor)
             ...[
               const SizedBox(height: 24,),
               Container(
@@ -473,7 +473,7 @@ class _ActividadPageState extends State<ActividadPage> {
                 ),
               ),
               const SizedBox(height: 16,),
-            ],
+            ],*/
           /*
           if(widget.actividad!.isAutor)
             Align(
@@ -1263,6 +1263,7 @@ class _ActividadPageState extends State<ActividadPage> {
               verificadoUniversidadNombre: element['creador']['verificado_universidad_nombre'],
               isMatchLiked: element['creador']['is_match_liked'],
               isMatch: element['creador']['is_match'],
+              isSuperliked: false, // Este endpoint no devuelve isSuperLiked (ya no se utiliza este endpoint)
             ),
             texto: element['texto'],
             fecha: element['fecha_texto'],

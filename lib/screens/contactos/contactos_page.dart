@@ -49,7 +49,6 @@ class _ContactosPageState extends State<ContactosPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         title: const Text("Amigos"),
         actions: [
           IconButton(

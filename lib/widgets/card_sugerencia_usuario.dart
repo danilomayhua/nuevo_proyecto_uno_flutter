@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/models/sugerencia_usuario.dart';
@@ -8,6 +9,7 @@ import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/crear_actividad/crear_actividad_page.dart';
 import 'package:tenfo/screens/user/user_page.dart';
 import 'package:tenfo/services/http_service.dart';
+import 'package:tenfo/services/superlike_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/widgets/icon_universidad_verificada.dart';
 
@@ -27,6 +29,9 @@ class CardSugerenciaUsuario extends StatefulWidget {
 class _CardSugerenciaUsuarioState extends State<CardSugerenciaUsuario> {
 
   bool _enviandoMatchLike = false;
+
+  bool _enviandoSuperlike = false;
+  bool _superlikeEnviadoAhora = false;
 
   @override
   Widget build(BuildContext context) {
@@ -96,35 +101,111 @@ class _CardSugerenciaUsuarioState extends State<CardSugerenciaUsuario> {
 
           const SizedBox(height: 16,),
 
-          if(!(widget.isAutorActividadVisible ?? false))
-            ...[
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16,),
-                child: Text("Crea una actividad y envía invitaciones anónimas:",
-                  style: TextStyle(color: constants.grey, fontSize: 10, height: 1.3,),
-                  textAlign: TextAlign.center,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8,),
+            child: Text(!(widget.isAutorActividadVisible ?? false)
+                ? "Crea una actividad o incentiva a ${widget.sugerenciaUsuario.nombre} a hacer actividades:"
+                : "Incentiva a ${widget.sugerenciaUsuario.nombre} a participar en tu actividad:",
+              style: const TextStyle(color: constants.grey, fontSize: 10, height: 1.3,),
+              textAlign: TextAlign.center,
+            ),
+          ),
+
+          const SizedBox(height: 24,),
+
+          Row(children: [
+            if(!(widget.isAutorActividadVisible ?? false))
+              ...[
+                OutlinedButton(
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (context) => CrearActividadPage(
+                        fromSugerenciaUsuario: widget.sugerenciaUsuario,
+                        fromPantalla: CrearActividadFromPantalla.card_sugerencia_usuario,
+                      ),
+                    ));
+                  },
+                  child: Row(mainAxisSize: MainAxisSize.min, children: const [
+                    Icon(Icons.add_rounded, size: 14,),
+                    SizedBox(width: 2),
+                    Text("Crear", style: TextStyle(fontSize: 12,),),
+                  ],),
+                  style: OutlinedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(horizontal: 0,),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+
+                    primary: Colors.lightBlue,
+                    side: const BorderSide(width: 0.5, color: Colors.lightBlue),
+                    fixedSize: const Size.fromWidth(84),
+                  ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
                 ),
-              ),
-              const SizedBox(height: 16,),
+                const SizedBox(width: 16),
+              ],
+
+            if(!widget.sugerenciaUsuario.isSuperliked)
               OutlinedButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) => CrearActividadPage(fromSugerenciaUsuario: widget.sugerenciaUsuario,),
-                  ));
+                onPressed: _enviandoSuperlike ? null : (){
+                  SuperlikeService.enviarSuperlike(
+                    usuarioId: widget.sugerenciaUsuario.id,
+                    onChange: ({bool? isSuperliked, bool? enviando}){
+                      widget.sugerenciaUsuario.isSuperliked = isSuperliked ?? false;
+                      if(widget.sugerenciaUsuario.isSuperliked){
+                        _superlikeEnviadoAhora = true;
+                      }
+                      _enviandoSuperlike = enviando ?? false;
+
+                      setState(() {});
+
+                      // Actualiza sugerenciaUsuario que abrio este widget
+                      if(widget.onChangeSugerenciaUsuario != null) widget.onChangeSugerenciaUsuario!(widget.sugerenciaUsuario);
+                    },
+                    context: context,
+                    fromSugerenciaUsuario: widget.sugerenciaUsuario,
+                    fromPantalla: SuperlikeServiceFromPantalla.card_sugerencia_usuario,
+                  );
                 },
                 child: Row(mainAxisSize: MainAxisSize.min, children: const [
-                  Icon(Icons.add_rounded, size: 16,),
-                  SizedBox(width: 4),
-                  Text("Crear", style: TextStyle(fontSize: 12,),),
+                  Icon(CupertinoIcons.heart, size: 14,),
+                  SizedBox(width: 2),
+                  Text("Incentivar", style: TextStyle(fontSize: 10,),),
                 ],),
                 style: OutlinedButton.styleFrom(
                   shape: const StadiumBorder(),
-                  padding: const EdgeInsets.symmetric(horizontal: 12,),
+                  padding: const EdgeInsets.symmetric(horizontal: 0,),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+
+                  primary: Colors.lightGreen,
+                  side: const BorderSide(width: 0.5, color: Colors.lightGreen),
+                  fixedSize: const Size.fromWidth(84),
                 ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
               ),
-            ],
+            if(widget.sugerenciaUsuario.isSuperliked)
+              OutlinedButton(
+                onPressed: (){
+                  SuperlikeService.intentarPresionarSuperliked(
+                    usuarioNombre: widget.sugerenciaUsuario.nombre,
+                    context: context,
+                  );
+                },
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(_superlikeEnviadoAhora ? CupertinoIcons.heart_fill : CupertinoIcons.heart, size: 14,),
+                  const SizedBox(width: 2),
+                  const Text("Incentivar", style: TextStyle(fontSize: 10,),),
+                ],),
+                style: OutlinedButton.styleFrom(
+                  shape: const StadiumBorder(),
+                  padding: const EdgeInsets.symmetric(horizontal: 0,),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
 
+                  primary: _superlikeEnviadoAhora ? Colors.lightGreen : constants.greyLight,
+                  side: BorderSide(width: 0.5, color: _superlikeEnviadoAhora ? Colors.lightGreen : constants.greyLight),
+                  fixedSize: const Size.fromWidth(84),
+                ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+              ),
+          ], mainAxisAlignment: MainAxisAlignment.center,),
+
+          /*
           if((widget.isAutorActividadVisible ?? false))
             ...[
               const Padding(
@@ -184,11 +265,12 @@ class _CardSugerenciaUsuarioState extends State<CardSugerenciaUsuario> {
                   ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
                 ),
             ],
+         */
 
           const SizedBox(height: 16,),
 
         ], mainAxisAlignment: MainAxisAlignment.center,)),
-      ], crossAxisAlignment: CrossAxisAlignment.start,),
+      ], crossAxisAlignment: CrossAxisAlignment.center,),
     );
   }
 

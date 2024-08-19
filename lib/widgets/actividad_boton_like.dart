@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/models/actividad.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
@@ -25,13 +26,34 @@ class _ActividadBotonLikeState extends State<ActividadBotonLike> {
   Widget build(BuildContext context) {
     return widget.actividad.isLiked
         ? IconButton(
-          icon: const Icon(Icons.favorite, size: 24, color: Colors.redAccent,),
+          //icon: const Icon(Icons.favorite, size: 24, color: Colors.redAccent,),
+          //icon: const Icon(CupertinoIcons.hand_thumbsup_fill, size: 18, color: Colors.lightGreen,),
+          icon: const Icon(CupertinoIcons.hand_thumbsup_fill, size: 18, color: Colors.deepOrange,),
+          //icon: _iconLiked(),
           onPressed: _enviando ? null : () => _quitarLikeActividad(),
+          constraints: const BoxConstraints(),
         )
         : IconButton(
-          icon: const Icon(Icons.favorite_border, size: 24, color: constants.blackGeneral,),
+          //icon: const Icon(Icons.favorite_border, size: 24, color: constants.blackGeneral,),
+          icon: const Icon(CupertinoIcons.hand_thumbsup, size: 18, color: constants.blackGeneral,),
+          //icon: const Icon(Icons.local_fire_department, size: 24, color: Colors.black87,),
           onPressed: _enviando ? null : () => _likeActividad(),
+          constraints: const BoxConstraints(),
         );
+  }
+
+  Widget _iconLiked(){
+    return Stack(
+      alignment: Alignment.center,
+      children: const [
+        Icon(Icons.local_fire_department_rounded, size: 24, color: Colors.red,),
+        Positioned(
+          bottom: 4,
+          right: 5,
+          child: Icon(Icons.circle, size: 10, color: Colors.red,),
+        ),
+      ],
+    );
   }
 
   Future<void> _likeActividad() async {

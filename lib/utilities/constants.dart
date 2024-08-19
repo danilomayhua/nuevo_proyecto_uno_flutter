@@ -10,6 +10,7 @@ const Color blueGeneral = Colors.blue;
 const Color blueDisabled = Color(0xFF64b5f6);
 const Color blueLight = Color(0xFF03A9F4);
 const Color redAviso = Colors.red;
+const Color greenLightBackground = Color(0xFFE3F0D3);
 
 final usernameColors = [
   Colors.amber[900],
@@ -87,6 +88,9 @@ const String urlDisponibilidadSugerencias = "/api/disponibilidad/sugerencias-cre
 const String urlLikeActividadAgregar = "/api/like-actividad/agregar-like";
 const String urlLikeActividadQuitar = "/api/like-actividad/quitar-like";
 
+const String urlEnviarSuperlike = "/api/superlike/dar-superlike";
+const String urlSuperlikesRecibidos = "/api/superlike/ver-superlikes";
+
 const String urlBandejaChats = "/api/bandeja-chats";
 
 const String urlChatMensajes = "/api/chat/ver-mensajes";
@@ -112,6 +116,9 @@ const String urlEliminarContacto = "/api/usuario/eliminar-contacto";
 
 const String urlBloquearUsuario = "/api/usuario/bloquear";
 const String urlDesbloquearUsuario = "/api/usuario/desbloquear";
+
+const String urlEnviarVisitaUsuarioInstagram = "/api/visita-usuario/visitar-instagram";
+const String urlVisitasUsuarioInstagram = "/api/visita-usuario/ver-visitas-instagram";
 
 const String urlCompraIapVerificarSuscripcion = "/api/compra-iap/verificar-suscripcion";
 

@@ -23,12 +23,17 @@ class _ComprarSuscripcionPageState extends State<ComprarSuscripcionPage> {
   StreamSubscription<List<PurchaseDetails>>? _subscription;
 
   List<ProductDetails> _products = [];
+  final _productIdPremium1 = "suscripcion_premium_1";
 
-  bool _enviando = false;
+  bool _cargandoProductos = false;
+  bool _enviandoCompra = false;
 
   @override
   void initState() {
     super.initState();
+
+    _cargandoProductos = true;
+    setState(() {});
 
     _iniciarIAP();
   }
@@ -42,27 +47,26 @@ class _ComprarSuscripcionPageState extends State<ComprarSuscripcionPage> {
 
   Future<void> _iniciarIAP() async {
     //final Stream<List<PurchaseDetails>> purchaseUpdated = InAppPurchase.instance.purchaseStream;
+
     final Stream<List<PurchaseDetails>> purchaseUpdated = _inAppPurchase.purchaseStream;
     _subscription = purchaseUpdated.listen((purchaseDetailsList) {
-      print("Entro aqui A");
       _listenToPurchaseUpdated(purchaseDetailsList);
     }, onDone: (){
-      print("Entro aqui C");
       _subscription?.cancel();
     }, onError: (error){
-      // handle error here.
-      print("Entro aqui B");
+      print("Error con _subscription:");
       print(error);
     });
 
     _isAvailable = await _inAppPurchase.isAvailable();
     if(!_isAvailable){
-      _showSnackBar("No está habilitado las compras");
+      _cargandoProductos = false;
+      setState(() {});
       return;
     }
 
 
-    const _productIds = <String>{"subscription_prueba_1",};
+    var _productIds = <String>{_productIdPremium1,};
 
     final ProductDetailsResponse productDetailResponse = await _inAppPurchase.queryProductDetails(_productIds);
     _products = productDetailResponse.productDetails;
@@ -73,6 +77,7 @@ class _ComprarSuscripcionPageState extends State<ComprarSuscripcionPage> {
       String error = productDetailResponse.error!.message;
       print(error);
 
+      _cargandoProductos = false;
       setState(() {});
       return;
     }
@@ -80,10 +85,12 @@ class _ComprarSuscripcionPageState extends State<ComprarSuscripcionPage> {
     if (productDetailResponse.productDetails.isEmpty) {
       _showSnackBar("No hay productos encontrados");
 
+      _cargandoProductos = false;
       setState(() {});
       return;
     }
 
+    _cargandoProductos = false;
     setState(() {});
   }
 
@@ -91,51 +98,36 @@ class _ComprarSuscripcionPageState extends State<ComprarSuscripcionPage> {
     for (final PurchaseDetails purchaseDetails in purchaseDetailsList) {
       if (purchaseDetails.status == PurchaseStatus.pending) {
 
-        print('purchase is in pending');
-        //_showPendingUI();
+        _enviandoCompra = true;
+        setState(() {});
 
       } else {
 
         if (purchaseDetails.status == PurchaseStatus.error) {
 
-          print('purchase error');
-          //_handleError(purchaseDetails.error!);
+          _showSnackBar("Se produjo un error con el pago.");
 
         } else if (purchaseDetails.status == PurchaseStatus.purchased || purchaseDetails.status == PurchaseStatus.restored) {
-          if(purchaseDetails.status == PurchaseStatus.purchased){
-            print('purchased');
-          }
-          if(purchaseDetails.status == PurchaseStatus.restored){
-            print('purchase restore');
-          }
+          // TODO : ver como manejar PurchaseStatus.restored
 
           bool valid = await _verifyPurchase(purchaseDetails);
           if (valid) {
 
-            //_deliverProduct(purchaseDetails);
             _showSnackBar("¡Ahora eres usuario premium!");
 
           } else {
-            //_handleInvalidPurchase(purchaseDetails);
-            _showSnackBar("Compra no valida en backend");
-            return;
+            _showSnackBar("Surgió un error inesperado al validar tu compra. Por favor comunícate con nosotros.");
           }
+
+        } else if(purchaseDetails.status == PurchaseStatus.canceled){
+          print('Compra cancelada');
         }
 
         if (purchaseDetails.pendingCompletePurchase) {
+          // Completa la compra aunque haya surgido un error al verificar
+
           //await InAppPurchase.instance.completePurchase(purchaseDetails);
-
           await _inAppPurchase.completePurchase(purchaseDetails);
-
-          /*await _inAppPurchase.completePurchase(purchaseDetails).then((value){
-            if(purchaseDetails.status == PurchaseStatus.purchased){
-              //on purchase success you can call your logic and your API here.
-            }
-          });*/
-        }
-
-        if(purchaseDetails.status == PurchaseStatus.canceled){
-          print('purchase cancel');
         }
 
       }
@@ -146,7 +138,7 @@ class _ComprarSuscripcionPageState extends State<ComprarSuscripcionPage> {
     bool result = false;
 
     setState(() {
-      _enviando = true;
+      _enviandoCompra = true;
     });
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -175,16 +167,27 @@ class _ComprarSuscripcionPageState extends State<ComprarSuscripcionPage> {
     }
 
     setState(() {
-      _enviando = false;
+      _enviandoCompra = false;
     });
 
     return result;
   }
 
-  Future<void> _buySuscription() async {
+  Future<void> _buySuscription(String productId) async {
     if(_products.isNotEmpty){
-      final purchaseParam = PurchaseParam(productDetails: _products[0]);
-      await _inAppPurchase.buyNonConsumable(purchaseParam: purchaseParam);
+
+      PurchaseParam? purchaseParam;
+
+      for (var element in _products) {
+        if(element.id == productId){
+          purchaseParam = PurchaseParam(productDetails: element);
+          break;
+        }
+      }
+
+      if(purchaseParam != null){
+        await _inAppPurchase.buyNonConsumable(purchaseParam: purchaseParam);
+      }
     }
   }
 
@@ -194,7 +197,7 @@ class _ComprarSuscripcionPageState extends State<ComprarSuscripcionPage> {
       appBar: AppBar(
         title: const Text("Comprar suscripción"),
       ),
-      body: Center(
+      body: _cargandoProductos ? const Center(child: CircularProgressIndicator(),) : Center(
         child: !_isAvailable ? const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Text("Tienda no habilitada.",
@@ -203,28 +206,26 @@ class _ComprarSuscripcionPageState extends State<ComprarSuscripcionPage> {
           ),
         ) : _products.isEmpty
             ? const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text("No hay productos para comprar.",
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16,),
+              child: Text("Se produjo un error (no hay productos para comprar).",
                 style: TextStyle(color: constants.grey, fontSize: 14,),
                 textAlign: TextAlign.center,
               ),
             )
             : Column(children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Text("Actualiza a la versión premium:",
-                  style: TextStyle(color: constants.grey, fontSize: 14,),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(_enviandoCompra ? "Enviando compra..." : "Actualiza a la versión premium:",
+                  style: const TextStyle(color: constants.grey, fontSize: 14,),
                   textAlign: TextAlign.center,
                 ),
               ),
               const SizedBox(height: 24,),
               OutlinedButton(
-                onPressed: (){
-                  _buySuscription();
-                },
+                onPressed: _enviandoCompra ? null : () => _buySuscription(_productIdPremium1),
                 child: const Text("Comprar"),
               ),
-            ],),
+            ], mainAxisAlignment: MainAxisAlignment.center,),
       ),
     );
   }

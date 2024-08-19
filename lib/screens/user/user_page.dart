@@ -13,13 +13,15 @@ import 'package:tenfo/models/usuario_perfil.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/canjear_stickers/canjear_stickers_page.dart';
 import 'package:tenfo/screens/chat/chat_page.dart';
-import 'package:tenfo/screens/comprar_suscripcion/comprar_suscripcion_page.dart';
+import 'package:tenfo/screens/contactos/contactos_page.dart';
 import 'package:tenfo/screens/contactos_mutuos/contactos_mutuos_page.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/screens/settings/settings_page.dart';
 import 'package:tenfo/screens/verificar_universidad/verificar_universidad_page.dart';
+import 'package:tenfo/screens/visitas_instagram/visitas_instagram_page.dart';
 import 'package:tenfo/screens/welcome/welcome_page.dart';
 import 'package:tenfo/services/http_service.dart';
+import 'package:tenfo/services/superlike_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/historial_usuario.dart';
 import 'package:tenfo/utilities/share_utils.dart';
@@ -31,20 +33,24 @@ import 'package:tenfo/widgets/icon_universidad_verificada.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class UserPage extends StatefulWidget {
-  const UserPage({Key? key, required this.usuario, this.isFromProfile = false, this.compartenGrupoChatId, this.routeUsername}) : super(key: key);
+  UserPage({Key? key, required this.usuario, this.isFromProfile = false, this.compartenGrupoChatId, this.routeUsername,
+    this.visitasInstagramNuevos, this.onChangeVisitasInstagramNuevos}) : super(key: key);
 
   final Usuario? usuario;
   final bool isFromProfile;
   final String? compartenGrupoChatId;
   final String? routeUsername;
 
+  int? visitasInstagramNuevos;
+  void Function(int)? onChangeVisitasInstagramNuevos;
+
   @override
-  State<UserPage> createState() => _UserPageState();
+  State<UserPage> createState() => UserPageState();
 }
 
 enum _PopupMenuOption { bloquearUsuario, desbloquearUsuario }
 
-class _UserPageState extends State<UserPage> {
+class UserPageState extends State<UserPage> {
 
   late UsuarioPerfil _usuarioPerfil;
 
@@ -52,6 +58,11 @@ class _UserPageState extends State<UserPage> {
 
   bool _loadingPerfil = false;
   bool _enviandoBotonContacto = false;
+
+  bool _enviandoSuperlike = false;
+  bool _superlikeEnviadoAhora = false;
+
+  bool _enviandoVisitaInstagram = false;
 
   List<Sticker> _stickersRecibidos = [];
 
@@ -151,17 +162,6 @@ class _UserPageState extends State<UserPage> {
 
           if(widget.isFromProfile)
             ...[
-
-              if(_usuarioSesion != null && _usuarioSesion!.isAdmin)
-                IconButton(
-                  icon: const Icon(Icons.store_outlined),
-                  onPressed: () async {
-                    Navigator.push(context, MaterialPageRoute(
-                        builder: (context) => const ComprarSuscripcionPage()
-                    ));
-                  },
-                ),
-
               // Solo puede verificar si no tiene email
               if(_usuarioSesion != null && _usuarioSesion!.email == null)
                 IconButton(
@@ -398,6 +398,10 @@ class _UserPageState extends State<UserPage> {
 
                           try {
                             await launchUrl(url, mode: LaunchMode.externalApplication,);
+
+                            if(!widget.isFromProfile && !_isUsuarioSesion() && !_enviandoVisitaInstagram){
+                              _enviarVisitaInstagram();
+                            }
                           } catch (e){
                             throw 'Could not launch $urlString';
                           }
@@ -411,9 +415,43 @@ class _UserPageState extends State<UserPage> {
                           ),
                           const SizedBox(width: 8,),
                           Text(_usuarioPerfil.instagram!,
-                            style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
+                            style: const TextStyle(color: constants.blackGeneral, fontSize: 12,),
                           ),
-                          const SizedBox(width: 16,),
+                          const SizedBox(width: 16,), // Amplia el rango de onTap
+
+                          if(widget.isFromProfile)
+                            ...[
+                              OutlinedButton(
+                                onPressed: () {
+                                  Navigator.push(context, MaterialPageRoute(
+                                    builder: (context) => const VisitasInstagramPage(),
+                                  ));
+
+                                  if(widget.onChangeVisitasInstagramNuevos != null) {
+                                    widget.visitasInstagramNuevos = 0;
+                                    widget.onChangeVisitasInstagramNuevos!(0);
+                                  }
+                                },
+                                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                                  const Text("Visualizaciones",
+                                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal,),
+                                  ),
+                                  Text((widget.visitasInstagramNuevos ?? 0) > 0
+                                      ? " (${widget.visitasInstagramNuevos} nuevos)"
+                                      : "",
+                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold,),
+                                  ),
+                                ],),
+                                style: OutlinedButton.styleFrom(
+                                  shape: const StadiumBorder(),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6,),
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  primary: constants.blueGeneral,
+                                  side: const BorderSide(width: 0.5, color: constants.blueGeneral,),
+                                  minimumSize: const Size(0, 0),
+                                ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+                              ),
+                            ],
                         ], mainAxisSize: MainAxisSize.min,),
                       ),
 
@@ -440,6 +478,22 @@ class _UserPageState extends State<UserPage> {
                     const SizedBox(height: 8,),
                   ],
 
+                if(widget.isFromProfile)
+                  TextButton.icon(
+                    onPressed: (){
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (context) => const ContactosPage(),
+                      ));
+                    },
+                    icon: const Icon(Icons.people_alt_outlined, size: 18,),
+                    label: const Text("Lista de amigos",
+                      style: TextStyle(fontSize: 12,),
+                    ),
+                    style: TextButton.styleFrom(
+                      primary: constants.blackGeneral,
+                      padding: const EdgeInsets.all(0),
+                    ),
+                  ),
 
                 if(widget.isFromProfile && _usuarioSesion != null)
                   ...[
@@ -622,6 +676,12 @@ class _UserPageState extends State<UserPage> {
     );
   }
 
+  void setVisitasInstagramNuevos(int value){
+    setState(() {
+      widget.visitasInstagramNuevos = value;
+    });
+  }
+
   void _showDialogVerificarse(){
     showDialog(context: context, builder: (context){
       return AlertDialog(
@@ -765,13 +825,15 @@ class _UserPageState extends State<UserPage> {
             icon: _usuarioPerfil.contactoEstado == UsuarioPerfilContactoEstado.CONECTADOS || widget.compartenGrupoChatId != null
                 ? const Icon(Icons.near_me)
                 : const Icon(Icons.lock_outline),
-            label: const Text('Enviar mensaje', style: TextStyle(fontSize: 16),),
+            label: const Text('Mensaje', style: TextStyle(fontSize: 14),),
             style: OutlinedButton.styleFrom(
               primary: constants.blueGeneral,
               backgroundColor: Colors.white,
-              side: const BorderSide(color: constants.blueGeneral, width: 0.5,),
+              //side: const BorderSide(color: constants.blueGeneral, width: 0.5,),
               shape: const StadiumBorder(),
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16,),
+              fixedSize: const Size(140, 48),
+              //fixedSize: Size.fromWidth((MediaQuery.of(context).size.width * 0.50) - 28),
             ),
             /*
             label: Text('Mensaje', style: TextStyle(fontSize: 18)),
@@ -785,28 +847,68 @@ class _UserPageState extends State<UserPage> {
             ),
             */
           ),
-          /*
-          SizedBox(width: 16),
-          OutlinedButton.icon(
-            onPressed: (){
-              _showDialogEnviarSticker();
-            },
-            icon: const Icon(CupertinoIcons.bitcoin),
-            label: Text(Platform.isIOS ? 'Propina' : 'Sticker', style: TextStyle(fontSize: 18)),
-            /*label: Text('Sticker-Propina',
-              style: TextStyle(fontSize: 16, height: 1),
-            ),*/
-            style: OutlinedButton.styleFrom(
-              primary: Colors.white,
-              backgroundColor: constants.blueGeneral,
-              shape: StadiumBorder(),
-              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16,),
-              //Restar a Width = (48(tres margenes de 16) / 2) + 4(margen agregado) = 28
-              fixedSize: Size.fromWidth((MediaQuery.of(context).size.width * 0.50) - 28),
+
+          const SizedBox(width: 16),
+
+          Column(children: [
+            if(!_usuarioPerfil.isSuperliked)
+              OutlinedButton.icon(
+                onPressed: _enviandoSuperlike ? null : (){
+                  SuperlikeService.enviarSuperlike(
+                    usuarioId: _usuarioPerfil.id,
+                    onChange: ({bool? isSuperliked, bool? enviando}){
+                      _usuarioPerfil.isSuperliked = isSuperliked ?? false;
+                      if(_usuarioPerfil.isSuperliked){
+                        _superlikeEnviadoAhora = true;
+                      }
+                      _enviandoSuperlike = enviando ?? false;
+
+                      setState(() {});
+                    },
+                    context: context,
+                    fromPantalla: SuperlikeServiceFromPantalla.perfil_usuario,
+                  );
+                },
+                icon: const Icon(CupertinoIcons.heart),
+                label: const Text("Incentivar\na participar", style: TextStyle(fontSize: 10),),
+                style: OutlinedButton.styleFrom(
+                  primary: Colors.lightGreen,
+                  backgroundColor: Colors.white,
+                  side: const BorderSide(color: Colors.lightGreen, width: 0.5,),
+                  shape: const StadiumBorder(),
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16,),
+                  fixedSize: const Size(140, 48),
+                ),
+              ),
+            if(_usuarioPerfil.isSuperliked)
+              OutlinedButton.icon(
+                onPressed: (){
+                  SuperlikeService.intentarPresionarSuperliked(
+                    usuarioNombre: _usuarioPerfil.nombre,
+                    context: context,
+                  );
+                },
+                icon: _superlikeEnviadoAhora ? const Icon(CupertinoIcons.heart_fill) :  const Icon(CupertinoIcons.heart),
+                label: const Text("Incentivar\na participar", style: TextStyle(fontSize: 10),),
+                style: OutlinedButton.styleFrom(
+                  primary: _superlikeEnviadoAhora ? Colors.lightGreen : constants.greyLight,
+                  backgroundColor: Colors.white,
+                  side: BorderSide(color: _superlikeEnviadoAhora ? Colors.lightGreen : constants.greyLight, width: 0.5,),
+                  shape: const StadiumBorder(),
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16,),
+                  fixedSize: const Size(140, 48),
+                ),
+              ),
+            Container(
+              width: 140,
+              margin: const EdgeInsets.only(top: 8,),
+              child: const Text("Esto es anónimo",
+                style: TextStyle(color: constants.greyLight, fontSize: 10,),
+                textAlign: TextAlign.center,
+              ),
             ),
-          ),
-          */
-        ], mainAxisAlignment: MainAxisAlignment.center,),
+          ],),
+        ], mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start,),
       ),
     );
   }
@@ -1032,6 +1134,8 @@ class _UserPageState extends State<UserPage> {
 
         _usuarioPerfil.isVerificadoUniversidad = datosUsuario['is_verificado_universidad'];
         _usuarioPerfil.verificadoUniversidadNombre = datosUsuario['verificado_universidad_nombre'];
+
+        _usuarioPerfil.isSuperliked = datosUsuario['is_superliked'];
 
         List<Usuario> contactosMutuos = [];
         datosJson['data']['contactos_mutuos_vista_previa'].forEach((usuario){
@@ -1340,6 +1444,39 @@ class _UserPageState extends State<UserPage> {
 
     setStateDialog(() {
       _enviandoBotonContacto = false;
+    });
+  }
+
+  Future<void> _enviarVisitaInstagram() async {
+    setState(() {
+      _enviandoVisitaInstagram = true;
+    });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    var response = await HttpService.httpPost(
+      url: constants.urlEnviarVisitaUsuarioInstagram,
+      body: {
+        "usuario_id": _usuarioPerfil.id,
+      },
+      usuarioSesion: usuarioSesion,
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+
+        //
+
+      } else {
+        //_showSnackBar("Se produjo un error inesperado");
+      }
+    }
+
+    setState(() {
+      _enviandoVisitaInstagram = false;
     });
   }
 

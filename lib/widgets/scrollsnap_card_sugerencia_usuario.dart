@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/models/actividad.dart';
@@ -9,6 +10,7 @@ import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/crear_actividad/crear_actividad_page.dart';
 import 'package:tenfo/screens/user/user_page.dart';
 import 'package:tenfo/services/http_service.dart';
+import 'package:tenfo/services/superlike_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/widgets/icon_universidad_verificada.dart';
 
@@ -28,6 +30,9 @@ class ScrollsnapCardSugerenciaUsuario extends StatefulWidget {
 class _ScrollsnapCardSugerenciaUsuarioState extends State<ScrollsnapCardSugerenciaUsuario> {
 
   bool _enviando = false;
+
+  bool _enviandoSuperlike = false;
+  bool _superlikeEnviadoAhora = false;
 
   @override
   Widget build(BuildContext context) {
@@ -96,8 +101,8 @@ class _ScrollsnapCardSugerenciaUsuarioState extends State<ScrollsnapCardSugerenc
             if(!(widget.isAutorActividadVisible))
               ...[
                 const SizedBox(height: 16,),
-                const Text("Crea una actividad y jugá con invitaciones anónimas:",
-                  style: TextStyle(color: constants.grey, fontSize: 12, height: 1.3,),
+                Text("Crea una actividad para que usuarios como ${widget.sugerenciaUsuario.nombre} puedan unirse:",
+                  style: const TextStyle(color: constants.grey, fontSize: 12, height: 1.3,),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16,),
@@ -106,7 +111,10 @@ class _ScrollsnapCardSugerenciaUsuarioState extends State<ScrollsnapCardSugerenc
                   child: ElevatedButton.icon(
                     onPressed: (){
                       Navigator.push(context, MaterialPageRoute(
-                        builder: (context) => CrearActividadPage(fromSugerenciaUsuario: widget.sugerenciaUsuario,),
+                        builder: (context) => CrearActividadPage(
+                          fromSugerenciaUsuario: widget.sugerenciaUsuario,
+                          fromPantalla: CrearActividadFromPantalla.scrollsnap_sugerencia_usuario,
+                        ),
                       ));
                     },
                     icon: const Icon(Icons.add),
@@ -119,6 +127,68 @@ class _ScrollsnapCardSugerenciaUsuarioState extends State<ScrollsnapCardSugerenc
               ],
 
             if((widget.isAutorActividadVisible))
+              ...[
+                const SizedBox(height: 16,),
+                const Text("Envía un incentivo en anónimo para que revise las actividades creadas:",
+                  style: TextStyle(color: constants.grey, fontSize: 12, height: 1.3,),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16,),
+                if(!widget.sugerenciaUsuario.isSuperliked)
+                  Container(
+                    constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+                    child: OutlinedButton.icon(
+                      onPressed: _enviandoSuperlike ? null : (){
+                        SuperlikeService.enviarSuperlike(
+                          usuarioId: widget.sugerenciaUsuario.id,
+                          onChange: ({bool? isSuperliked, bool? enviando}){
+                            widget.sugerenciaUsuario.isSuperliked = isSuperliked ?? false;
+                            if(widget.sugerenciaUsuario.isSuperliked){
+                              _superlikeEnviadoAhora = true;
+                            }
+                            _enviandoSuperlike = enviando ?? false;
+
+                            setState(() {});
+
+                            // Actualiza sugerenciaUsuario que abrio este widget
+                            if(widget.onChangeSugerenciaUsuario != null) widget.onChangeSugerenciaUsuario!(widget.sugerenciaUsuario);
+                          },
+                          context: context,
+                          fromSugerenciaUsuario: widget.sugerenciaUsuario,
+                          fromPantalla: SuperlikeServiceFromPantalla.scrollsnap_sugerencia_usuario,
+                        );
+                      },
+                      icon: const Icon(CupertinoIcons.heart),
+                      label: const Text("Incentivar"),
+                      style: OutlinedButton.styleFrom(
+                        shape: const StadiumBorder(),
+                        primary: Colors.lightGreen,
+                        side: const BorderSide(width: 0.5, color: Colors.lightGreen),
+                      ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+                    ),
+                  ),
+                if(widget.sugerenciaUsuario.isSuperliked)
+                  Container(
+                    constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+                    child: OutlinedButton.icon(
+                      onPressed: (){
+                        SuperlikeService.intentarPresionarSuperliked(
+                          usuarioNombre: widget.sugerenciaUsuario.nombre,
+                          context: context,
+                        );
+                      },
+                      icon: _superlikeEnviadoAhora ? const Icon(CupertinoIcons.heart_fill) : const Icon(CupertinoIcons.heart),
+                      label: const Text("Incentivar"),
+                      style: OutlinedButton.styleFrom(
+                        shape: const StadiumBorder(),
+                        primary: _superlikeEnviadoAhora ? Colors.lightGreen : constants.greyLight,
+                        side: BorderSide(width: 0.5, color: _superlikeEnviadoAhora ? Colors.lightGreen : constants.greyLight,),
+                      ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+                    ),
+                  ),
+              ],
+
+            /*if((widget.isAutorActividadVisible))
               ...[
                 const SizedBox(height: 16,),
                 const Text("Elige en anónimo como integrante permitido para tu actividad:",
@@ -134,7 +204,7 @@ class _ScrollsnapCardSugerenciaUsuarioState extends State<ScrollsnapCardSugerenc
                       ? _buildMatchLikeEnviado()
                       : _buildBotonMatchLike(),
                 ),
-              ],
+              ],*/
 
             const SizedBox(height: 16,),
           ]),

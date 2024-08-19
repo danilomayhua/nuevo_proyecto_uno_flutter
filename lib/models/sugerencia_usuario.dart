@@ -14,10 +14,12 @@ class SugerenciaUsuario {
   bool? isMatchLiked;
   bool? isMatch;
 
+  bool isSuperliked;
+
   SugerenciaUsuario({required this.id, required this.nombre, required this.nombreCompleto,
     required this.username, required this.foto, required this.universidadNombre,
     required this.isVerificadoUniversidad, required this.verificadoUniversidadNombre,
-    this.isMatchLiked, this.isMatch});
+    this.isMatchLiked, this.isMatch, required this.isSuperliked});
 
   Usuario toUsuario(){
     return Usuario(id: id, nombre: nombreCompleto, username: username, foto: foto);
