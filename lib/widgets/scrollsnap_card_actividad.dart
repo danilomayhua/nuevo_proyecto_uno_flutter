@@ -177,7 +177,7 @@ class _ScrollsnapCardActividadState extends State<ScrollsnapCardActividad> {
                       ),
                   ],),
 
-                  Row(children: [
+                  /*Row(children: [
                     const Spacer(),
                     ActividadBotonLike(
                       actividad: widget.actividad,
@@ -188,7 +188,7 @@ class _ScrollsnapCardActividadState extends State<ScrollsnapCardActividad> {
                     Text(widget.actividad.likesCount > 0 ? "${widget.actividad.likesCount}" : "",
                       style: const TextStyle(color: constants.blackGeneral, fontSize: 14,),
                     ),
-                  ],),
+                  ],),*/
                 ],),
               ),
             ),
@@ -196,6 +196,22 @@ class _ScrollsnapCardActividadState extends State<ScrollsnapCardActividad> {
             const SizedBox(height: 48,),
 
             Row(children: [
+              //const SizedBox(width: 8,),
+              ActividadBotonLike(
+                actividad: widget.actividad,
+                onChange: (){
+                  setState(() {});
+                },
+              ),
+              Text(widget.actividad.likesCount > 0 ? "${widget.actividad.likesCount}" : "",
+                style: const TextStyle(color: constants.blackGeneral, fontSize: 14,),
+              ),
+              const Spacer(),
+              ActividadBotonEntrar(actividad: widget.actividad,),
+              //const SizedBox(width: 8,),
+            ],),
+
+            /*Row(children: [
 
               if(!widget.actividad.isAutor
                   && widget.actividad.ingresoEstado != ActividadIngresoEstado.INTEGRANTE
@@ -224,7 +240,7 @@ class _ScrollsnapCardActividadState extends State<ScrollsnapCardActividad> {
                   child: ActividadBotonEntrar(actividad: widget.actividad),
                 ),
               ),
-            ], mainAxisAlignment: MainAxisAlignment.center,),
+            ], mainAxisAlignment: MainAxisAlignment.center,),*/
 
           ]),
         ),

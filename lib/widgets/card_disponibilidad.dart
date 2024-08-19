@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/models/disponibilidad.dart';
@@ -11,6 +12,7 @@ import 'package:tenfo/screens/invitar_actividad/invitar_actividad_page.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/screens/user/user_page.dart';
 import 'package:tenfo/services/http_service.dart';
+import 'package:tenfo/services/superlike_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/widgets/icon_universidad_verificada.dart';
 
@@ -33,6 +35,9 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
   bool _enviandoEliminarDisponibilidad = false;
 
   bool _enviandoMatchLike = false;
+
+  bool _enviandoSuperlike = false;
+  bool _superlikeEnviadoAhora = false;
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +63,7 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
       ),
       padding: widget.disponibilidad.isAutor
           ? const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16,)
-          : const EdgeInsets.only(left: 16, top: 28, right: 16, bottom: 28,),
+          : const EdgeInsets.only(left: 16, top: 24, right: 16, bottom: 24,),
       child: Row(children: [
         GestureDetector(
           onTap: (){
@@ -151,28 +156,77 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
 
           const SizedBox(height: 8,),
 
-          if(!(widget.isAutorActividadVisible ?? false) && !widget.disponibilidad.isAutor)
-            Align(
-              alignment: Alignment.centerRight,
-              child: OutlinedButton(
+          Row(children: [
+            if(!(widget.isAutorActividadVisible ?? false) && !widget.disponibilidad.isAutor)
+              OutlinedButton(
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute(
-                    builder: (context) => CrearActividadPage(fromDisponibilidad: widget.disponibilidad,),
+                    builder: (context) => CrearActividadPage(
+                      fromDisponibilidad: widget.disponibilidad,
+                      fromPantalla: CrearActividadFromPantalla.card_disponibilidad,
+                    ),
                   ));
                 },
                 child: Row(mainAxisSize: MainAxisSize.min, children: const [
-                  Icon(Icons.add_rounded, size: 16,),
-                  SizedBox(width: 4),
-                  Text("Crear", style: TextStyle(fontSize: 12,),),
+                  Icon(Icons.add_rounded, size: 14,),
+                  SizedBox(width: 2),
+                  Text("Crear", style: TextStyle(fontSize: 10,),),
                 ],),
                 style: OutlinedButton.styleFrom(
                   shape: const StadiumBorder(),
-                  padding: const EdgeInsets.symmetric(horizontal: 12,),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8,),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  primary: Colors.lightBlue,
+                  side: const BorderSide(width: 0.5, color: Colors.lightBlue),
+                  minimumSize: const Size(0, 0),
                 ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
               ),
-            ),
 
+            const SizedBox(width: 8),
+
+            if(!widget.disponibilidad.creador.isSuperliked && !widget.disponibilidad.isAutor)
+              IconButton(
+                icon: const Icon(CupertinoIcons.heart, size: 24, color: Colors.lightGreen,),
+                onPressed: _enviandoSuperlike ? null : (){
+                  SuperlikeService.enviarSuperlike(
+                    usuarioId: widget.disponibilidad.creador.id,
+                    onChange: ({bool? isSuperliked, bool? enviando}){
+                      widget.disponibilidad.creador.isSuperliked = isSuperliked ?? false;
+                      if(widget.disponibilidad.creador.isSuperliked){
+                        _superlikeEnviadoAhora = true;
+                      }
+                      _enviandoSuperlike = enviando ?? false;
+
+                      setState(() {});
+
+                      // Actualiza la disponibilidad que abrio este widget
+                      if(widget.onChangeDisponibilidad != null) widget.onChangeDisponibilidad!(widget.disponibilidad);
+                    },
+                    context: context,
+                    fromDisponibilidad: widget.disponibilidad,
+                    fromPantalla: SuperlikeServiceFromPantalla.card_disponibilidad,
+                  );
+                },
+                constraints: const BoxConstraints(),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0,),
+              ),
+            if(widget.disponibilidad.creador.isSuperliked && !widget.disponibilidad.isAutor)
+              IconButton(
+                icon: _superlikeEnviadoAhora
+                    ? const Icon(CupertinoIcons.heart_fill, size: 24, color: Colors.lightGreen,)
+                    : const Icon(CupertinoIcons.heart, size: 24, color: constants.greyLight,),
+                onPressed: (){
+                  SuperlikeService.intentarPresionarSuperliked(
+                    usuarioNombre: widget.disponibilidad.creador.nombre,
+                    context: context,
+                  );
+                },
+                constraints: const BoxConstraints(),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0,),
+              ),
+          ], mainAxisAlignment: MainAxisAlignment.end,),
+
+          /*
           if((widget.isAutorActividadVisible ?? false) && !widget.disponibilidad.isAutor)
             Align(
               alignment: Alignment.centerRight,
@@ -194,6 +248,7 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
                 ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
               ),
             ),
+          */
 
         ],)),
       ], crossAxisAlignment: CrossAxisAlignment.start,),

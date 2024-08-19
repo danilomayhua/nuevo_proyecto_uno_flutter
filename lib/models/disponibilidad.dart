@@ -10,10 +10,12 @@ class DisponibilidadCreador {
   bool? isMatchLiked;
   bool? isMatch;
 
+  bool isSuperliked;
+
   DisponibilidadCreador({required this.id, required this.foto, required this.nombre,
     required this.descripcion, required this.universidadNombre,
     required this.isVerificadoUniversidad, required this.verificadoUniversidadNombre,
-    this.isMatchLiked, this.isMatch});
+    this.isMatchLiked, this.isMatch, required this.isSuperliked});
 }
 
 class Disponibilidad {

@@ -11,6 +11,7 @@ import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/canjear_stickers/canjear_stickers_page.dart';
 import 'package:tenfo/screens/settings/views/settings_contrasena_page.dart';
 import 'package:tenfo/screens/settings/views/settings_cuenta_page.dart';
+import 'package:tenfo/screens/settings/views/settings_cuenta_pro_page.dart';
 import 'package:tenfo/screens/settings/views/settings_descripcion_page.dart';
 import 'package:tenfo/screens/settings/views/settings_email_page.dart';
 import 'package:tenfo/screens/settings/views/settings_feedback_page.dart';
@@ -162,6 +163,12 @@ class _SettingsPageState extends State<SettingsPage> {
           _buildFila(titulo: "Cuenta", onTap: () async {
             Navigator.push(context, MaterialPageRoute(
                 builder: (context) => const SettingsCuentaPage()
+            ));
+          },),
+
+          _buildFila(titulo: "Cuenta Pro", onTap: () async {
+            Navigator.push(context, MaterialPageRoute(
+                builder: (context) => const SettingsCuentaProPage()
             ));
           },),
 

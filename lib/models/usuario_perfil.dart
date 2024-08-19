@@ -28,6 +28,8 @@ class UsuarioPerfil extends Usuario {
   bool isVerificadoUniversidad = false;
   String? verificadoUniversidadNombre;
 
+  bool isSuperliked = false;
+
   UsuarioPerfil({required String id, required String nombre,
     required String username, required String foto,})
       : super(id: id, nombre: nombre, username: username, foto: foto,);

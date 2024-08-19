@@ -28,17 +28,22 @@ import 'package:tenfo/utilities/shared_preferences_keys.dart';
 import 'package:tenfo/widgets/dialog_cambiar_intereses.dart';
 
 class CrearActividadPage extends StatefulWidget {
-  const CrearActividadPage({Key? key, this.cocreadorUsuario, this.fromDisponibilidad, this.fromSugerenciaUsuario}) : super(key: key);
+  const CrearActividadPage({Key? key, this.cocreadorUsuario,
+    this.fromDisponibilidad, this.fromSugerenciaUsuario, this.fromPantalla}) : super(key: key);
 
   final Usuario? cocreadorUsuario;
   final Disponibilidad? fromDisponibilidad;
   final SugerenciaUsuario? fromSugerenciaUsuario;
+  final CrearActividadFromPantalla? fromPantalla;
 
   @override
   State<CrearActividadPage> createState() => _CrearActividadPageState();
 }
 
 enum ActividadTipo { publico, privado, requisitos }
+
+// Es importante no cambiar los nombres de este enum (se envian al backend)
+enum CrearActividadFromPantalla { card_disponibilidad, scrollsnap_disponibilidad, card_sugerencia_usuario, scrollsnap_sugerencia_usuario }
 
 class _CrearActividadPageState extends State<CrearActividadPage> {
   final PageController _pageController = PageController();
@@ -1958,7 +1963,11 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
         "historiales_usuario_activo": _historialesUsuario,
         "datos_enviado_desde": (widget.fromDisponibilidad == null && widget.fromSugerenciaUsuario == null)
             ? null
-            : { "disponibilidad_id" : widget.fromDisponibilidad?.id, "sugerencia_usuario_id" : widget.fromSugerenciaUsuario?.id, },
+            : {
+              "disponibilidad_id" : widget.fromDisponibilidad?.id,
+              "sugerencia_usuario_id" : widget.fromSugerenciaUsuario?.id,
+              "pantalla" : widget.fromPantalla?.name,
+            },
       },
       usuarioSesion: usuarioSesion,
     );

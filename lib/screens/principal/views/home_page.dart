@@ -346,7 +346,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                 if(index < (_publicaciones.length-1) && _publicaciones[index+1].tipo == PublicacionTipo.DISPONIBILIDAD)
                                   const Divider(color: constants.greyLight, height: 1, indent: 56, endIndent: 16,),
 
-                                if(index < (_publicaciones.length-1) && _publicaciones[index+1].tipo != PublicacionTipo.DISPONIBILIDAD)
+                                if(index < (_publicaciones.length-1) && _publicaciones[index+1].tipo != PublicacionTipo.DISPONIBILIDAD && _publicaciones[index+1].tipo != PublicacionTipo.SUGERENCIA_USUARIO)
                                   ...[
                                     Container(
                                       decoration: const BoxDecoration(color: Colors.white),
@@ -815,6 +815,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 verificadoUniversidadNombre: disponibilidadDatos['creador']['verificado_universidad_nombre'],
                 isMatchLiked: disponibilidadDatos['creador']['is_match_liked'],
                 isMatch: disponibilidadDatos['creador']['is_match'],
+                isSuperliked: disponibilidadDatos['creador']['is_superliked'],
               ),
               texto: disponibilidadDatos['texto'],
               fecha: disponibilidadDatos['fecha_texto'],
@@ -837,6 +838,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
               verificadoUniversidadNombre: sugerenciaUsuarioDatos['verificado_universidad_nombre'],
               isMatchLiked: sugerenciaUsuarioDatos['is_match_liked'],
               isMatch: sugerenciaUsuarioDatos['is_match'],
+              isSuperliked: sugerenciaUsuarioDatos['is_superliked'],
             );
           }
 

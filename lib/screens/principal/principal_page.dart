@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:badges/badges.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/contactos/contactos_page.dart';
@@ -8,6 +9,7 @@ import 'package:tenfo/screens/principal/views/home_page.dart';
 import 'package:tenfo/screens/principal/views/mensajes_page.dart';
 import 'package:tenfo/screens/principal/views/perfil_page.dart';
 import 'package:tenfo/screens/seleccionar_crear_tipo/seleccionar_crear_tipo_page.dart';
+import 'package:tenfo/screens/superlikes_recibidos/superlikes_recibidos_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,7 +27,7 @@ class PrincipalPage extends StatefulWidget {
 
 enum PrincipalPageView {
   home,
-  contactos,
+  superlikes,
   mensajes,
   perfil
 }
@@ -40,12 +42,18 @@ class _PrincipalPageState extends State<PrincipalPage> {
   bool _showBadgeHome = false;
   bool _showBadgeNotificaciones = false;
 
+  bool _showBadgeSuperlikes = false;
+
+  final GlobalKey<PerfilPageState> _keyPerfilPage = GlobalKey();
+  bool _showBadgePerfil = false;
+  int _numeroVisitasInstagramNuevos = 0;
+
   void _cargarPantalla() {
     switch(widget.principalPageView){
       case PrincipalPageView.home:
         _currentIndex = 0;
         break;
-      case PrincipalPageView.contactos:
+      case PrincipalPageView.superlikes:
         _currentIndex = 1;
         break;
       case PrincipalPageView.mensajes:
@@ -85,10 +93,18 @@ class _PrincipalPageState extends State<PrincipalPage> {
             setState(() {});
           },
         ),
-        ContactosPage(),
+        SuperlikesRecibidosPage(),
         Container(),
         MensajesPage(),
-        PerfilPage(),
+        PerfilPage(
+          key: _keyPerfilPage,
+          visitasInstagramNuevos: _numeroVisitasInstagramNuevos,
+          onChangeVisitasInstagramNuevos: (value){
+            _showBadgePerfil = value <= 0 ? false : true;
+            _numeroVisitasInstagramNuevos = value;
+            setState(() {});
+          },
+        ),
       ];
     }
 
@@ -124,9 +140,15 @@ class _PrincipalPageState extends State<PrincipalPage> {
                 borderRadius: BorderRadius.circular(20),
               ),
               padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-              child: const Icon(Icons.people_alt_outlined),
+              child: Badge(
+                child: const Icon(CupertinoIcons.heart_fill),
+                showBadge: _showBadgeSuperlikes,
+                badgeColor: constants.blueGeneral,
+                padding: const EdgeInsets.all(6),
+                position: BadgePosition.topEnd(end: -8,),
+              ),
             ),
-            label: "Amigos",
+            label: "Incentivos",
           ),
           BottomNavigationBarItem(
             icon: Container(
@@ -163,7 +185,13 @@ class _PrincipalPageState extends State<PrincipalPage> {
                 borderRadius: BorderRadius.circular(20),
               ),
               padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-              child: const Icon(Icons.person),
+              child: Badge(
+                child: const Icon(Icons.person),
+                showBadge: _showBadgePerfil,
+                badgeColor: constants.blueGeneral,
+                padding: const EdgeInsets.all(6),
+                position: BadgePosition.topEnd(end: -8,),
+              ),
             ),
             label: "Perfil",
           ),
@@ -177,8 +205,12 @@ class _PrincipalPageState extends State<PrincipalPage> {
 
             if(index == 0){
               _showBadgeHome = false;
+            } else if(index == 1){
+              _showBadgeSuperlikes = false;
             } else if(index == 3){
               _showBadgeMensajes = false;
+            } else if(index == 4){
+              _showBadgePerfil = false;
             }
 
             setState(() {
@@ -229,6 +261,8 @@ class _PrincipalPageState extends State<PrincipalPage> {
 
         int numeroNotificaciones = datosJson['data']['numero_notificaciones'];
         int numeroChats = datosJson['data']['numero_chats'];
+        int numeroSuperlikes = datosJson['data']['numero_superlikes'];
+        int numeroVisitasInstagram = datosJson['data']['numero_visitas_instagram'];
 
         if(numeroNotificaciones > 0){
           _showBadgeHome = true;
@@ -241,6 +275,19 @@ class _PrincipalPageState extends State<PrincipalPage> {
 
         if(numeroChats > 0){
           _showBadgeMensajes = true;
+        }
+
+        if(numeroSuperlikes > 0){
+          _showBadgeSuperlikes = true;
+        }
+
+        if(numeroVisitasInstagram > 0){
+          _showBadgePerfil = true;
+
+          _numeroVisitasInstagramNuevos = numeroVisitasInstagram;
+          if(_keyPerfilPage.currentState != null){
+            _keyPerfilPage.currentState!.setVisitasInstagramNuevos(numeroVisitasInstagram);
+          }
         }
 
       } else {

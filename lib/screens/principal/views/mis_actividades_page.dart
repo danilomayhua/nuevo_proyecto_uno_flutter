@@ -193,6 +193,7 @@ class _MisActividadesPageState extends State<MisActividadesPage> {
               universidadNombre: element['creador']['universidad_nombre'],
               isVerificadoUniversidad: element['creador']['is_verificado_universidad'],
               verificadoUniversidadNombre: element['creador']['verificado_universidad_nombre'],
+              isSuperliked: false, // No se puede dar like a uno mismo
             ),
             texto: element['texto'],
             fecha: element['fecha_texto'],

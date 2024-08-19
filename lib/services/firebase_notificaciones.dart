@@ -11,6 +11,7 @@ import 'package:tenfo/models/notificacion.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/notificaciones/notificaciones_page.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
+import 'package:tenfo/screens/visitas_instagram/visitas_instagram_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/shared_preferences_keys.dart';
@@ -38,6 +39,8 @@ class FirebaseNotificaciones {
 
   static const int _localNotificationIdGenerales = 0;
   static const int _localNotificationIdChats = 1;
+  static const int _localNotificationIdSuperlikes = 2;
+  static const int _localNotificationIdVisitasInstagram = 3;
 
   late GlobalKey<NavigatorState> navigationKey;
 
@@ -151,6 +154,21 @@ class FirebaseNotificaciones {
           builder: (context) => const PrincipalPage(principalPageView: PrincipalPageView.mensajes)
       ), (route) => false);
 
+    } else if(object['screen'] == 'superlikes_page'){
+
+      navigationKey.currentState?.pushAndRemoveUntil(MaterialPageRoute(
+          builder: (context) => const PrincipalPage(principalPageView: PrincipalPageView.superlikes)
+      ), (route) => false);
+
+    } else if(object['screen'] == 'visitas_instagram_page'){
+
+      navigationKey.currentState?.pushAndRemoveUntil(MaterialPageRoute(
+          builder: (context) => const PrincipalPage(principalPageView: PrincipalPageView.perfil)
+      ), (route) => false);
+      navigationKey.currentState?.push(MaterialPageRoute(
+          builder: (context) => const VisitasInstagramPage()
+      ));
+
     }
   }
 
@@ -174,6 +192,22 @@ class FirebaseNotificaciones {
         message.notification?.body ?? "",
         jsonEncode(message.data),
       );
+    } else if(message.data['screen'] == 'superlikes_page'){
+      _showNotificationWithSound(
+        _localNotificationIdSuperlikes,
+        message.notification?.title ?? "",
+        message.notification?.body ?? "",
+        jsonEncode(message.data),
+      );
+    } else if(message.data['screen'] == 'visitas_instagram_page'){
+      _showNotificationWithSound(
+        _localNotificationIdVisitasInstagram,
+        message.notification?.title ?? "",
+        message.notification?.body ?? "",
+        jsonEncode(message.data),
+      );
+    } else {
+      // screen 'home_page' no se va mostrar en foreground
     }
   }
 
