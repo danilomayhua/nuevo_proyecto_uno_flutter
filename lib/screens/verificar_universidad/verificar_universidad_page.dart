@@ -218,6 +218,12 @@ class _VerificarUniversidadPageState extends State<VerificarUniversidadPage> {
                   ),
                 ),
                 const Padding(
+                  padding: EdgeInsets.only(left: 16, top: 16,),
+                  child: Text("• nombre@palermo.edu.ar",
+                    style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
+                  ),
+                ),
+                const Padding(
                   padding: EdgeInsets.only(left: 16, top: 16, bottom: 24,),
                   child: Text("• nombre@up.edu.ar",
                     style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
@@ -237,6 +243,14 @@ class _VerificarUniversidadPageState extends State<VerificarUniversidadPage> {
               const Padding(
                 padding: EdgeInsets.only(left: 16, top: 24, bottom: 24,),
                 child: Text("• nombre@uade.edu.ar",
+                  style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
+                ),
+              ),
+
+            if(_universidadId == "2")
+              const Padding(
+                padding: EdgeInsets.only(left: 16, top: 24, bottom: 24,),
+                child: Text("• nombre@uca.edu.ar",
                   style: TextStyle(color: constants.blackGeneral, fontSize: 14,),
                 ),
               ),

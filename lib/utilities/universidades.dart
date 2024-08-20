@@ -4,6 +4,7 @@ class Universidades {
     List<String> listUniversidades = [];
 
     listUniversidades.add("3");
+    listUniversidades.add("2");
     listUniversidades.add("1");
     listUniversidades.add("9");
     listUniversidades.add("4");
@@ -17,6 +18,9 @@ class Universidades {
     switch(universidadId){
       case "1":
         return "UADE";
+        break;
+      case "2":
+        return "UCA";
         break;
       case "3":
         return "UP";
@@ -42,6 +46,9 @@ class Universidades {
     switch(universidadId){
       case "1":
         return "Universidad Argentina de la Empresa";
+        break;
+      case "2":
+        return "Universidad Católica Argentina";
         break;
       case "3":
         return "Universidad de Palermo";
