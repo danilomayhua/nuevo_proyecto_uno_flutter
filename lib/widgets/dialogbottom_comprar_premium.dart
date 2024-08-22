@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -36,6 +37,7 @@ class _DialogbottomComprarPremiumState extends State<DialogbottomComprarPremium>
 
   List<ProductDetails> _products = [];
   final _productIdPremium1 = "suscripcion_premium_1";
+  String _precioTexto = "";
 
   bool _cargandoProductos = false;
   bool _enviandoCompra = false;
@@ -102,6 +104,17 @@ class _DialogbottomComprarPremiumState extends State<DialogbottomComprarPremium>
       _cargandoProductos = false;
       setState(() {});
       return;
+
+    } else {
+
+      // Parece que a veces hay un bug en Android que devuelve "Free" en .price (cuando tiene productos con "3-trial-days")
+      final productsFinal = _products.where((d) => d.rawPrice > 0).toList();
+
+      if(productsFinal.isNotEmpty){
+        _precioTexto = productsFinal[0].price;
+      } else {
+        _precioTexto = "\$2.99";
+      }
     }
 
     _cargandoProductos = false;
@@ -135,6 +148,7 @@ class _DialogbottomComprarPremiumState extends State<DialogbottomComprarPremium>
 
         } else if(purchaseDetails.status == PurchaseStatus.canceled){
           print('Compra cancelada');
+          // TODO : cambiar _enviandoCompra cuando se cancela la compra ?
         }
 
         if (purchaseDetails.pendingCompletePurchase) {
@@ -276,7 +290,9 @@ class _DialogbottomComprarPremiumState extends State<DialogbottomComprarPremium>
                 textAlign: TextAlign.center,
                 text: TextSpan(
                   style: const TextStyle(color: constants.grey, fontSize: 12,),
-                  text: "Se renueva por \$2.99 por mes | ",
+                  text: Platform.isIOS
+                      ? "Se renueva por \$2.99 por mes | "
+                      : "Se renueva por $_precioTexto por mes | ", // En Google Play rechazan la aplicacion porque debe mostrar los precios locales
                   children: [
                     TextSpan(
                       text: "Términos",
