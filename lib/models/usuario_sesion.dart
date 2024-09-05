@@ -19,6 +19,7 @@ class UsuarioSesion {
   String? telefono_numero;
   DateTime nacimiento_fecha;
   String? universidad_id;
+  String? universidad_nombre; // universidad_nombre se guarda por primera vez cuando ingresa a Perfil
   String? descripcion;
   String? instagram;
   List<String> interesesId;
@@ -27,7 +28,8 @@ class UsuarioSesion {
 
   UsuarioSesion({required this.authToken, required this.id, required this.nombre_completo,
     required this.username, required this.foto, required this.nombre, required this.apellido,
-    required this.email, required this.telefono_numero, required this.nacimiento_fecha, required this.universidad_id,
+    required this.email, required this.telefono_numero, required this.nacimiento_fecha,
+    required this.universidad_id, this.universidad_nombre,
     required this.descripcion, required this.instagram,
     required this.interesesId, required this.isAdmin, required this.isUsuarioSinFoto});
 
@@ -51,6 +53,7 @@ class UsuarioSesion {
       // 'isUtc' Necesario para que no muestre en dia local (en local podria mostrar un dia antes del nacimiento)
       nacimiento_fecha: DateTime.fromMillisecondsSinceEpoch(json['usuario']['nacimiento_fecha'], isUtc: true,),
       universidad_id: json['usuario']['universidad_id']?.toString(),
+      universidad_nombre: json['usuario']['universidad_nombre'],
       descripcion: json['usuario']['descripcion'],
       instagram: json['usuario']['instagram'],
       interesesId: intereses,
@@ -77,6 +80,7 @@ class UsuarioSesion {
       'telefono_numero': telefono_numero,
       'nacimiento_fecha': nacimiento_fecha.millisecondsSinceEpoch,
       'universidad_id': universidad_id,
+      'universidad_nombre': universidad_nombre,
       'descripcion': descripcion,
       'instagram': instagram,
       'intereses': interesesId,

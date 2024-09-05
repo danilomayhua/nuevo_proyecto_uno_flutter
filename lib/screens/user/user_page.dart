@@ -26,7 +26,6 @@ import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/historial_usuario.dart';
 import 'package:tenfo/utilities/share_utils.dart';
 import 'package:tenfo/utilities/shared_preferences_keys.dart';
-import 'package:tenfo/utilities/universidades.dart';
 import 'package:tenfo/widgets/dialog_enviar_sticker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/widgets/icon_universidad_verificada.dart';
@@ -61,6 +60,7 @@ class UserPageState extends State<UserPage> {
 
   bool _enviandoSuperlike = false;
   bool _superlikeEnviadoAhora = false;
+  bool _isAvailableTooltipSuperlike = false;
 
   bool _enviandoVisitaInstagram = false;
 
@@ -281,10 +281,13 @@ class UserPageState extends State<UserPage> {
       _usuarioPerfil.descripcion = _usuarioSesion!.descripcion;
       _usuarioPerfil.instagram = _usuarioSesion!.instagram;
 
-      if(usuarioPerfilUniversidad == null && _usuarioSesion!.universidad_id != null){
+      if(usuarioPerfilUniversidad == null && _usuarioSesion!.universidad_id != null && _usuarioSesion!.universidad_nombre != null){
         // Solo los usuarios nuevos tienen universidad_id en UsuarioSesion
         String universidadId = _usuarioSesion!.universidad_id!;
-        usuarioPerfilUniversidad = UsuarioPerfilUniversidad(id: universidadId, nombre: Universidades.getNombre(universidadId),);
+        // La primera vez universidad_nombre es null, despues de entrar a Perfil se guarda el valor
+        String universidadNombre = _usuarioSesion!.universidad_nombre!;
+
+        usuarioPerfilUniversidad = UsuarioPerfilUniversidad(id: universidadId, nombre: universidadNombre,);
       }
       _usuarioPerfil.universidad = usuarioPerfilUniversidad;
 
@@ -852,34 +855,53 @@ class UserPageState extends State<UserPage> {
 
           Column(children: [
             if(!_usuarioPerfil.isSuperliked)
-              OutlinedButton.icon(
-                onPressed: _enviandoSuperlike ? null : (){
-                  SuperlikeService.enviarSuperlike(
-                    usuarioId: _usuarioPerfil.id,
-                    onChange: ({bool? isSuperliked, bool? enviando}){
-                      _usuarioPerfil.isSuperliked = isSuperliked ?? false;
-                      if(_usuarioPerfil.isSuperliked){
-                        _superlikeEnviadoAhora = true;
-                      }
-                      _enviandoSuperlike = enviando ?? false;
+              Stack(children: [
+                OutlinedButton.icon(
+                  onPressed: _enviandoSuperlike ? null : (){
+                    SuperlikeService.enviarSuperlike(
+                      usuarioId: _usuarioPerfil.id,
+                      onChange: ({bool? isSuperliked, bool? enviando}){
+                        _usuarioPerfil.isSuperliked = isSuperliked ?? false;
+                        if(_usuarioPerfil.isSuperliked){
+                          _superlikeEnviadoAhora = true;
+                        }
+                        _enviandoSuperlike = enviando ?? false;
 
-                      setState(() {});
-                    },
-                    context: context,
-                    fromPantalla: SuperlikeServiceFromPantalla.perfil_usuario,
-                  );
-                },
-                icon: const Icon(CupertinoIcons.heart),
-                label: const Text("Incentivar\na participar", style: TextStyle(fontSize: 10),),
-                style: OutlinedButton.styleFrom(
-                  primary: Colors.lightGreen,
-                  backgroundColor: Colors.white,
-                  side: const BorderSide(color: Colors.lightGreen, width: 0.5,),
-                  shape: const StadiumBorder(),
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16,),
-                  fixedSize: const Size(140, 48),
+                        setState(() {});
+                      },
+                      context: context,
+                      fromPantalla: SuperlikeServiceFromPantalla.perfil_usuario,
+                    );
+                  },
+                  icon: const Icon(CupertinoIcons.heart),
+                  label: const Text("Incentivar\na participar", style: TextStyle(fontSize: 10),),
+                  style: OutlinedButton.styleFrom(
+                    primary: Colors.lightGreen,
+                    backgroundColor: Colors.white,
+                    side: const BorderSide(color: Colors.lightGreen, width: 0.5,),
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16,),
+                    fixedSize: const Size(140, 48),
+                  ),
                 ),
-              ),
+                if(_isAvailableTooltipSuperlike)
+                  Positioned(
+                    child: Container(
+                      decoration: ShapeDecoration(
+                        shape: _CustomShapeBorder(),
+                        color: Colors.grey[700]?.withOpacity(0.9),
+                      ),
+                      constraints: const BoxConstraints(maxWidth: 190,),
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8,),
+                      child: const Text("¿Te gustaría hacer una actividad con esta persona? Envíale un Incentivo anónimo para animarla a crear actividades",
+                        style: TextStyle(color: Colors.white, fontSize: 12,),
+                      ),
+                    ),
+                    //top: 56,
+                    top: 64,
+                    right: 0,
+                  ),
+              ], clipBehavior: Clip.none,),
             if(_usuarioPerfil.isSuperliked)
               OutlinedButton.icon(
                 onPressed: (){
@@ -899,18 +921,37 @@ class UserPageState extends State<UserPage> {
                   fixedSize: const Size(140, 48),
                 ),
               ),
-            Container(
-              width: 140,
-              margin: const EdgeInsets.only(top: 8,),
-              child: const Text("Esto es anónimo",
-                style: TextStyle(color: constants.greyLight, fontSize: 10,),
-                textAlign: TextAlign.center,
+
+            if(_usuarioPerfil.isSuperliked || !_isAvailableTooltipSuperlike)
+              Container(
+                width: 140,
+                margin: const EdgeInsets.only(top: 8,),
+                child: const Text("Esto es anónimo",
+                  style: TextStyle(color: constants.greyLight, fontSize: 10,),
+                  textAlign: TextAlign.center,
+                ),
               ),
-            ),
+            if(!_usuarioPerfil.isSuperliked && _isAvailableTooltipSuperlike)
+              const SizedBox(height: 68,), // Agrega espacio para mostrar el tooltip completo (en pantalla con altura no suficiente)
           ],),
         ], mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start,),
       ),
     );
+  }
+
+  Future<void> _showTooltipSuperlike() async {
+    //await Future.delayed(const Duration(milliseconds: 500,));
+    await Future.delayed(const Duration(milliseconds: 700,));
+    _isAvailableTooltipSuperlike = true;
+    if(mounted){
+      setState(() {});
+    }
+
+    await Future.delayed(const Duration(seconds: 5,));
+    _isAvailableTooltipSuperlike = false;
+    if(mounted){
+      setState(() {});
+    }
   }
 
   void _showDialogMensajeBloqueado(){
@@ -1167,7 +1208,23 @@ class UserPageState extends State<UserPage> {
           // Actualiza el valor para los usuarios viejos que no tenian este valor
           _usuarioSesion!.isUsuarioSinFoto = datosUsuario['is_usuario_sin_foto'];
 
+
+          // El valor se guarda por primera vez cuando entra a Perfil
+          if(datosUsuario['universidad'] != null){
+            if(_usuarioSesion!.universidad_nombre == null || _usuarioSesion!.universidad_nombre != datosUsuario['universidad']['nombre']){
+              _usuarioSesion!.universidad_nombre = datosUsuario['universidad']['nombre'];
+            }
+          }
+
+
           prefs.setString(SharedPreferencesKeys.usuarioSesion, jsonEncode(_usuarioSesion!));
+        }
+
+
+        // Tooltip de ayuda a los usuarios nuevos para enviar superlike desde un perfil
+        bool isShowedSuperlike = prefs.getBool(SharedPreferencesKeys.isShowedAyudaPerfilSuperlike) ?? false;
+        if(!isShowedSuperlike){
+          _showTooltipSuperlike();
         }
 
 
@@ -1714,5 +1771,32 @@ class UserPageState extends State<UserPage> {
         behavior: SnackBarBehavior.floating,
         content: Text(texto, textAlign: TextAlign.center,)
     ));
+  }
+}
+
+class _CustomShapeBorder extends ShapeBorder {
+  @override
+  EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) => Path();
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
+    final path = Path()
+      ..addRRect(RRect.fromRectAndRadius(rect, Radius.circular(10)))
+      ..moveTo(rect.left + rect.width - 40 - 10, rect.top)
+      ..lineTo(rect.left + rect.width - 40, rect.top - 10)
+      ..lineTo(rect.left + rect.width - 40 + 10, rect.top);
+
+    return path;
+  }
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {}
+
+  @override
+  ShapeBorder scale(double t) {
+    return _CustomShapeBorder();
   }
 }

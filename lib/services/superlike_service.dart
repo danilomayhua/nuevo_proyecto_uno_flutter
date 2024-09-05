@@ -7,6 +7,7 @@ import 'package:tenfo/models/sugerencia_usuario.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
+import 'package:tenfo/utilities/shared_preferences_keys.dart';
 
 // Es importante no cambiar los nombres de este enum (se envian al backend)
 enum SuperlikeServiceFromPantalla { perfil_usuario, card_disponibilidad, scrollsnap_disponibilidad, card_sugerencia_usuario, scrollsnap_sugerencia_usuario }
@@ -29,6 +30,22 @@ class SuperlikeService {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+
+    if(fromPantalla == SuperlikeServiceFromPantalla.perfil_usuario){
+      // Tooltip de ayuda a los usuarios nuevos para enviar superlike desde un perfil. Actualiza valor para no volver a mostrar.
+      bool isShowedSuperlike = prefs.getBool(SharedPreferencesKeys.isShowedAyudaPerfilSuperlike) ?? false;
+      if(!isShowedSuperlike){
+        prefs.setBool(SharedPreferencesKeys.isShowedAyudaPerfilSuperlike, true);
+      }
+    } else if(fromPantalla == SuperlikeServiceFromPantalla.card_disponibilidad){
+      // Tooltip de ayuda a los usuarios nuevos para enviar superlike desde disponibilidad. Actualiza valor para no volver a mostrar.
+      bool isShowedSuperlike = prefs.getBool(SharedPreferencesKeys.isShowedAyudaDisponibilidadSuperlike) ?? false;
+      if(!isShowedSuperlike){
+        prefs.setBool(SharedPreferencesKeys.isShowedAyudaDisponibilidadSuperlike, true);
+      }
+    }
+
 
     var response = await HttpService.httpPost(
       url: constants.urlEnviarSuperlike,

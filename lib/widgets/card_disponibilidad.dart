@@ -18,13 +18,14 @@ import 'package:tenfo/widgets/icon_universidad_verificada.dart';
 
 class CardDisponibilidad extends StatefulWidget {
   CardDisponibilidad({Key? key, required this.disponibilidad, this.isCreadorActividadVisible,
-    this.isAutorActividadVisible, this.onOpen, this.onChangeDisponibilidad}) : super(key: key);
+    this.isAutorActividadVisible, this.onOpen, this.onChangeDisponibilidad, this.showTooltipSuperlike = false}) : super(key: key);
 
   Disponibilidad disponibilidad;
   bool? isCreadorActividadVisible;
   bool? isAutorActividadVisible;
   void Function()? onOpen;
   void Function(Disponibilidad)? onChangeDisponibilidad;
+  bool showTooltipSuperlike;
 
   @override
   _CardDisponibilidadState createState() => _CardDisponibilidadState();
@@ -39,8 +40,30 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
   bool _enviandoSuperlike = false;
   bool _superlikeEnviadoAhora = false;
 
+
+  bool _hasShownTooltipSuperlike = false;
+  bool _isAvailableTooltipSuperlike  = false;
+
+  Future<void> _showTooltipSuperlike() async {
+    //await Future.delayed(const Duration(milliseconds: 500,));
+    await Future.delayed(const Duration(milliseconds: 100,));
+    _isAvailableTooltipSuperlike = true;
+    setState(() {});
+
+    await Future.delayed(const Duration(seconds: 5,));
+    _isAvailableTooltipSuperlike = false;
+    if(mounted){
+      setState(() {});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (widget.showTooltipSuperlike && !_hasShownTooltipSuperlike) {
+      _hasShownTooltipSuperlike = true;
+      _showTooltipSuperlike();
+    }
+
     return GestureDetector(
       onTap: (){
         if(widget.onOpen != null){
@@ -185,31 +208,50 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
             const SizedBox(width: 8),
 
             if(!widget.disponibilidad.creador.isSuperliked && !widget.disponibilidad.isAutor)
-              IconButton(
-                icon: const Icon(CupertinoIcons.heart, size: 24, color: Colors.lightGreen,),
-                onPressed: _enviandoSuperlike ? null : (){
-                  SuperlikeService.enviarSuperlike(
-                    usuarioId: widget.disponibilidad.creador.id,
-                    onChange: ({bool? isSuperliked, bool? enviando}){
-                      widget.disponibilidad.creador.isSuperliked = isSuperliked ?? false;
-                      if(widget.disponibilidad.creador.isSuperliked){
-                        _superlikeEnviadoAhora = true;
-                      }
-                      _enviandoSuperlike = enviando ?? false;
+              Stack(children: [
+                IconButton(
+                  icon: const Icon(CupertinoIcons.heart, size: 24, color: Colors.lightGreen,),
+                  onPressed: _enviandoSuperlike ? null : (){
+                    SuperlikeService.enviarSuperlike(
+                      usuarioId: widget.disponibilidad.creador.id,
+                      onChange: ({bool? isSuperliked, bool? enviando}){
+                        widget.disponibilidad.creador.isSuperliked = isSuperliked ?? false;
+                        if(widget.disponibilidad.creador.isSuperliked){
+                          _superlikeEnviadoAhora = true;
+                        }
+                        _enviandoSuperlike = enviando ?? false;
 
-                      setState(() {});
+                        setState(() {});
 
-                      // Actualiza la disponibilidad que abrio este widget
-                      if(widget.onChangeDisponibilidad != null) widget.onChangeDisponibilidad!(widget.disponibilidad);
-                    },
-                    context: context,
-                    fromDisponibilidad: widget.disponibilidad,
-                    fromPantalla: SuperlikeServiceFromPantalla.card_disponibilidad,
-                  );
-                },
-                constraints: const BoxConstraints(),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0,),
-              ),
+                        // Actualiza la disponibilidad que abrio este widget
+                        if(widget.onChangeDisponibilidad != null) widget.onChangeDisponibilidad!(widget.disponibilidad);
+                      },
+                      context: context,
+                      fromDisponibilidad: widget.disponibilidad,
+                      fromPantalla: SuperlikeServiceFromPantalla.card_disponibilidad,
+                    );
+                  },
+                  constraints: const BoxConstraints(),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0,),
+                ),
+                if(_isAvailableTooltipSuperlike)
+                  Positioned(
+                    child: Container(
+                      decoration: ShapeDecoration(
+                        shape: _CustomShapeBorder(),
+                        color: Colors.grey[700]?.withOpacity(0.9),
+                      ),
+                      constraints: const BoxConstraints(maxWidth: 160,),
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8,),
+                      child: const Text("Envía Incentivos anónimos para animar a crear una actividad",
+                        style: TextStyle(color: Colors.white, fontSize: 12,),
+                      ),
+                    ),
+                    //bottom: 56,
+                    bottom: 40,
+                    right: 0,
+                  ),
+              ], clipBehavior: Clip.none,),
             if(widget.disponibilidad.creador.isSuperliked && !widget.disponibilidad.isAutor)
               IconButton(
                 icon: _superlikeEnviadoAhora
@@ -932,5 +974,32 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
         behavior: SnackBarBehavior.floating,
         content: Text(texto, textAlign: TextAlign.center,)
     ));
+  }
+}
+
+class _CustomShapeBorder extends ShapeBorder {
+  @override
+  EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) => Path();
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
+    final path = Path()
+      ..addRRect(RRect.fromRectAndRadius(rect, Radius.circular(10)))
+      ..moveTo(rect.left + rect.width - 20 - 10, rect.bottom)
+      ..lineTo(rect.left + rect.width - 20, rect.bottom + 10)
+      ..lineTo(rect.left + rect.width - 20 + 10, rect.bottom);
+
+    return path;
+  }
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {}
+
+  @override
+  ShapeBorder scale(double t) {
+    return _CustomShapeBorder();
   }
 }

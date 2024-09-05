@@ -1,6 +1,9 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/screens/login/login_page.dart';
 import 'package:tenfo/screens/signup/signup_page.dart';
+import 'package:tenfo/utilities/constants.dart' as constants;
+import 'package:url_launcher/url_launcher.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({Key? key}) : super(key: key);
@@ -37,6 +40,57 @@ class _WelcomePageState extends State<WelcomePage> {
               const SizedBox(height: 24),
             ],),
             Column(children: [
+
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 32,),
+                alignment: Alignment.center,
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: const TextStyle(color: constants.grey, fontSize: 12,),
+                    text: "Al continuar, aceptas los ",
+                    children: [
+                      TextSpan(
+                        text: "Términos",
+                        style: const TextStyle(decoration: TextDecoration.underline,),
+                        recognizer: TapGestureRecognizer()..onTap = () async {
+                          String urlString = "https://tenfo.app/politica.html";
+                          Uri url = Uri.parse(urlString);
+
+                          try {
+                            await launchUrl(url, mode: LaunchMode.externalApplication,);
+                          } catch (e){
+                            throw 'Could not launch $urlString';
+                          }
+                        },
+                      ),
+                      const TextSpan(
+                        text: " y ",
+                      ),
+                      TextSpan(
+                        text: "Política de Privacidad",
+                        style: const TextStyle(decoration: TextDecoration.underline,),
+                        recognizer: TapGestureRecognizer()..onTap = () async {
+                          String urlString = "https://tenfo.app/politica.html#politica-privacidad";
+                          Uri url = Uri.parse(urlString);
+
+                          try {
+                            await launchUrl(url, mode: LaunchMode.externalApplication,);
+                          } catch (e){
+                            throw 'Could not launch $urlString';
+                          }
+                        },
+                      ),
+                      const TextSpan(
+                        text: " y confirmas haberlos leído.",
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24,),
+
               Container(
                 width: double.infinity,
                 margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -75,7 +129,7 @@ class _WelcomePageState extends State<WelcomePage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
             ],),
           ], mainAxisAlignment: MainAxisAlignment.spaceBetween,),
         )),

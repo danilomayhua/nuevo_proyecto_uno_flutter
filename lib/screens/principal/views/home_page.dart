@@ -77,6 +77,11 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   bool _isAvailableTooltipUnirse = false;
 
+  bool _hasShownTooltipSuperlike = false;
+  int? _indexDisponibilidadTooltip;
+  final GlobalKey _keyDisponibilidadTooltip = GlobalKey();
+  bool _isDisponibilidadTooltipVisible = false;
+
   @override
   void initState() {
     super.initState();
@@ -92,6 +97,22 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
       if (_scrollController.offset >= _scrollController.position.maxScrollExtent && !_scrollController.position.outOfRange) {
         if(!_loadingActividades && _verMasActividades){
           _cargarActividades(setState);
+        }
+      }
+
+
+      // Saber si está visible en pantalla la disponibilidad del tooltip
+      if(!_hasShownTooltipSuperlike && !_isDisponibilidadTooltipVisible){
+        final RenderObject? renderObject = _keyDisponibilidadTooltip.currentContext?.findRenderObject();
+        if (renderObject is RenderBox) {
+          final offset = renderObject.localToGlobal(Offset.zero);
+
+          bool isDisponibilidadVisible = offset.dy < MediaQuery.of(context).size.height && offset.dy + renderObject.size.height > 0;
+
+          if(isDisponibilidadVisible){
+            _isDisponibilidadTooltipVisible = true;
+            setState(() {});
+          }
         }
       }
     });
@@ -262,6 +283,15 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
                             } else if(_publicaciones[index].tipo == PublicacionTipo.DISPONIBILIDAD){
 
+                              if(_indexDisponibilidadTooltip == null){
+                                _indexDisponibilidadTooltip = index;
+                              }
+
+                              bool showTooltipSuperlike = !_hasShownTooltipSuperlike && _indexDisponibilidadTooltip == index && _isDisponibilidadTooltipVisible;
+                              if (showTooltipSuperlike) {
+                                _hasShownTooltipSuperlike = true;
+                              }
+
                               return Column(children: [
                                 if(index == 0 || _publicaciones[index-1].tipo != PublicacionTipo.DISPONIBILIDAD)
                                   ...[
@@ -329,6 +359,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                 Padding(
                                   padding: const EdgeInsets.all(0),
                                   child: CardDisponibilidad(
+                                    key: _indexDisponibilidadTooltip == index ? _keyDisponibilidadTooltip : null,
                                     disponibilidad: _publicaciones[index].disponibilidad!,
                                     isCreadorActividadVisible: _isCreadorActividadVisible,
                                     isAutorActividadVisible: _isAutorActividadVisible,
@@ -340,6 +371,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                         _publicaciones[index].disponibilidad = disponibilidad;
                                       });
                                     },
+                                    showTooltipSuperlike: showTooltipSuperlike,
                                   ),
                                 ),
 
@@ -831,7 +863,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
               id: sugerenciaUsuarioDatos['id'],
               nombre: sugerenciaUsuarioDatos['nombre'],
               nombreCompleto: sugerenciaUsuarioDatos['nombre_completo'],
-              username: sugerenciaUsuarioDatos['nombre'],
+              username: sugerenciaUsuarioDatos['username'],
               foto: constants.urlBase + sugerenciaUsuarioDatos['foto_url'],
               universidadNombre: sugerenciaUsuarioDatos['universidad_nombre'],
               isVerificadoUniversidad: sugerenciaUsuarioDatos['is_verificado_universidad'],
@@ -883,6 +915,9 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
         // Tooltip de ayuda a los usuarios nuevos para enviar match like a actividad.
         _hasShownTooltipMatchLike = prefs.getBool(SharedPreferencesKeys.isShowedAyudaActividadMatchLike) ?? false;
+
+        // Tooltip de ayuda a los usuarios nuevos para enviar superlike desde disponibilidad.
+        _hasShownTooltipSuperlike = prefs.getBool(SharedPreferencesKeys.isShowedAyudaDisponibilidadSuperlike) ?? false;
 
       } else {
 
@@ -1487,10 +1522,14 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Future<void> _showTooltipUnirse() async {
     await Future.delayed(const Duration(milliseconds: 500,));
     _isAvailableTooltipUnirse = true;
-    setState(() {});
+    if(mounted){
+      setState(() {});
+    }
     await Future.delayed(const Duration(seconds: 5,));
     _isAvailableTooltipUnirse = false;
-    setState(() {});
+    if(mounted){
+      setState(() {});
+    }
   }
 
   void setShowBadgeNotificaciones(bool value){

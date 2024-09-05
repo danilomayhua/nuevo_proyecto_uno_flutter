@@ -21,7 +21,8 @@ class _SignupNotAvailablePageState extends State<SignupNotAvailablePage> {
 
     if(widget.isUniversidadNoDisponible){
       _mensajeNoDisponible = "Lo sentimos, Tenfo no está disponible en tu universidad. 🙁\n\n"
-          "Tendremos en cuenta tu solicitud para habilitar la universidad. Pronto estaremos en más lugares.\n\n"
+          "Por ahora, solo está disponible en universidades de CABA (Buenos Aires) y alrededores.\n\nVerifica que el nombre esté escrito correctamente. "
+          "Tendremos en cuenta esta solicitud y pronto llegaremos a más lugares.\n\n"
           "¡Síguenos en redes para las novedades!";
     } else {
       _mensajeNoDisponible = "Lo sentimos, Tenfo no está disponible en tu ciudad o zona. 🙁\n\n"

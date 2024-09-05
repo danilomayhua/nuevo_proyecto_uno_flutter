@@ -15,6 +15,8 @@ class SharedPreferencesKeys {
   static const String isShowedAyudaActividadUnirse = "isShowedAyudaActividadUnirse";
   static const String isShowedAyudaActividadMatchLike = "isShowedAyudaActividadMatchLike";
   static const String isShowedAyudaGrupoEditarFecha = "isShowedAyudaGrupoEditarFecha";
+  static const String isShowedAyudaPerfilSuperlike = "isShowedAyudaPerfilSuperlike";
+  static const String isShowedAyudaDisponibilidadSuperlike = "isShowedAyudaDisponibilidadSuperlike";
 
   static const String isShowedScreenSignupTutorial = "isShowedScreenSignupTutorial";
 

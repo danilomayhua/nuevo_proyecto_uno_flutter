@@ -49,6 +49,7 @@ const String urlRegistroTelefonoVerificarCodigo = "/api/registro/verificar-codig
 const String urlRegistroUsuarioConTelefono = "/api/registro/crear-usuario-con-telefono";
 const String urlRegistroSolicitarUniversidad = "/api/registro/solicitar-universidad";
 const String urlRegistroVerificarUbicacion = "/api/registro/verificar-ubicacion";
+const String urlRegistroBuscarUniversidades = "/api/registro/buscar-lista-universidad";
 
 const String urlGuardarFirebaseToken = "/api/firebase/actualizar-token";
 

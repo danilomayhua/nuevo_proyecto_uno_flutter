@@ -22,6 +22,8 @@ class _VerificarUniversidadPageState extends State<VerificarUniversidadPage> {
   int _pageCurrent = 0;
 
   String? _universidadId;
+  bool _isUniversidadEmailEjemplo = false;
+  final List<String> _universidadesIdConEmailEjemplo = ["9", "7", "8", "3", "4", "1", "2"];
 
   String _email = '';
 
@@ -91,6 +93,9 @@ class _VerificarUniversidadPageState extends State<VerificarUniversidadPage> {
 
 
     _universidadId = usuarioSesion.universidad_id;
+    if(_universidadId != null && _universidadesIdConEmailEjemplo.contains(_universidadId)){
+      _isUniversidadEmailEjemplo = true;
+    }
 
     setState(() {});
   }
@@ -181,9 +186,15 @@ class _VerificarUniversidadPageState extends State<VerificarUniversidadPage> {
               style: TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),
             ),
             const SizedBox(height: 16,),
-            const Text("Estos son los correos universitarios disponibles para la verificación:",
-              style: TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),
-            ),
+            if(!_isUniversidadEmailEjemplo)
+              const Text("Los correos universitarios suelen ser así: nombre@facultad.edu.ar",
+                style: TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),
+              ),
+
+            if(_isUniversidadEmailEjemplo)
+              const Text("Estos son los correos universitarios disponibles para la verificación:",
+                style: TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),
+              ),
 
             if(_universidadId == "9")
               const Padding(
