@@ -240,12 +240,12 @@ class _DialogbottomComprarPremiumState extends State<DialogbottomComprarPremium>
               padding: const EdgeInsets.symmetric(horizontal: 32,),
               child: Row(children: [
                 Container(
-                  height: 24,
-                  width: 24,
-                  child: const Icon(CupertinoIcons.heart_circle_fill, color: Colors.lightGreen, size: 24,),
+                  height: 32,
+                  width: 32,
+                  child: const Icon(CupertinoIcons.heart_circle_fill, color: Colors.lightGreen, size: 32,),
                 ),
-                const SizedBox(width: 6,),
-                const Expanded(child: Text("Mira quiénes te enviaron Incentivos",
+                const SizedBox(width: 12,),
+                const Expanded(child: Text("Revela quiénes te enviaron Incentivos y conecta más",
                   style: TextStyle(fontSize: 14, color: constants.blackGeneral, fontWeight: FontWeight.bold,),
                 ),),
               ], crossAxisAlignment: CrossAxisAlignment.center,),
@@ -255,13 +255,13 @@ class _DialogbottomComprarPremiumState extends State<DialogbottomComprarPremium>
               padding: const EdgeInsets.symmetric(horizontal: 32,),
               child: Row(children: [
                 Container(
-                  height: 24,
-                  width: 24,
+                  height: 32,
+                  width: 32,
                   padding: const EdgeInsets.all(3),
                   child: Image.asset("assets/instagram_logo.png"),
                 ),
-                const SizedBox(width: 6,),
-                const Expanded(child: Text("Mira quiénes visitaron tu perfil de Instagram",
+                const SizedBox(width: 12,),
+                const Expanded(child: Text("Revela quiénes visitaron tu perfil de Instagram",
                   style: TextStyle(fontSize: 14, color: constants.blackGeneral, fontWeight: FontWeight.bold,),
                 ),),
               ], crossAxisAlignment: CrossAxisAlignment.center,),
@@ -291,8 +291,8 @@ class _DialogbottomComprarPremiumState extends State<DialogbottomComprarPremium>
                 text: TextSpan(
                   style: const TextStyle(color: constants.grey, fontSize: 12,),
                   text: Platform.isIOS
-                      ? "Se renueva por \$2.99 por mes | "
-                      : "Se renueva por $_precioTexto por mes | ", // En Google Play rechazan la aplicacion porque debe mostrar los precios locales
+                      ? "Se renueva por \$2.99 por mes. Cancela cuando quieras. | "
+                      : "Se renueva por $_precioTexto por mes. Cancela cuando quieras. | ", // En Google Play rechazan la aplicacion porque debe mostrar los precios locales
                   children: [
                     TextSpan(
                       text: "Términos",

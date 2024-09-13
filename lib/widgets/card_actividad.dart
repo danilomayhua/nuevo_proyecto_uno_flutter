@@ -13,6 +13,7 @@ import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/widgets/actividad_boton_entrar.dart';
 import 'package:tenfo/widgets/actividad_boton_like.dart';
+import 'package:tenfo/widgets/actividad_boton_enviar.dart';
 
 class CardActividad extends StatefulWidget {
   CardActividad({Key? key, required this.actividad,
@@ -191,6 +192,8 @@ class _CardActividadState extends State<CardActividad> {
             Text(widget.actividad.likesCount > 0 ? "${widget.actividad.likesCount}" : "",
               style: const TextStyle(color: constants.blackGeneral, fontSize: 14,),
             ),
+            const SizedBox(width: 8,),
+            ActividadBotonEnviar(actividad: widget.actividad, fromPantalla: ActividadBotonEnviarFromPantalla.card_actividad,),
 
             const Spacer(),
 

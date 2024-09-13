@@ -18,6 +18,8 @@ import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/screens/user/user_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
+import 'package:tenfo/utilities/historial_usuario.dart';
+import 'package:tenfo/utilities/share_utils.dart';
 import 'package:tenfo/utilities/shared_preferences_keys.dart';
 import 'package:tenfo/widgets/dialog_enviar_sticker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -318,11 +320,147 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
             physics: NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) => _buildIntegrante(_integrantes[index]),
           ),
+
+          if(_actividad != null)
+            ...[
+              const SizedBox(height: 32,),
+
+              Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 16,),
+                child: Text(_actividad!.isAutor
+                    ? 'Puedes invitar a personas que no están en Tenfo:'
+                    : 'Invita amigos para que participen en la actividad contigo:',
+                  style: const TextStyle(color: constants.grey, fontSize: 12,),
+                ),
+              ),
+
+              const SizedBox(height: 16,),
+
+              Container(
+                alignment: Alignment.center,
+                height: 90,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  children: [
+
+                    Column(children: [
+                      InkWell(
+                        onTap: () => _compartirWhatsapp(),
+                        child: Container(
+                          //width: 56,
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8,),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF25d366),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                height: 24,
+                                width: 24,
+                                child: Image.asset("assets/whatsapp_icon_circulo.png"),
+                              ),
+                              const SizedBox(width: 4,),
+                              const Text("Enviar a WhatsApp", style: TextStyle(fontSize: 12, color: Colors.white,),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                            //mainAxisAlignment: MainAxisAlignment.center,
+                          ),
+                        ),
+                      ),
+                    ], mainAxisAlignment: MainAxisAlignment.start,),
+
+                    InkWell(
+                      onTap: () => _copiarLink(),
+                      child: Container(
+                        width: 48,
+                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.cyan,
+                              ),
+                              child: const Icon(CupertinoIcons.link, size: 18, color: Colors.white,),
+                            ),
+                            const SizedBox(height: 10,),
+                            const Text("Copiar enlace", style: TextStyle(fontSize: 10), textAlign: TextAlign.center,)
+                          ],
+                          //mainAxisAlignment: MainAxisAlignment.center,
+                        ),
+                      ),
+                    ),
+
+                    InkWell(
+                      onTap: () => _compartirGeneral(),
+                      child: Container(
+                        width: 48,
+                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: constants.grey),
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                              ),
+                              child: const Icon(CupertinoIcons.share, size: 18,),
+                            ),
+                            const SizedBox(height: 10,),
+                            const Text("Compartir", style: TextStyle(fontSize: 10), textAlign: TextAlign.center,)
+                          ],
+                          //mainAxisAlignment: MainAxisAlignment.center,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
           const SizedBox(height: 16,),
         ], crossAxisAlignment: CrossAxisAlignment.start),
       ),
     );
   }
+
+  void _compartirWhatsapp(){
+    ShareUtils.shareActivityWhatsapp(_actividad!.id);
+
+    // Envia historial del usuario
+    _enviarHistorialUsuario(HistorialUsuario.getChatActividadEnviarWhatsapp(_actividad!.id, isAutor: _actividad!.isAutor,));
+  }
+
+  void _copiarLink(){
+    ShareUtils.copyLinkActivity(_actividad!.id)
+        .then((value) => _showSnackBar("Enlace copiado"));
+
+    // Envia historial del usuario
+    _enviarHistorialUsuario(HistorialUsuario.getChatActividadEnviarCopiar(_actividad!.id, isAutor: _actividad!.isAutor,));
+  }
+
+  void _compartirGeneral(){
+    ShareUtils.shareActivity(_actividad!.id);
+
+    // Envia historial del usuario
+    _enviarHistorialUsuario(HistorialUsuario.getChatActividadEnviarCompartir(_actividad!.id, isAutor: _actividad!.isAutor,));
+  }
+
 
   Widget _buildIntegrante(UsuarioChatIntegrante integrante){
     return ListTile(
@@ -869,6 +1007,34 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
     await Future.delayed(const Duration(seconds: 5,));
     _isAvailableTooltipGrupoFecha = false;
     setState(() {});
+  }
+
+
+  Future<void> _enviarHistorialUsuario(Map<String, dynamic> historialUsuario) async {
+    //setState(() {});
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    UsuarioSesion usuarioSesion = UsuarioSesion.fromSharedPreferences(prefs);
+
+    var response = await HttpService.httpPost(
+      url: constants.urlCrearHistorialUsuarioActivo,
+      body: {
+        "historiales_usuario_activo": [historialUsuario],
+      },
+      usuarioSesion: usuarioSesion,
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = await jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+        //
+      } else {
+        //_showSnackBar("Se produjo un error inesperado");
+      }
+    }
+
+    //setState(() {});
   }
 
   void _showSnackBar(String texto){

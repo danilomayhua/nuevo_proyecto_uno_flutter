@@ -1,4 +1,5 @@
 import 'package:tenfo/models/signup_permisos_estado.dart';
+import 'package:tenfo/widgets/actividad_boton_enviar.dart';
 
 class HistorialUsuario {
 
@@ -25,6 +26,18 @@ class HistorialUsuario {
 
   static const String _actividadInvitarAmigo = "/actividad/invitar-amigo";
   static const String _actividadCocreadoresInvitarAmigo = "/actividad/cocreadores-invitar-amigo";
+
+  static const String _actividadEnviarWhatsapp = "/actividad-enviar/whatsapp";
+  static const String _actividadEnviarCopiar = "/actividad-enviar/copiar";
+  static const String _actividadEnviarCompartir = "/actividad-enviar/compartir";
+
+  static const String _actividadPageEnviarWhatsapp = "/actividad-page-enviar/whatsapp";
+  static const String _actividadPageEnviarCopiar = "/actividad-page-enviar/copiar";
+  static const String _actividadPageEnviarCompartir = "/actividad-page-enviar/compartir";
+
+  static const String _chatActividadEnviarWhatsapp = "/chat-actividad-enviar/whatsapp";
+  static const String _chatActividadEnviarCopiar = "/chat-actividad-enviar/copiar";
+  static const String _chatActividadEnviarCompartir = "/chat-actividad-enviar/compartir";
 
   static const String _bandejaChatsNotificaciones = "/bandeja-chats/notificaciones-push";
   static const String _bandejaChatsNotificacionesActivar = "/bandeja-chats/notificaciones-push/activar";
@@ -199,6 +212,105 @@ class HistorialUsuario {
       "evento": _actividadCocreadoresInvitarAmigo,
       "datos_adicionales": {
         "actividad_id": actividadId,
+      }
+    };
+  }
+
+  /// En boton ActividadEnviar, cuando elige whatsapp
+  static Map<String, dynamic> getActividadEnviarWhatsapp(String actividadId, {ActividadBotonEnviarFromPantalla? fromPantalla}){
+    return {
+      "evento": _actividadEnviarWhatsapp,
+      "datos_adicionales": {
+        "actividad_id": actividadId,
+        "enviado_desde": (fromPantalla == null) ? null : fromPantalla.name,
+      }
+    };
+  }
+
+  /// En boton ActividadEnviar, cuando elige copiar link
+  static Map<String, dynamic> getActividadEnviarCopiar(String actividadId, {ActividadBotonEnviarFromPantalla? fromPantalla}){
+    return {
+      "evento": _actividadEnviarCopiar,
+      "datos_adicionales": {
+        "actividad_id": actividadId,
+        "enviado_desde": (fromPantalla == null) ? null : fromPantalla.name,
+      }
+    };
+  }
+
+  /// En boton ActividadEnviar, cuando elige compartir
+  static Map<String, dynamic> getActividadEnviarCompartir(String actividadId, {ActividadBotonEnviarFromPantalla? fromPantalla}){
+    return {
+      "evento": _actividadEnviarCompartir,
+      "datos_adicionales": {
+        "actividad_id": actividadId,
+        "enviado_desde": (fromPantalla == null) ? null : fromPantalla.name,
+      }
+    };
+  }
+
+  /// En Actividad, cuando elige invitar mediante whatsapp
+  static Map<String, dynamic> getActividadPageEnviarWhatsapp(String actividadId, {bool isAutor = false}){
+    return {
+      "evento": _actividadPageEnviarWhatsapp,
+      "datos_adicionales": {
+        "actividad_id": actividadId,
+        "enviado_desde": isAutor ? "actividad-autor" : "actividad-integrante",
+      }
+    };
+  }
+
+  /// En Actividad, cuando elige invitar mediante copiar link
+  static Map<String, dynamic> getActividadPageEnviarCopiar(String actividadId, {bool isAutor = false}){
+    return {
+      "evento": _actividadPageEnviarCopiar,
+      "datos_adicionales": {
+        "actividad_id": actividadId,
+        "enviado_desde": isAutor ? "actividad-autor" : "actividad-integrante",
+      }
+    };
+  }
+
+  /// En Actividad, cuando elige invitar mediante compartir
+  static Map<String, dynamic> getActividadPageEnviarCompartir(String actividadId, {bool isAutor = false}){
+    return {
+      "evento": _actividadPageEnviarCompartir,
+      "datos_adicionales": {
+        "actividad_id": actividadId,
+        "enviado_desde": isAutor ? "actividad-autor" : "actividad-integrante",
+      }
+    };
+  }
+
+  /// En ChatGrupal, cuando elige invitar mediante whatsapp
+  static Map<String, dynamic> getChatActividadEnviarWhatsapp(String actividadId, {bool isAutor = false}){
+    return {
+      "evento": _chatActividadEnviarWhatsapp,
+      "datos_adicionales": {
+        "actividad_id": actividadId,
+        "enviado_desde": isAutor ? "chat-actividad-autor" : "chat-actividad-integrante",
+      }
+    };
+  }
+
+  /// En ChatGrupal, cuando elige invitar mediante copiar link
+  static Map<String, dynamic> getChatActividadEnviarCopiar(String actividadId, {bool isAutor = false}){
+    return {
+      "evento": _chatActividadEnviarCopiar,
+      "datos_adicionales": {
+        "actividad_id": actividadId,
+        "enviado_desde": isAutor ? "chat-actividad-autor" : "chat-actividad-integrante",
+      }
+    };
+  }
+
+  /// En ChatGrupal, cuando elige invitar mediante compartir
+  static Map<String, dynamic> getChatActividadEnviarCompartir(String actividadId, {bool isAutor = false}){
+    return {
+      "evento": _chatActividadEnviarCompartir,
+      "datos_adicionales": {
+        "actividad_id": actividadId,
+        "enviado_desde": isAutor ? "chat-actividad-autor" : "chat-actividad-integrante",
       }
     };
   }

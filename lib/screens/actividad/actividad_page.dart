@@ -21,6 +21,7 @@ import 'package:tenfo/utilities/shared_preferences_keys.dart';
 import 'package:tenfo/widgets/actividad_boton_entrar.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tenfo/widgets/actividad_boton_enviar.dart';
 import 'package:tenfo/widgets/actividad_boton_like.dart';
 import 'package:tenfo/widgets/scrollsnap_card_disponibilidad.dart';
 
@@ -280,6 +281,8 @@ class _ActividadPageState extends State<ActividadPage> {
               Text(widget.actividad!.likesCount > 0 ? "${widget.actividad!.likesCount}" : "",
                 style: const TextStyle(color: constants.blackGeneral, fontSize: 14,),
               ),
+              const SizedBox(width: 8,),
+              ActividadBotonEnviar(actividad: widget.actividad!, fromPantalla: ActividadBotonEnviarFromPantalla.actividad_page,),
 
               const Spacer(),
 
@@ -398,6 +401,121 @@ class _ActividadPageState extends State<ActividadPage> {
             ], crossAxisAlignment: CrossAxisAlignment.start,),
 
 
+          if(widget.actividad!.isAutor || (!_isCreadorPendiente && !_isFromInvitacionCreador && widget.actividad!.ingresoEstado == ActividadIngresoEstado.INTEGRANTE))
+            ...[
+              const SizedBox(height: 32,),
+
+              Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 16,),
+                child: Text(widget.actividad!.isAutor
+                    ? 'Puedes invitar a personas que no están en Tenfo:'
+                    : 'Invita amigos para que participen en la actividad contigo:',
+                  style: const TextStyle(color: constants.grey, fontSize: 12,),
+                ),
+              ),
+
+              const SizedBox(height: 16,),
+
+              Container(
+                alignment: Alignment.center,
+                height: 90,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  children: [
+
+                    Column(children: [
+                      InkWell(
+                        onTap: () => _compartirWhatsapp(),
+                        child: Container(
+                          //width: 56,
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8,),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF25d366),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                height: 24,
+                                width: 24,
+                                child: Image.asset("assets/whatsapp_icon_circulo.png"),
+                              ),
+                              const SizedBox(width: 4,),
+                              const Text("Enviar a WhatsApp", style: TextStyle(fontSize: 12, color: Colors.white,),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                            //mainAxisAlignment: MainAxisAlignment.center,
+                          ),
+                        ),
+                      ),
+                    ], mainAxisAlignment: MainAxisAlignment.start,),
+
+                    InkWell(
+                      onTap: () => _copiarLink(),
+                      child: Container(
+                        width: 48,
+                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.cyan,
+                              ),
+                              child: const Icon(CupertinoIcons.link, size: 18, color: Colors.white,),
+                            ),
+                            const SizedBox(height: 10,),
+                            const Text("Copiar enlace", style: TextStyle(fontSize: 10), textAlign: TextAlign.center,)
+                          ],
+                          //mainAxisAlignment: MainAxisAlignment.center,
+                        ),
+                      ),
+                    ),
+
+                    InkWell(
+                      onTap: () => _compartirGeneral(),
+                      child: Container(
+                        width: 48,
+                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: constants.grey),
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                              ),
+                              child: const Icon(CupertinoIcons.share, size: 18,),
+                            ),
+                            const SizedBox(height: 10,),
+                            const Text("Compartir", style: TextStyle(fontSize: 10), textAlign: TextAlign.center,)
+                          ],
+                          //mainAxisAlignment: MainAxisAlignment.center,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 16,),
+            ],
+
+          /*
           if(!widget.actividad!.isAutor && !_isCreadorPendiente && !_isFromInvitacionCreador)
             Align(
               alignment: Alignment.center,
@@ -442,6 +560,7 @@ class _ActividadPageState extends State<ActividadPage> {
                     const SizedBox(height: 48,),
                   ]),
             ),
+           */
 
           /*if(widget.actividad!.isAutor)
             ...[
@@ -585,6 +704,28 @@ class _ActividadPageState extends State<ActividadPage> {
     );
   }
 
+
+  void _compartirWhatsapp(){
+    ShareUtils.shareActivityWhatsapp(widget.actividad!.id);
+
+    // Envia historial del usuario
+    _enviarHistorialUsuario(HistorialUsuario.getActividadPageEnviarWhatsapp(widget.actividad!.id, isAutor: widget.actividad!.isAutor,));
+  }
+
+  void _copiarLink(){
+    ShareUtils.copyLinkActivity(widget.actividad!.id)
+        .then((value) => _showSnackBar("Enlace copiado"));
+
+    // Envia historial del usuario
+    _enviarHistorialUsuario(HistorialUsuario.getActividadPageEnviarCopiar(widget.actividad!.id, isAutor: widget.actividad!.isAutor,));
+  }
+
+  void _compartirGeneral(){
+    ShareUtils.shareActivity(widget.actividad!.id);
+
+    // Envia historial del usuario
+    _enviarHistorialUsuario(HistorialUsuario.getActividadPageEnviarCompartir(widget.actividad!.id, isAutor: widget.actividad!.isAutor,));
+  }
 
   StateSetter? _dialogSetState;
   void _showDialogPublicacionesJuego(){

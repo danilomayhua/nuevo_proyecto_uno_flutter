@@ -13,6 +13,7 @@ import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/shared_preferences_keys.dart';
 import 'package:tenfo/widgets/actividad_boton_entrar.dart';
+import 'package:tenfo/widgets/actividad_boton_enviar.dart';
 import 'package:tenfo/widgets/actividad_boton_like.dart';
 
 class ScrollsnapCardActividad extends StatefulWidget {
@@ -206,6 +207,8 @@ class _ScrollsnapCardActividadState extends State<ScrollsnapCardActividad> {
               Text(widget.actividad.likesCount > 0 ? "${widget.actividad.likesCount}" : "",
                 style: const TextStyle(color: constants.blackGeneral, fontSize: 14,),
               ),
+              const SizedBox(width: 8,),
+              ActividadBotonEnviar(actividad: widget.actividad, fromPantalla: ActividadBotonEnviarFromPantalla.scrollsnap_actividad,),
               const Spacer(),
               ActividadBotonEntrar(actividad: widget.actividad,),
               //const SizedBox(width: 8,),

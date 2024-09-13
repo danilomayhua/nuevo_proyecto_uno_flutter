@@ -243,8 +243,10 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
                       ),
                       constraints: const BoxConstraints(maxWidth: 160,),
                       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8,),
-                      child: const Text("Envía Incentivos anónimos para animar a crear una actividad",
-                        style: TextStyle(color: Colors.white, fontSize: 12,),
+                      child: Text((widget.isAutorActividadVisible ?? false)
+                          ? "Envía Incentivos anónimos para que revise las actividades creadas"
+                          : "Envía Incentivos anónimos para animar a crear una actividad",
+                        style: const TextStyle(color: Colors.white, fontSize: 12,),
                       ),
                     ),
                     //bottom: 56,

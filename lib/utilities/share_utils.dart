@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
@@ -82,8 +83,29 @@ class ShareUtils {
   }
 
   static Future<void> shareActivity(String actividadId) async {
-    String textoCompartir = "Unite a esta actividad en Tenfo: https://tenfo.app/join-activity/$actividadId";
+    //String textoCompartir = "Unite a esta actividad en Tenfo: https://tenfo.app/join-activity/$actividadId";
+    String textoCompartir = "https://tenfo.app/join-activity/$actividadId";
 
     Share.share(textoCompartir);
+  }
+
+  static Future<void> shareActivityWhatsapp(String actividadId) async {
+    String textoCompartir = "https://tenfo.app/join-activity/$actividadId";
+
+    String urlString = "https://wa.me/?text=${Uri.encodeFull(textoCompartir)}";
+
+    Uri url = Uri.parse(urlString);
+
+    try {
+      await launchUrl(url, mode: LaunchMode.externalApplication,);
+    } catch (e){
+      throw 'Could not launch $urlString';
+    }
+  }
+
+  static Future<void> copyLinkActivity(String actividadId) async {
+    String textoCompartir = "https://tenfo.app/join-activity/$actividadId";
+
+    await Clipboard.setData(ClipboardData(text: textoCompartir));
   }
 }

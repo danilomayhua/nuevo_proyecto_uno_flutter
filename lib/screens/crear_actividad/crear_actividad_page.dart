@@ -562,7 +562,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
 
         Container(
           alignment: Alignment.centerLeft,
-          child: const Text("Selecciona a tus amigos para crear la actividad con tu grupo",
+          child: const Text("Selecciona amigos para crear la actividad en grupo",
             style: TextStyle(color: constants.blackGeneral, fontSize: 12,),
             textAlign: TextAlign.left,
           ),

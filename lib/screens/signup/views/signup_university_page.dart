@@ -115,6 +115,8 @@ class _SignupUniversityPageState extends State<SignupUniversityPage> {
                       constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
                       child: OutlinedButton(
                         onPressed: (){
+                          _enviarUniversidad(_textoBusqueda);
+
                           Navigator.push(context, MaterialPageRoute(
                             builder: (context) => const SignupNotAvailablePage(
                               isUniversidadNoDisponible: true,
@@ -230,6 +232,41 @@ class _SignupUniversityPageState extends State<SignupUniversityPage> {
     setState(() {
       _loadingUniversidades = false;
     });
+  }
+
+  Future<void> _enviarUniversidad(String universidad) async {
+    /*setState(() {
+      _enviandoUniversidad = true;
+    });*/
+
+    universidad = universidad.trim();
+    if(universidad.isEmpty){
+      //setState(() {_enviandoUniversidad = false;});
+      return;
+    }
+
+    var response = await HttpService.httpPost(
+      url: constants.urlRegistroSolicitarUniversidad,
+      body: {
+        "universidad_texto": universidad,
+      },
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+
+        //
+
+      } else {
+        // _showSnackBar("Se produjo un error inesperado");
+      }
+    }
+
+    /*setState(() {
+      _enviandoUniversidad = false;
+    });*/
   }
 
   Future<void> _enviarHistorialNoUsuario(Map<String, dynamic> historialNoUsuario) async {
