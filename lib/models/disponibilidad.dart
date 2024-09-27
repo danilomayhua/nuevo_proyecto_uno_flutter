@@ -26,6 +26,8 @@ class Disponibilidad {
 
   final bool isAutor;
 
+  String? distanciaTexto;
+
   Disponibilidad({required this.id, required this.creador, required this.texto,
-    required this.fecha, required this.isAutor});
+    required this.fecha, required this.isAutor, this.distanciaTexto});
 }

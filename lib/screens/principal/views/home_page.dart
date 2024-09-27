@@ -852,6 +852,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
               texto: disponibilidadDatos['texto'],
               fecha: disponibilidadDatos['fecha_texto'],
               isAutor: disponibilidadDatos['creador']['id'] == usuarioSesion.id,
+              distanciaTexto: disponibilidadDatos['distancia_texto'],
             );
           }
 

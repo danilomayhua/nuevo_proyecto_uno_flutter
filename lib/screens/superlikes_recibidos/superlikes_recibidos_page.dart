@@ -125,8 +125,11 @@ class _SuperlikesRecibidosPageState extends State<SuperlikesRecibidosPage> {
 
   Widget _buildSuperlikeRecibido(SuperlikeRecibido superlikeRecibido){
     if(superlikeRecibido.autor != null){
+
+      String contenidoTexto = superlikeRecibido.texto ?? "A ${superlikeRecibido.autor!.nombreCompleto} le interesa que hagas una actividad.";
+
       return ListTile(
-        title: Text("${superlikeRecibido.autor!.nombreCompleto} quiere que hagas una actividad.",
+        title: Text(contenidoTexto,
           style: TextStyle(
             fontSize: 14,
             color: constants.blackGeneral,
@@ -162,9 +165,12 @@ class _SuperlikesRecibidosPageState extends State<SuperlikesRecibidosPage> {
 
     String? universidadNombre = superlikeRecibido.previsualizacionAutor!.universidadNombre;
 
+    String contenidoTexto = superlikeRecibido.texto ??
+        "A un/a estudiante ${universidadNombre == null ? "" : "de la "+universidadNombre+" "}(${superlikeRecibido.previsualizacionAutor!.edad} años) "
+        "le interesa que hagas una actividad.";
+
     return ListTile(
-      title: Text("Un/a estudiante ${universidadNombre == null ? "" : "de la "+universidadNombre+" "}(${superlikeRecibido.previsualizacionAutor!.edad} años) "
-          "quiere que hagas una actividad.",
+      title: Text(contenidoTexto,
         style: TextStyle(
           fontSize: 14,
           color: constants.blackGeneral,
@@ -308,6 +314,7 @@ class _SuperlikesRecibidosPageState extends State<SuperlikesRecibidosPage> {
             previsualizacionAutor: previsualizacionAutor,
             fecha: element['fecha_texto'],
             isNuevo: element['visto'] == "NO",
+            texto: element['texto'],
           ));
         }
 

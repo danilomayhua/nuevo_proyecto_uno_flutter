@@ -141,10 +141,17 @@ class _CardDisponibilidadState extends State<CardDisponibilidad> {
               ],),
             ),),
 
-            Text(widget.disponibilidad.fecha,
-              style: const TextStyle(color: constants.greyLight, fontSize: 12,),
-              maxLines: 1,
-            ),
+            Row(children: [
+              if(widget.disponibilidad.distanciaTexto != null)
+                Text("${widget.disponibilidad.distanciaTexto ?? '' } • ",
+                  style: const TextStyle(color: constants.greyLight, fontSize: 12,),
+                  maxLines: 1,
+                ),
+              Text(widget.disponibilidad.fecha,
+                style: const TextStyle(color: constants.greyLight, fontSize: 12,),
+                maxLines: 1,
+              ),
+            ], mainAxisSize: MainAxisSize.min,),
 
           ], mainAxisAlignment: MainAxisAlignment.spaceBetween,),
 

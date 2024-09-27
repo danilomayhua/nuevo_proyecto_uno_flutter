@@ -54,6 +54,17 @@ class _ActividadBotonEnviarState extends State<ActividadBotonEnviar> {
             ),
 
             Container(
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.symmetric(horizontal: 16,),
+              child: Text(widget.actividad.isAutor
+                  ? 'Invita amigos a unirse a la actividad:'
+                  : 'Invita amigos a ver esta actividad:',
+                style: const TextStyle(color: constants.grey, fontSize: 12,),
+              ),
+            ),
+            const SizedBox(height: 24,),
+
+            Container(
               alignment: Alignment.center,
               height: 90,
               child: ListView(
@@ -158,7 +169,7 @@ class _ActividadBotonEnviarState extends State<ActividadBotonEnviar> {
                             child: const Icon(CupertinoIcons.link, size: 24, color: Colors.white,),
                           ),
                           const SizedBox(height: 10,),
-                          const Text("Copiar enlace", style: TextStyle(fontSize: 12), textAlign: TextAlign.center,)
+                          const Text("Copiar enlace", style: TextStyle(fontSize: 10), textAlign: TextAlign.center,)
                         ],
                         //mainAxisAlignment: MainAxisAlignment.center,
                       ),
@@ -186,7 +197,7 @@ class _ActividadBotonEnviarState extends State<ActividadBotonEnviar> {
                             child: const Icon(CupertinoIcons.share, size: 24,),
                           ),
                           const SizedBox(height: 10,),
-                          const Text("Compartir", style: TextStyle(fontSize: 12), textAlign: TextAlign.center,)
+                          const Text("Compartir", style: TextStyle(fontSize: 10), textAlign: TextAlign.center,)
                         ],
                         //mainAxisAlignment: MainAxisAlignment.center,
                       ),

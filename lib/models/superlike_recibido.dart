@@ -35,8 +35,10 @@ class SuperlikeRecibido {
   final SuperlikeRecibidoPrevisualizacionAutor? previsualizacionAutor;
   final String fecha;
 
+  final String? texto;
+
   bool isNuevo;
 
   SuperlikeRecibido({required this.autor, required this.previsualizacionAutor,
-    required this.fecha, required this.isNuevo});
+    required this.fecha, required this.isNuevo, this.texto});
 }

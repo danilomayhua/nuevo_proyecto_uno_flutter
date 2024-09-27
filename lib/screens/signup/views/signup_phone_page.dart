@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:tenfo/models/signup_permisos_estado.dart';
 import 'package:tenfo/screens/signup/views/signup_profile_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
+import 'package:url_launcher/url_launcher.dart';
 
 class SignupPhonePage extends StatefulWidget {
   const SignupPhonePage({Key? key, required this.universidadId, required this.signupPermisosEstado}) : super(key: key);
@@ -237,9 +239,14 @@ class _SignupPhonePageState extends State<SignupPhonePage> {
         } else if(datosJson['error_tipo'] == 'codigo_enviado'){
 
           String? minutosFaltantes = datosJson['data']['minutos_faltantes']?.toString();
+          String? segundosFaltantes = datosJson['data']['segundos_faltantes']?.toString();
 
           _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-          _showSnackBar("Ya se envió anteriormente un código a este número. Debes esperar $minutosFaltantes minutos para volver a pedir otro.");
+          if(segundosFaltantes != null){
+            _showSnackBar("Ya se envió anteriormente un código a este número. Debes esperar $segundosFaltantes segundos para volver a pedir otro.");
+          } else {
+            _showSnackBar("Ya se envió anteriormente un código a este número. Debes esperar $minutosFaltantes minutos para volver a pedir otro.");
+          }
 
         } else if(datosJson['error_tipo'] == 'limite_registros'){
 
@@ -318,10 +325,79 @@ class _SignupPhonePageState extends State<SignupPhonePage> {
               ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
             ),
           ),
+          const SizedBox(height: 24,),
+
+          GestureDetector(
+            child: const Text("¿No recibiste el código?",
+              style: TextStyle(color: constants.grey, decoration: TextDecoration.underline, fontSize: 12,),
+            ),
+            onTap: (){
+              _showDialogCodigoNoRecibido();
+            },
+          ),
           const SizedBox(height: 16,),
+
         ],),
       ),
     );
+  }
+
+  void _showDialogCodigoNoRecibido(){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: Column(children: [
+            RichText(
+              text: TextSpan(
+                style: const TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),
+                text: "Comprueba tu señal o espera unos segundos e ingresa el número nuevamente desde la pantalla anterior.\n\n"
+                    "Si continúas sin recibir el código, por favor comunícate con nosotros para poder resolverlo a través de nuestro instagram ",
+                children: [
+                  TextSpan(
+                    text: "@tenfo_social",
+                    style: const TextStyle(color: constants.grey,),
+                    recognizer: TapGestureRecognizer()..onTap = () async {
+                      String urlString = "https://www.instagram.com/tenfo_social";
+                      Uri url = Uri.parse(urlString);
+
+                      try {
+                        await launchUrl(url, mode: LaunchMode.externalApplication,);
+                      } catch (e){
+                        throw 'Could not launch $urlString';
+                      }
+                    },
+                  ),
+                  const TextSpan(
+                    text: " o email ",
+                  ),
+                  TextSpan(
+                    text: "soporte@tenfo.app",
+                    style: const TextStyle(color: constants.grey,),
+                    recognizer: TapGestureRecognizer()..onTap = () async {
+                      String urlString = "mailto:soporte@tenfo.app?subject=Consultas sobre crear cuenta en Tenfo";
+                      Uri url = Uri.parse(urlString);
+
+                      try {
+                        await launchUrl(url, mode: LaunchMode.externalApplication,);
+                      } catch (e){
+                        throw 'Could not launch $urlString';
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+          ], mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start,),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Entendido"),
+          ),
+        ],
+      );
+    });
   }
 
   Future<void> _verificarCodigo() async {
