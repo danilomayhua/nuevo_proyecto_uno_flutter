@@ -40,6 +40,10 @@ const String urlBaseWebSocket = "wss://tenfo.app:3000/chat";
 const String urlLogin = "/api/autenticacion/login";
 const String urlLogout = "/api/autenticacion/logout";
 
+const String urlRestablecerContrasenaEnviarCodigo = "/api/autenticacion/enviar-codigo-restablecer-contrasena";
+const String urlRestablecerContrasenaVerificarCodigo = "/api/autenticacion/verificar-codigo-restablecer-contrasena";
+const String urlRestablecerContrasena = "/api/autenticacion/restablecer-contrasena";
+
 const String urlRegistroEnviarCodigo = "/api/registro/enviar-codigo-email";
 const String urlRegistroVerificarCodigo = "/api/registro/verificar-codigo-email";
 const String urlRegistroUsuario = "/api/registro/crear-usuario";

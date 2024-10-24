@@ -5,6 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
+import 'package:tenfo/screens/restablecer_contrasena/restablecer_contrasena_page.dart';
 import 'package:tenfo/screens/signup/views/signup_picture_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
@@ -109,12 +110,56 @@ class _LoginPageState extends State<LoginPage> {
                 ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
               ),
             ),
+            const SizedBox(height: 24,),
+
+            GestureDetector(
+              child: const Text("¿Olvidaste tu contraseña?",
+                style: TextStyle(color: constants.blueGeneral, fontSize: 12,),
+              ),
+              onTap: (){
+                _showDialogOpcionesRestablecerContrasena();
+              },
+            ),
             const SizedBox(height: 16,),
 
           ],),
         ),
       ),
     );
+  }
+
+  void _showDialogOpcionesRestablecerContrasena(){
+    showDialog(context: context, builder: (context){
+      return AlertDialog(
+        contentPadding: const EdgeInsets.all(0),
+        content: Column(children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24,),
+            child: Text('Elige cómo prefieres restablecer tu contraseña:',
+              style: TextStyle(color: constants.grey, fontSize: 12,),
+            ),
+          ),
+          ListTile(
+            title: const Text("Número de teléfono"),
+            onTap: (){
+              Navigator.of(context).pop();
+              Navigator.push(context, MaterialPageRoute(
+                builder: (context) => const RestablecerContrasenaPage(isEmailSeleccionado: false,),
+              ));
+            },
+          ),
+          ListTile(
+            title: const Text("Email"),
+            onTap: (){
+              Navigator.of(context).pop();
+              Navigator.push(context, MaterialPageRoute(
+                builder: (context) => const RestablecerContrasenaPage(isEmailSeleccionado: true,),
+              ));
+            },
+          ),
+        ], mainAxisSize: MainAxisSize.min,),
+      );
+    });
   }
 
   Future<void> _iniciarSesion() async {
