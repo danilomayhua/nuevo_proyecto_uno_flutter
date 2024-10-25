@@ -10,6 +10,7 @@ import 'package:tenfo/models/signup_permisos_estado.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
 import 'package:tenfo/screens/principal/principal_page.dart';
 import 'package:tenfo/screens/signup/views/signup_friends_page.dart';
+import 'package:tenfo/screens/signup/views/signup_tutorial_page.dart';
 import 'package:tenfo/services/http_service.dart';
 import 'package:tenfo/utilities/constants.dart' as constants;
 import 'package:tenfo/utilities/historial_usuario.dart';
@@ -253,7 +254,7 @@ class _SignupPicturePageState extends State<SignupPicturePage> {
   void _continuarRegistro(){
 
     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-        builder: (context) => const SignupFriendsPage()
+        builder: (context) => const SignupTutorialPage()
     ), (root) => false);
 
     /*if(widget.isFromSignup){

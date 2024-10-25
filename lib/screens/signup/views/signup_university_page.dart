@@ -65,7 +65,7 @@ class _SignupUniversityPageState extends State<SignupUniversityPage> {
               child: TextField(
                 decoration: const InputDecoration(
                   isDense: true,
-                  hintText: "Buscar...",
+                  hintText: "Buscar más...",
                   counterText: '',
                   border: OutlineInputBorder(),
                   focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),

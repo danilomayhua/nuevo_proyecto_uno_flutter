@@ -70,7 +70,6 @@ class _ContactosSugerenciasPageState extends State<ContactosSugerenciasPage> {
           padding: const EdgeInsets.symmetric(horizontal: 16,),
           child: Container(
             constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
-            width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: (){
                 // Envia historial del usuario
@@ -79,7 +78,7 @@ class _ContactosSugerenciasPageState extends State<ContactosSugerenciasPage> {
                 ShareUtils.shareProfileWhatsapp();
               },
               icon: const Icon(CupertinoIcons.share),
-              label: const Text("Compartir a grupo de compañeros"),
+              label: const Text("Compartir a amigos"),
               style: ElevatedButton.styleFrom(
                 shape: const StadiumBorder(),
               ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),

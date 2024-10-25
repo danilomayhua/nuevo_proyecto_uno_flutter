@@ -150,7 +150,7 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
       ));
     }
 
-    _cargarTelefonoContactos();
+    //_cargarTelefonoContactos();
     _buscarUsuario("", setState);
   }
 
@@ -610,28 +610,40 @@ class _CrearActividadPageState extends State<CrearActividadPage> {
           },
         ),
 
-        Expanded(child: ListView.builder(
-          itemCount: _creadoresBusqueda.length + 1 + _filteredTelefonoContactos.length + 1, // 2 listas y 2 texto cabecera
-          itemBuilder: (context, index){
-            if(index == 0){
-              return _buildCabeceraAmigos();
-            }
+        Flexible(child: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 320,),
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: _creadoresBusqueda.length + 1, // 1 listas y 1 texto cabecera
+            //itemCount: _creadoresBusqueda.length + 1 + _filteredTelefonoContactos.length + 1, // 2 listas y 2 texto cabecera
+            itemBuilder: (context, index){
+              if(index == 0){
+                return _buildCabeceraAmigos();
+              }
 
-            if (index < _creadoresBusqueda.length + 1) {
               // Al buscar un contacto, quita los resultados anteriores
               if(_loadingCreadoresBusqueda) return Container();
 
               return _buildUsuarioBusqueda(_creadoresBusqueda[index - 1]);
-            }
 
-            if (index == _creadoresBusqueda.length + 1) {
-              return _buildCabeceraTelefonoContactos();
-            }
+              /*
+              if (index < _creadoresBusqueda.length + 1) {
+                // Al buscar un contacto, quita los resultados anteriores
+                if(_loadingCreadoresBusqueda) return Container();
 
-            return _buildTelefonoContacto(_filteredTelefonoContactos[index - _creadoresBusqueda.length - 2]);
-          },
-          padding: const EdgeInsets.only(bottom: 24,),
-        ),),
+                return _buildUsuarioBusqueda(_creadoresBusqueda[index - 1]);
+              }
+
+              if (index == _creadoresBusqueda.length + 1) {
+                return _buildCabeceraTelefonoContactos();
+              }
+
+              return _buildTelefonoContacto(_filteredTelefonoContactos[index - _creadoresBusqueda.length - 2]);
+              */
+            },
+            padding: const EdgeInsets.only(bottom: 24,),
+          ),
+        )),
 
         Container(
           width: double.infinity,
