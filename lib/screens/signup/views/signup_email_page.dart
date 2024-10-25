@@ -379,7 +379,7 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
     String codigoInvitacion = widget.codigoInvitacion ?? "";
 
     var response = await HttpService.httpPost(
-      url: constants.urlRegistroEnviarCodigo,
+      url: constants.urlRegistroEmailEnviarCodigo,
       body: {
         "email": email,
         "plataforma": origenPlataforma,
@@ -515,7 +515,7 @@ class _SignupEmailPageState extends State<SignupEmailPage> {
     }
 
     var response = await HttpService.httpPost(
-      url: constants.urlRegistroVerificarCodigo,
+      url: constants.urlRegistroEmailVerificarCodigo,
       body: {
         "email": _email,
         "codigo": codigo

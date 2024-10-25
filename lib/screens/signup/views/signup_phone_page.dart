@@ -20,10 +20,14 @@ class SignupPhonePage extends StatefulWidget {
   State<SignupPhonePage> createState() => _SignupPhonePageState();
 }
 
-class _SignupPhonePageState extends State<SignupPhonePage> {
+class _SignupPhonePageState extends State<SignupPhonePage> with SingleTickerProviderStateMixin {
 
   final PageController _pageController = PageController();
   int _pageCurrent = 0;
+
+  late TabController _tabController;
+
+  bool _enviandoTelefonoOEmail = false;
 
   String _telefonoText = '';
   String _telefonoE164 = '';
@@ -31,7 +35,12 @@ class _SignupPhonePageState extends State<SignupPhonePage> {
   final TextEditingController _telefonoController = TextEditingController();
   String? _telefonoErrorText;
 
-  bool _enviandoTelefono = false;
+  String _email = '';
+  final RegExp _emailRegExp = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
+  final TextEditingController _emailController = TextEditingController();
+  String? _emailErrorText;
+
+  bool _isRegistroEmail = false;
 
   bool _enviandoCodigo = false;
   final TextEditingController _codigoController = TextEditingController();
@@ -50,6 +59,15 @@ class _SignupPhonePageState extends State<SignupPhonePage> {
         setState(() {});
       }
     });
+
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -70,6 +88,8 @@ class _SignupPhonePageState extends State<SignupPhonePage> {
             }
           },
         ),
+        title: const Text("Registrarse", style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16,),),
+        centerTitle: true,
       ),
       backgroundColor: Colors.white,
       body: PageView(
@@ -87,16 +107,42 @@ class _SignupPhonePageState extends State<SignupPhonePage> {
   }
 
   Widget _contenidoParteUno(){
+    return Column(
+      children: [
+        TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: "Teléfono"),
+            Tab(text: "Email"),
+          ],
+          labelColor: constants.blackGeneral,
+          padding: const EdgeInsets.symmetric(horizontal: 16,),
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            physics: const NeverScrollableScrollPhysics(),
+            children: [
+              _contenidoTelefono(),
+              _contenidoEmail(),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _contenidoTelefono(){
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16,),
         child: Column(children: [
 
-          const SizedBox(height: 16,),
+          /*const SizedBox(height: 16,),
 
           const Text("¿Cuál es tu número?",
             style: TextStyle(color: constants.blackGeneral, fontSize: 24,),
-          ),
+          ),*/
           const SizedBox(height: 24,),
 
           const Align(
@@ -140,7 +186,7 @@ class _SignupPhonePageState extends State<SignupPhonePage> {
             constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: _enviandoTelefono ? null : () => _validarTelefono(),
+              onPressed: _enviandoTelefonoOEmail ? null : () => _validarTelefono(),
               child: const Text("Enviar código"),
               style: ElevatedButton.styleFrom(
                 shape: const StadiumBorder(),
@@ -155,14 +201,14 @@ class _SignupPhonePageState extends State<SignupPhonePage> {
   }
 
   Future<void> _validarTelefono() async {
-    if(_enviandoTelefono) return;
-    _enviandoTelefono = true;
+    if(_enviandoTelefonoOEmail) return;
+    _enviandoTelefonoOEmail = true;
 
     _telefonoErrorText = null;
 
 
     if(_phoneNumber == null){
-      _enviandoTelefono = false;
+      _enviandoTelefonoOEmail = false;
       return;
     }
 
@@ -170,12 +216,12 @@ class _SignupPhonePageState extends State<SignupPhonePage> {
     _telefonoText = _telefonoController.text.trim();
 
     if(_telefonoText == ""){
-      _enviandoTelefono = false;
+      _enviandoTelefonoOEmail = false;
       return;
     }
 
     if(phoneNumber.parseNumber() == ""){
-      _enviandoTelefono = false;
+      _enviandoTelefonoOEmail = false;
       return;
     }
 
@@ -193,7 +239,7 @@ class _SignupPhonePageState extends State<SignupPhonePage> {
 
   Future<void> _enviarTelefono(String telefonoE164) async {
     setState(() {
-      _enviandoTelefono = true;
+      _enviandoTelefonoOEmail = true;
     });
 
     _telefonoE164 = telefonoE164;
@@ -216,6 +262,7 @@ class _SignupPhonePageState extends State<SignupPhonePage> {
 
       if(datosJson['error'] == false){
 
+        _isRegistroEmail = false;
         _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
 
       } else {
@@ -241,6 +288,7 @@ class _SignupPhonePageState extends State<SignupPhonePage> {
           String? minutosFaltantes = datosJson['data']['minutos_faltantes']?.toString();
           String? segundosFaltantes = datosJson['data']['segundos_faltantes']?.toString();
 
+          _isRegistroEmail = false;
           _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
           if(segundosFaltantes != null){
             _showSnackBar("Ya se envió anteriormente un código a este número. Debes esperar $segundosFaltantes segundos para volver a pedir otro.");
@@ -277,7 +325,141 @@ class _SignupPhonePageState extends State<SignupPhonePage> {
     }
 
     setState(() {
-      _enviandoTelefono = false;
+      _enviandoTelefonoOEmail = false;
+    });
+  }
+
+  Widget _contenidoEmail(){
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16,),
+        child: Column(children: [
+
+          const SizedBox(height: 24,),
+
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: Text("Registrate con tu email. Se enviará un código de confirmación.",
+              style: TextStyle(color: constants.grey,),
+              textAlign: TextAlign.left,
+            ),
+          ),
+          const SizedBox(height: 24,),
+
+          TextField(
+            controller: _emailController,
+            decoration: InputDecoration(
+              hintText: "Email",
+              border: const OutlineInputBorder(),
+              counterText: '',
+              errorText: _emailErrorText,
+              errorMaxLines: 2,
+            ),
+            maxLength: 100,
+            keyboardType: TextInputType.emailAddress,
+          ),
+          const SizedBox(height: 24,),
+
+          Container(
+            constraints: const BoxConstraints(minWidth: 120, minHeight: 40,),
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _enviandoTelefonoOEmail ? null : () => _validarEmail(),
+              child: const Text("Enviar código"),
+              style: ElevatedButton.styleFrom(
+                shape: const StadiumBorder(),
+              ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0),),
+            ),
+          ),
+          const SizedBox(height: 24,),
+
+        ],),
+      ),
+    );
+  }
+
+  Future<void> _validarEmail() async {
+    if(_enviandoTelefonoOEmail) return;
+    _enviandoTelefonoOEmail = true;
+
+    _emailErrorText = null;
+
+    _emailController.text = _emailController.text.trim();
+    if(!_emailRegExp.hasMatch(_emailController.text)){
+      _emailErrorText = 'Ingrese un email válido.';
+      _enviandoTelefonoOEmail = false;
+      setState(() {});
+      return;
+    }
+
+    _enviarEmail(_emailController.text);
+  }
+
+  Future<void> _enviarEmail(String email) async {
+    setState(() {
+      _enviandoTelefonoOEmail = true;
+    });
+
+    _email = email;
+    String origenPlataforma = "android";
+    if(Platform.isIOS){
+      origenPlataforma = "iOS";
+    }
+
+    var response = await HttpService.httpPost(
+      url: constants.urlRegistroEmailEnviarCodigo,
+      body: {
+        "email": email,
+        "plataforma": origenPlataforma,
+        "universidad_id": widget.universidadId,
+        "dispositivo_id": "INDEFINIDO", // De momento enviar "INDEFINIDO", hasta agregar un id unico por dispositivo
+      },
+    );
+
+    if(response.statusCode == 200){
+      var datosJson = jsonDecode(response.body);
+
+      if(datosJson['error'] == false){
+
+        _isRegistroEmail = true;
+        _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+
+      } else {
+
+        if(datosJson['error_tipo'] == 'email_registrado'){
+
+          _emailErrorText = 'Este email ya está registrado.';
+
+        } else if(datosJson['error_tipo'] == 'usuario_no_habilitado'){
+
+          _emailErrorText = 'Este email fue inhabilitado con un usuario dado de baja.';
+
+        } else if(datosJson['error_tipo'] == 'codigo_enviado'){
+
+          String? minutosFaltantes = datosJson['data']['minutos_faltantes']?.toString();
+          String? segundosFaltantes = datosJson['data']['segundos_faltantes']?.toString();
+
+          _isRegistroEmail = true;
+          _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+          if(segundosFaltantes != null){
+            _showSnackBar("Ya se envió anteriormente un código a este email. Debes esperar $segundosFaltantes segundos para volver a pedir otro.");
+          } else {
+            _showSnackBar("Ya se envió anteriormente un código a este email. Debes esperar $minutosFaltantes minutos para volver a pedir otro.");
+          }
+
+        } else if(datosJson['error_tipo'] == 'limite_codigo_confirmado'){
+
+          _emailErrorText = 'Debes esperar un tiempo para poder registrarte con este email.';
+
+        } else {
+          _showSnackBar("Se produjo un error inesperado");
+        }
+
+      }
+    }
+
+    setState(() {
+      _enviandoTelefonoOEmail = false;
     });
   }
 
@@ -286,20 +468,30 @@ class _SignupPhonePageState extends State<SignupPhonePage> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16,),
         child: Column(children: [
-          const SizedBox(height: 16,),
+          const SizedBox(height: 24,),
 
           const Text("Escribe el código",
             style: TextStyle(color: constants.blackGeneral, fontSize: 24,),
           ),
           const SizedBox(height: 24,),
 
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text("Se envió un código a ${_phoneNumber?.dialCode ?? ""} $_telefonoText",
-              style: const TextStyle(color: constants.grey,),
-              textAlign: TextAlign.left,
+          if(!_isRegistroEmail)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text("Se envió un código a ${_phoneNumber?.dialCode ?? ""} $_telefonoText",
+                style: const TextStyle(color: constants.grey,),
+                textAlign: TextAlign.left,
+              ),
             ),
-          ),
+          if(_isRegistroEmail)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text("Se envió un código a $_email\nPodría estar en la sección de spam.",
+                style: TextStyle(color: constants.grey,),
+                textAlign: TextAlign.left,
+              ),
+            ),
+
           const SizedBox(height: 16,),
           TextField(
             controller: _codigoController,
@@ -350,7 +542,7 @@ class _SignupPhonePageState extends State<SignupPhonePage> {
             RichText(
               text: TextSpan(
                 style: const TextStyle(color: constants.blackGeneral, fontSize: 14, height: 1.3,),
-                text: "Comprueba tu señal o espera unos segundos e ingresa el número nuevamente desde la pantalla anterior.\n\n"
+                text: "Comprueba tu señal o espera unos segundos e ingresa el ${_isRegistroEmail ? "email" : "número"} nuevamente desde la pantalla anterior.\n\n"
                     "Si continúas sin recibir el código, por favor comunícate con nosotros para poder resolverlo a través de nuestro instagram ",
                 children: [
                   TextSpan(
@@ -414,11 +606,15 @@ class _SignupPhonePageState extends State<SignupPhonePage> {
       return;
     }
 
+    bool isRegistroEmail = _isRegistroEmail;
+
+    String urlVerificarCodigo = isRegistroEmail ? constants.urlRegistroEmailVerificarCodigo : constants.urlRegistroTelefonoVerificarCodigo;
     var response = await HttpService.httpPost(
-      url: constants.urlRegistroTelefonoVerificarCodigo,
+      url: urlVerificarCodigo,
       body: {
-        "telefono": _telefonoE164,
-        "codigo": codigo
+        "telefono": isRegistroEmail ? null : _telefonoE164,
+        "email": isRegistroEmail ? _email : null,
+        "codigo": codigo,
       },
     );
 
@@ -431,7 +627,9 @@ class _SignupPhonePageState extends State<SignupPhonePage> {
 
         Navigator.pushReplacement(context, MaterialPageRoute(
             builder: (context) => SignupProfilePage(
+              isRegistroEmail: isRegistroEmail,
               telefono: _telefonoE164,
+              email: _email,
               codigo: codigo,
               registroActivadoToken: registroActivadoToken,
               universidadId: widget.universidadId,

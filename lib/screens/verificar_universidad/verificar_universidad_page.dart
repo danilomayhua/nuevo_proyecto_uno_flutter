@@ -322,6 +322,10 @@ class _VerificarUniversidadPageState extends State<VerificarUniversidadPage> {
 
           _emailErrorText = 'Este email ya está registrado.';
 
+        } else if(datosJson['error_tipo'] == 'email_registrado_sesion'){
+
+          _emailErrorText = 'Este email ya pertenece a tu cuenta.';
+
         } else if(datosJson['error_tipo'] == 'usuario_no_habilitado'){
 
           _emailErrorText = 'Este email fue inhabilitado con un usuario dado de baja.';

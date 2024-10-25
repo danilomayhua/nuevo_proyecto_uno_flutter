@@ -44,9 +44,9 @@ const String urlRestablecerContrasenaEnviarCodigo = "/api/autenticacion/enviar-c
 const String urlRestablecerContrasenaVerificarCodigo = "/api/autenticacion/verificar-codigo-restablecer-contrasena";
 const String urlRestablecerContrasena = "/api/autenticacion/restablecer-contrasena";
 
-const String urlRegistroEnviarCodigo = "/api/registro/enviar-codigo-email";
-const String urlRegistroVerificarCodigo = "/api/registro/verificar-codigo-email";
-const String urlRegistroUsuario = "/api/registro/crear-usuario";
+const String urlRegistroEmailEnviarCodigo = "/api/registro/enviar-codigo-email";
+const String urlRegistroEmailVerificarCodigo = "/api/registro/verificar-codigo-email";
+const String urlRegistroUsuarioConEmail = "/api/registro/crear-usuario-con-email";
 const String urlRegistroVerificarInvitacion = "/api/registro/verificar-invitacion-codigo";
 const String urlRegistroTelefonoEnviarCodigo = "/api/registro/enviar-codigo-telefono";
 const String urlRegistroTelefonoVerificarCodigo = "/api/registro/verificar-codigo-telefono";

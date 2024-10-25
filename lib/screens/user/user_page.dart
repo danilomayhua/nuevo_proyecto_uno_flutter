@@ -78,6 +78,8 @@ class UserPageState extends State<UserPage> {
 
   bool _enviandoFotoPerfil = false;
 
+  bool _isVerificadoUniversidadObtenido = false; // Indica que ya cargo el valor de _usuarioPerfil.isVerificadoUniversidad (ya que por defecto es false)
+
   @override
   void initState() {
     super.initState();
@@ -162,8 +164,7 @@ class UserPageState extends State<UserPage> {
 
           if(widget.isFromProfile)
             ...[
-              // Solo puede verificar si no tiene email
-              if(_usuarioSesion != null && _usuarioSesion!.email == null)
+              if(_isVerificadoUniversidadObtenido && !_usuarioPerfil.isVerificadoUniversidad)
                 IconButton(
                   icon: const Icon(Icons.school_outlined),
                   onPressed: () async {
@@ -1175,6 +1176,7 @@ class UserPageState extends State<UserPage> {
 
         _usuarioPerfil.isVerificadoUniversidad = datosUsuario['is_verificado_universidad'];
         _usuarioPerfil.verificadoUniversidadNombre = datosUsuario['verificado_universidad_nombre'];
+        _isVerificadoUniversidadObtenido = true;
 
         _usuarioPerfil.isSuperliked = datosUsuario['is_superliked'];
 
@@ -1213,6 +1215,13 @@ class UserPageState extends State<UserPage> {
           if(datosUsuario['universidad'] != null){
             if(_usuarioSesion!.universidad_nombre == null || _usuarioSesion!.universidad_nombre != datosUsuario['universidad']['nombre']){
               _usuarioSesion!.universidad_nombre = datosUsuario['universidad']['nombre'];
+            }
+          }
+
+          // El valor se guarda por primera vez cuando entra a Perfil
+          if(datosUsuario['email_secundario'] != null){
+            if(_usuarioSesion!.email_secundario == null || _usuarioSesion!.email_secundario != datosUsuario['email_secundario']){
+              _usuarioSesion!.email_secundario = datosUsuario['email_secundario'];
             }
           }
 

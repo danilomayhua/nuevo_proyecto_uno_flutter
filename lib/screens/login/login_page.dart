@@ -66,7 +66,7 @@ class _LoginPageState extends State<LoginPage> {
             TextField(
               controller: _usernameController,
               decoration: InputDecoration(
-                hintText: "Usuario o email",
+                hintText: "Usuario, teléfono o email",
                 border: const OutlineInputBorder(),
                 counterText: '',
                 errorText: _usernameErrorText,

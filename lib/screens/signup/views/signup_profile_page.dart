@@ -17,11 +17,14 @@ import 'package:tenfo/utilities/historial_no_usuario.dart';
 import 'package:tenfo/utilities/shared_preferences_keys.dart';
 
 class SignupProfilePage extends StatefulWidget {
-  const SignupProfilePage({Key? key, required this.telefono,
+  const SignupProfilePage({Key? key, required this.isRegistroEmail,
+    required this.email, required this.telefono,
     required this.codigo, required this.registroActivadoToken,
     required this.universidadId, required this.signupPermisosEstado}) : super(key: key);
 
-  final String telefono;
+  final bool isRegistroEmail;
+  final String? telefono;
+  final String? email;
   final String codigo;
   final String universidadId;
   final String registroActivadoToken;
@@ -498,8 +501,9 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
       origenPlataforma = "iOS";
     }
 
+    String urlRegistroUsuario = widget.isRegistroEmail ? constants.urlRegistroUsuarioConEmail : constants.urlRegistroUsuarioConTelefono;
     var response = await HttpService.httpPost(
-      url: constants.urlRegistroUsuarioConTelefono,
+      url: urlRegistroUsuario,
       body: {
         "nombre": nombre,
         "apellido": apellido,
@@ -507,7 +511,8 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
         "username": username,
         "contrasena": contrasena,
         "universidad_id": widget.universidadId,
-        "telefono": widget.telefono,
+        "telefono": widget.isRegistroEmail ? null : widget.telefono,
+        "email": widget.isRegistroEmail ? widget.email : null,
         "codigo": widget.codigo,
         "registro_activado_token": widget.registroActivadoToken,
         "firebase_token": firebaseToken ?? "",
@@ -539,6 +544,8 @@ class _SignupProfilePageState extends State<SignupProfilePage> {
           _usuarioErrorText = 'El nombre de usuario ya está en uso.';
         } else if(datosJson['error_tipo'] == 'telefono_registrado'){
           _showSnackBar("Se produjo un error inesperado con teléfono registrado");
+        } else if(datosJson['error_tipo'] == 'email_registrado'){
+          _showSnackBar("Se produjo un error inesperado con email registrado");
         } else {
           _showSnackBar("Se produjo un error inesperado");
         }

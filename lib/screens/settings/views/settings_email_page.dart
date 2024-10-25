@@ -13,9 +13,12 @@ class SettingsEmailPage extends StatefulWidget {
 class _SettingsEmailPageState extends State<SettingsEmailPage> {
 
   String? _email;
-
   final TextEditingController _emailController = TextEditingController(text: '');
   String? _emailErrorText;
+
+  String? _emailSecundario;
+  final TextEditingController _emailSecundarioController = TextEditingController(text: '');
+  String? _emailSecundarioErrorText;
 
   @override
   void initState() {
@@ -26,6 +29,9 @@ class _SettingsEmailPageState extends State<SettingsEmailPage> {
 
       _email = usuarioSesion.email;
       _emailController.text = usuarioSesion.email ?? "";
+
+      _emailSecundario = usuarioSesion.email_secundario;
+      _emailSecundarioController.text = usuarioSesion.email_secundario ?? "";
 
       setState(() {});
     });
@@ -76,6 +82,24 @@ class _SettingsEmailPageState extends State<SettingsEmailPage> {
                   enabled: false,
                   style: const TextStyle(color: Colors.black54),
                 ),
+                if(_emailSecundario != null)
+                  ...[
+                    const SizedBox(height: 16,),
+                    TextField(
+                      controller: _emailSecundarioController,
+                      decoration: InputDecoration(
+                        hintText: "nombre@universidad.edu",
+                        border: const OutlineInputBorder(),
+                        counterText: '',
+                        errorText: _emailSecundarioErrorText,
+                        errorMaxLines: 2,
+                      ),
+                      maxLength: 100,
+                      keyboardType: TextInputType.emailAddress,
+                      enabled: false,
+                      style: const TextStyle(color: Colors.black54),
+                    ),
+                  ],
               ],
 
             const SizedBox(height: 16,),
