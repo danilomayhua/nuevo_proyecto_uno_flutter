@@ -250,7 +250,7 @@ class _ChatInfoPageState extends State<ChatInfoPage> {
                     if(_isCreador){
                       _showDialogEditarLink();
                     } else {
-                      Clipboard.setData(ClipboardData(text: _encuentroLink))
+                      Clipboard.setData(ClipboardData(text: _encuentroLink ?? ""))
                           .then((value) => _showSnackBar("Enlace copiado"));
                     }
                   },

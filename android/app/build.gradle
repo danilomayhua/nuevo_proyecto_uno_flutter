@@ -34,7 +34,8 @@ if (keystorePropertiesFile.exists()) {
 android {
     //compileSdkVersion 30
     //compileSdkVersion 31
-    compileSdkVersion 33
+    //compileSdkVersion 33
+    compileSdkVersion 34
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -54,9 +55,13 @@ android {
         minSdkVersion 19
         //targetSdkVersion 30
         //targetSdkVersion 31
-        targetSdkVersion 33
+        //targetSdkVersion 33
+        targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+
+        // Si minSdkVersion es igual o mayor a 21, no es necesario usar multiDexEnabled
+        multiDexEnabled true
     }
 
     signingConfigs {

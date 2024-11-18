@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tenfo/models/usuario_sesion.dart';
@@ -123,12 +123,12 @@ class _PrincipalPageState extends State<PrincipalPage> {
                 borderRadius: BorderRadius.circular(20),
               ),
               padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-              child: Badge(
+              child: badges.Badge(
                 child: const Icon(Icons.home),
                 showBadge: _showBadgeHome,
                 badgeColor: constants.blueGeneral,
                 padding: const EdgeInsets.all(6),
-                position: BadgePosition.topEnd(end: -8,),
+                position: badges.BadgePosition.topEnd(end: -8,),
               ),
             ),
             label: "Inicio",
@@ -140,12 +140,12 @@ class _PrincipalPageState extends State<PrincipalPage> {
                 borderRadius: BorderRadius.circular(20),
               ),
               padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-              child: Badge(
+              child: badges.Badge(
                 child: const Icon(CupertinoIcons.heart_fill),
                 showBadge: _showBadgeSuperlikes,
                 badgeColor: constants.blueGeneral,
                 padding: const EdgeInsets.all(6),
-                position: BadgePosition.topEnd(end: -8,),
+                position: badges.BadgePosition.topEnd(end: -8,),
               ),
             ),
             label: "Incentivos",
@@ -168,12 +168,12 @@ class _PrincipalPageState extends State<PrincipalPage> {
                 borderRadius: BorderRadius.circular(20),
               ),
               padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-              child: Badge(
+              child: badges.Badge(
                 child: const Icon(Icons.near_me),
                 showBadge: _showBadgeMensajes,
                 badgeColor: constants.blueGeneral,
                 padding: const EdgeInsets.all(6),
-                position: BadgePosition.topEnd(end: -8,),
+                position: badges.BadgePosition.topEnd(end: -8,),
               ),
             ),
             label: "Mensajes",
@@ -185,12 +185,12 @@ class _PrincipalPageState extends State<PrincipalPage> {
                 borderRadius: BorderRadius.circular(20),
               ),
               padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-              child: Badge(
+              child: badges.Badge(
                 child: const Icon(Icons.person),
                 showBadge: _showBadgePerfil,
                 badgeColor: constants.blueGeneral,
                 padding: const EdgeInsets.all(6),
-                position: BadgePosition.topEnd(end: -8,),
+                position: badges.BadgePosition.topEnd(end: -8,),
               ),
             ),
             label: "Perfil",

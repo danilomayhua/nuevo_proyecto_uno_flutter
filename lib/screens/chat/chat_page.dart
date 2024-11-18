@@ -131,6 +131,9 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
       case AppLifecycleState.inactive:
         break;
 
+      case AppLifecycleState.hidden:
+        break;
+
       case AppLifecycleState.paused:
         FirebaseNotificaciones().chatAbiertoAhora = null;
         break;
