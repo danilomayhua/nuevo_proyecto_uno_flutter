@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 
-import 'package:badges/badges.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -169,7 +169,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
               ));
             },
           ),
-          Badge(
+          badges.Badge(
             child: IconButton(
               icon: const Icon(Icons.notifications),
               onPressed: () {
@@ -183,7 +183,7 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
             showBadge: _showBadgeNotificaciones,
             badgeColor: constants.blueGeneral,
             padding: const EdgeInsets.all(6),
-            position: BadgePosition.topEnd(top: 12, end: 12,),
+            position: badges.BadgePosition.topEnd(top: 12, end: 12,),
           ),
         ],
       ),

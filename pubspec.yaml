@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.55+62
 
 environment:
-  sdk: ">=2.16.0 <3.0.0"
+  sdk: ">=3.0.0 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -38,7 +38,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
-  share_plus: ^3.0.4
+  share_plus: ^7.2.2
   url_launcher: ^6.0.18
   shared_preferences: ^2.0.13
   http: ^0.13.4
@@ -51,7 +51,7 @@ dependencies:
   image_cropper: ^1.5.1
   smooth_page_indicator: ^1.0.0+2
   geolocator: ^9.0.2
-  package_info_plus: ^1.4.2
+  package_info_plus: ^3.1.2
   cached_network_image: ^3.2.0
   # La ultima version de flutter_contacts (1.1.7+1) genera un error al compilar
   flutter_contacts: 1.1.6
@@ -59,6 +59,9 @@ dependencies:
   intl_phone_number_input: 0.7.0+2
   permission_handler: ^11.0.1
   in_app_purchase: ^3.1.1
+
+dependency_overrides:
+  firebase_core_platform_interface: 4.5.1
 
 dev_dependencies:
   flutter_test:

@@ -71,6 +71,7 @@ class MyApp extends StatelessWidget {
           foregroundColor: constants.blackGeneral,
           elevation: 1,
         ),
+        useMaterial3: false,
       ),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
